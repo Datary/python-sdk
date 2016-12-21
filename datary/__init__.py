@@ -504,8 +504,6 @@ class Datary():
         """
         logger.info("Delete file in workingdir.", element=element, wdir_uuid=wdir_uuid)
         # TODO: No delete permitted yet.
-        raise NotImplementedError('delete_file function is not implemented --NOT IN USE--')
-
         url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
         payload = {"action": "delete", "filemode": 100644, "dirname": element.get('path'),
                    "basename": element.get('filename'), "slug": json.dumps(element.get('data'))}

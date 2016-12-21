@@ -29,7 +29,7 @@ Repository Methods
 ------------------
 
 Create repo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
 .. code-block:: python
    :linenos:
 
