@@ -4,6 +4,11 @@ Datary SDK for Python
 pip install datary
 ```
 
+# Generate docs
+Documentation powered by sphinx.
+```
+cd docs && make docs OUTPUT_FORMAT
+```
 
 # Usage
 

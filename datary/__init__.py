@@ -400,7 +400,7 @@ class Datary():
     def commit_diff_tostring(self, difference):
         """
         Turn commit comparation done to visual print format.
-         *Format: [+|u|-] filepath/filename
+        - Format: [+|u|-] filepath/filename
         """
         result = ""
         try:
@@ -419,14 +419,14 @@ class Datary():
 ##########################################################################
 #                              Add methods
 ##########################################################################
-
     def add_dir(self, wdir_uuid, path, dirname):
         """
         Adds a new directory. (DEPRECATED)
         Args:
-            - wdir_uuid
-            - path
-            - dirname
+
+        - wdir_uuid
+        - path
+        - dirname
         """
         logger.info("Add new directory to Datary.", path=os.path.join(path, dirname))
         url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
@@ -441,8 +441,9 @@ class Datary():
         Adds a new file.
         The api allow to pass a file with a new path and it manage to create all dirs.
         Args:
-            - wdir_uuid
-            - element: list with path, name, data, sha1
+
+        - wdir_uuid
+        - element: list with path, name, data, sha1
          """
         logger.info("Add new file to Datary.")
         url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
@@ -483,7 +484,7 @@ class Datary():
 
     def delete_dir(self, wdir_uuid, path, dirname):
         """
-        Delete directory
+        Delete directory.
         -- NOT IN USE --
         """
         logger.info(
@@ -498,14 +499,12 @@ class Datary():
 
     def delete_file(self, wdir_uuid, element):
         """
-        Delete file
+        Delete file.
         -- NOT IN USE --
-
-        Debe ser al reves que Add revisar lo que habia y lo que hay
         """
         logger.info("Delete file in workingdir.", element=element, wdir_uuid=wdir_uuid)
         # TODO: No delete permitted yet.
-        pass
+        raise NotImplementedError('delete_file function is not implemented --NOT IN USE--')
 
         url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
         payload = {"action": "delete", "filemode": 100644, "dirname": element.get('path'),
