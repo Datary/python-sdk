@@ -1,12 +1,13 @@
 from setuptools import setup
+from pip.req import parse_requirements
 
-with open('requirements.txt') as f:
-    required = f.read().splitlines()
+install_reqs = parse_requirements('requirements.txt', session=False)
+required = [str(ir.req) for ir in install_reqs]
 
 setup(
   name='datary',
   packages=['datary'],
-  version='0.1',
+  version='0.0.1',
   description='Datary Python sdk lib',
   author='Datary developers team',
   author_email='support@datary.io',
