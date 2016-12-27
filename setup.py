@@ -15,7 +15,6 @@ setup(
   url='https://github.com/Datary/python-sdk',
   download_url='https://github.com/Datary/python-sdk',
   keywords=['datary', 'sdk', 'api'],  # arbitrary keywords
-  long_description=open("README.md").read(),
   classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
