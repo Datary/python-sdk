@@ -12,7 +12,7 @@ def version():
     import imp
     path = os.path.join(_here, 'datary', 'version.py')
     mod = imp.load_source('version', path)
-    return mod.VERSION
+    return mod.__version__
 
 setup(
   name='datary',
