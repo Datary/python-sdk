@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
 import os
 import json
-
 import requests
-from requests import RequestException
 import structlog
 
-from urllib.parse import urljoin
+from requests import RequestException
+
+try:
+    from urllib.parse import urljoin
+except ImportError:
+    from urlparse import urljoin
+
+from . import version
 
 logger = structlog.getLogger(__name__)
 URL_BASE = "http://api.datary.io/"
 
 
 class Datary():
+
+    __version__ = version.__version__
 
     DATARY_VISIBILITY_OPTION = ['public', 'private', 'commercial']
     DATARY_CATEGORIES = [
