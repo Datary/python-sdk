@@ -42,6 +42,27 @@ class Datary():
         "other"
     ]
 
+    # Datary Entity Meta Field Allowed
+    ALLOWED_DATARY_META_FIELDS = [
+        "axisHeaders",
+        "caption",
+        "citation",
+        "description",
+        "dimension",
+        "downloadUrl",
+        "includesAxisHeaders",
+        "lastUpdateAt",
+        "period",
+        "propOrder",
+        "rootAleas",
+        "size",
+        "sha1",
+        "sourceUrl",
+        "summary",
+        "title",
+        "traverseOnly",
+        "dimension"]
+
     def __init__(self, *args, **kwargs):
         """
         Init Datary class

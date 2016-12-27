@@ -13,6 +13,7 @@ Datary Main Class
 
     .. autoattribute:: datary.Datary.DATARY_VISIBILITY_OPTION
     .. autoattribute:: datary.Datary.DATARY_CATEGORIES
+    .. autoattribute:: datary.Datary.ALLOWED_DATARY_META_FIELDS
 
 
 Datary Auxiliary Class & Methods
