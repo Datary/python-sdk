@@ -169,12 +169,18 @@ class DataryTestCase(unittest.TestCase):
     @mock.patch('datary.Datary.get_describerepo')
     def test_create_repo(self, mock_describerepo, mock_request):
         mock_describerepo.return_value = MockRequestResponse("", json=self.json_repo)
-        repo = self.datary.create_repo('repo_name', 'category_test')
-        repo2 = self.datary.create_repo('repo_nane', 'category_test', repo_uuid='123')
+        repo = self.datary.create_repo('repo_name', 'category_test', amount=1)
+        repo2 = self.datary.create_repo('repo_nane', 'category_test', repo_uuid='123', amount=1)
+
+        mock_request.side_effect = Exception('Amount not introduced')
+        mock_describerepo.return_value = {}
+        repo4 = self.datary.create_repo('repo_nane', 'category_test', repo_uuid='123')
+
         self.assertEqual(repo.json().get('uuid'), '47eq5s12-5el1-2hq2-2ss1-egx517b1w967')
         self.assertEqual(repo2.json().get('uuid'), '47eq5s12-5el1-2hq2-2ss1-egx517b1w967')
         self.assertEqual(mock_request.call_count, 1)
-        self.assertEqual(mock_describerepo.call_count, 2)
+        self.assertEqual(mock_describerepo.call_count, 3)
+        self.assertEqual(repo4, {})
 
     @mock.patch('datary.Datary.request')
     def test_describerepo(self, mock_request):

@@ -188,12 +188,16 @@ class Datary():
         ==============  =============   ======================================
         Parameter       Type            Description
         ==============  =============   ======================================
-        repo_name       str
-        repo_category   str
-        description     str             repo description info
-        visibility      str             public, private, commercial
-        license         str             repo license
-        initialization  boolean         if True, creates a new repository file
+        repo_name       str             repo name,
+        repo_category   str             repo category name.
+        description     str             repo description info.
+        visibility      str             public, private, commercial.
+        license         str             repo license.
+        amount          int             price of the repo in cents if commertial.
+        currency        str             currency (by default "eur").
+        modality        str             "one-time" | "recurring" (by default)
+        interval        str             "day" | "week" | "month" | "year" (by default).
+        period          int             number of interval between billing (by default 1).
         ==============  =============   ======================================
 
         Returns:
@@ -210,6 +214,11 @@ class Datary():
                 'description': kwargs.get('description', '{} description'.format(repo_name)),
                 'visibility': visibility if visibility in self.DATARY_VISIBILITY_OPTION else 'commercial',
                 'licenseName': kwargs.get('license', 'proprietary'),
+                'amount': kwargs.get('amount'),
+                'currency':  kwargs.get('currency', 'eur'),
+                'modality': kwargs.get('modality', 'recurring'),
+                'interval': kwargs.get('interval', 'year'),
+                'period': kwargs.get('period', 1),
                 # 'defaultInitialization': kwargs.get('initialization', False)
             }
 
