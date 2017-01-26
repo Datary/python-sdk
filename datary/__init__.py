@@ -71,7 +71,7 @@ class Datary():
         self.username = kwargs.get('username')
         self.password = kwargs.get('password')
         self.token = kwargs.get('token')
-        self.commit_limit = kwargs.get('commit_limit', 30)
+        self.commit_limit = int(kwargs.get('commit_limit', 30))
 
         # If a token is not in the params, we retrieve it with the username and
         # password
@@ -192,7 +192,7 @@ class Datary():
         repo_category   str             repo category name.
         description     str             repo description info.
         visibility      str             public, private, commercial.
-        license         str             repo license.
+        licenseName     str             repo license.
         amount          int             price of the repo in cents if commertial.
         currency        str             currency (by default "eur").
         modality        str             "one-time" | "recurring" (by default)
@@ -204,6 +204,7 @@ class Datary():
             (dict) created repository's description
 
         """
+
         if not kwargs.get('repo_uuid'):
             url = urljoin(URL_BASE, "me/repos")
             visibility = kwargs.get('visibility', 'commercial')
