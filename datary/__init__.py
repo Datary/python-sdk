@@ -61,6 +61,7 @@ class Datary():
         "summary",
         "title",
         "traverseOnly",
+        "bigdata",
         "dimension"]
 
     def __init__(self, *args, **kwargs):
