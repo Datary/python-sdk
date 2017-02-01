@@ -334,11 +334,11 @@ class Datary():
         ==============  =============   ====================================
 
         Returns:
-            filetree of a repo workingdir.
+            filetree of a repo workdir.
 
         """
 
-        url = urljoin(URL_BASE, "workingDirs/{}/filetree".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdir/{}/filetree".format(wdir_uuid))
 
         response = self.request(url, 'GET', **{'headers': self.headers})
 
@@ -650,7 +650,7 @@ class Datary():
             "Add new directory to Datary.",
             path=os.path.join(path, dirname))
 
-        url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
                    "filemode": 40000,
@@ -661,7 +661,7 @@ class Datary():
             url, 'POST', **{'data': payload, 'headers': self.headers})
         if response:
             logger.info(
-                "Directory has been created in workingdir.",
+                "Directory has been created in workdir.",
                 url=url,
                 wdir_uuid=wdir_uuid,
                 dirname=dirname)
@@ -683,7 +683,7 @@ class Datary():
          """
         logger.info("Add new file to Datary.")
 
-        url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
                    "filemode": 100644,
@@ -695,7 +695,7 @@ class Datary():
             url, 'POST', **{'data': payload, 'headers': self.headers})
         if response:
             logger.info(
-                "File has been Added to workingdir.",
+                "File has been Added to workdir.",
                 wdir_uuid=wdir_uuid,
                 element=element)
 
@@ -717,7 +717,7 @@ class Datary():
         """
         logger.info("Modify an existing file in Datary.")
 
-        url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
 
         payload = {"action": "modify",
                    "filemode": 100644,
@@ -729,7 +729,7 @@ class Datary():
             url, 'POST', **{'data': payload, 'headers': self.headers})
         if response:
             logger.info(
-                "File has been modified in workingdir.",
+                "File has been modified in workdir.",
                 url=url,
                 payload=payload,
                 element=element)
@@ -753,12 +753,12 @@ class Datary():
 
         """
         logger.info(
-            "Delete directory in workingdir.",
+            "Delete directory in workdir.",
             wdir_uuid=wdir_uuid,
             dirname=dirname,
             path=os.path.join(path, dirname))
 
-        url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
 
         payload = {"action": "delete",
                    "filemode": 40000,
@@ -770,7 +770,7 @@ class Datary():
         # TODO: No delete permitted yet.
         if response:
             logger.info(
-                "Directory has been deleted in workingdir",
+                "Directory has been deleted in workdir",
                 wdir_uuid=wdir_uuid,
                 url=url,
                 payload=payload)
@@ -789,12 +789,12 @@ class Datary():
 
         """
         logger.info(
-            "Delete file in workingdir.",
+            "Delete file in workdir.",
             element=element,
             wdir_uuid=wdir_uuid)
 
         # TODO: No delete permitted yet.
-        url = urljoin(URL_BASE, "workingDirs/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
 
         payload = {"action": "delete",
                    "filemode": 100644,

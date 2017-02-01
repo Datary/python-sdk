@@ -36,7 +36,7 @@ class DataryTestCase(unittest.TestCase):
             "creator": "b22x2h1h-23wf-1j56-253h-21c3u5st3851",
             "name": "test_repo",
             "description": "test mocking repo",
-            "workingDir": {
+            "workdir": {
               "uuid": "s2g5311h-2416-21h2-52u6-23asw22ha2134"
             },
             "apex": {'commit': '123'},
@@ -54,7 +54,7 @@ class DataryTestCase(unittest.TestCase):
             "creator": "d1917c16-741c-11e6-8b77-86f30ca893d3",
             "name": "test_repo2",
             "description": "test mocking repo 2",
-            "workingDir": {
+            "workdir": {
               "uuid": "d191806c-741c-11e6-8b77-86f30ca893d3"
             },
             "apex": {},
@@ -357,7 +357,7 @@ class DataryTestCase(unittest.TestCase):
     @mock.patch('datary.Datary.modify_file')
     def test_add_commit(self, mock_modify, mock_add, mock_delete):
         self.datary.add_commit(
-            wdir_uuid=self.json_repo.get('workingDir').get('uuid'),
+            wdir_uuid=self.json_repo.get('workdir').get('uuid'),
             last_commit=self.commit_test1,
             actual_commit=self.commit_test2,
             strict=True)
@@ -371,7 +371,7 @@ class DataryTestCase(unittest.TestCase):
         mock_delete.reset_mock()
 
         self.datary.add_commit(
-            wdir_uuid=self.json_repo.get('workingDir').get('uuid'),
+            wdir_uuid=self.json_repo.get('workdir').get('uuid'),
             last_commit=self.commit_test1,
             actual_commit=self.commit_test2,
             strict=False)
@@ -395,45 +395,45 @@ class DataryTestCase(unittest.TestCase):
     def test_add_dir(self, mock_request):
         # TODO: Unkwnown api method changes?
         mock_request.return_value = MockRequestResponse("")
-        self.datary.add_dir(self.json_repo.get('workingDir', {}).get('uuid'), 'path', 'dirname')
+        self.datary.add_dir(self.json_repo.get('workdir', {}).get('uuid'), 'path', 'dirname')
         mock_request.return_value = None
-        self.datary.add_dir(self.json_repo.get('workingDir', {}).get('uuid'), 'path', 'dirname')
+        self.datary.add_dir(self.json_repo.get('workdir', {}).get('uuid'), 'path', 'dirname')
         self.assertEqual(mock_request.call_count, 2)
 
     @mock.patch('datary.Datary.request')
     def test_add_file(self, mock_request):
         # TODO: Unkwnown api method changes??
         mock_request.return_value = MockRequestResponse("")
-        self.datary.add_file(self.json_repo.get('workingDir', {}).get('uuid'), self.element)
+        self.datary.add_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         mock_request.return_value = None
-        self.datary.add_file(self.json_repo.get('workingDir', {}).get('uuid'), self.element)
+        self.datary.add_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         self.assertEqual(mock_request.call_count, 2)
 
     @mock.patch('datary.Datary.request')
     def test_modify_file(self, mock_request):
         # TODO: Unkwnown api method changes??
         mock_request.return_value = MockRequestResponse("")
-        self.datary.modify_file(self.json_repo.get('workingDir', {}).get('uuid'), self.element)
+        self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         mock_request.return_value = None
-        self.datary.modify_file(self.json_repo.get('workingDir', {}).get('uuid'), self.element)
+        self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         self.assertEqual(mock_request.call_count, 2)
 
     @mock.patch('datary.Datary.request')
     def test_delete_dir(self, mock_request):
         # TODO: Unkwnown api method changes??
         mock_request.return_value = MockRequestResponse("")
-        self.datary.delete_dir(self.json_repo.get('workingDir', {}).get('uuid'), "path", "dirname")
+        self.datary.delete_dir(self.json_repo.get('workdir', {}).get('uuid'), "path", "dirname")
         mock_request.return_value = None
-        self.datary.delete_dir(self.json_repo.get('workingDir', {}).get('uuid'), "path", "dirname")
+        self.datary.delete_dir(self.json_repo.get('workdir', {}).get('uuid'), "path", "dirname")
         self.assertEqual(mock_request.call_count, 2)
 
     @mock.patch('datary.Datary.request')
     def test_delete_file(self, mock_request):
         # TODO: Unkwnown api method changes??
         mock_request.return_value = MockRequestResponse("")
-        self.datary.delete_file(self.json_repo.get('workingDir', {}).get('uuid'), self.element)
+        self.datary.delete_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         mock_request.return_value = None
-        self.datary.delete_file(self.json_repo.get('workingDir', {}).get('uuid'), self.element)
+        self.datary.delete_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         self.assertEqual(mock_request.call_count, 2)
 
     def test_Datary_SizeLimitException(self):
