@@ -563,10 +563,6 @@ class Datary():
 
         return difference
 
-
-
-
-
         # añadir elementos al commit
     def add_commit(self, wdir_uuid, last_commit, actual_commit, **kwargs):
         """
@@ -829,12 +825,14 @@ def nested_dict_to_list(path, dic):
     result = []
 
     for key, value in dic.items():
-        if isinstance(value, dict):
-            aux = path + key + "/"
-            result.extend(nested_dict_to_list(aux, value))
-        else:
-            if path.endswith("/"):
-                path = path[:-1]
+        # omit __self value key..
+        if key != '__self':
+            if isinstance(value, dict):
+                aux = path + key + "/"
+                result.extend(nested_dict_to_list(aux, value))
+            else:
+                if path.endswith("/"):
+                    path = path[:-1]
 
-            result.append([path, key, value])
+                result.append([path, key, value])
     return result

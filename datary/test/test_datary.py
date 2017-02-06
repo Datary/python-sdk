@@ -279,10 +279,16 @@ class DataryTestCase(unittest.TestCase):
     @mock.patch('datary.Datary.get_commit_filetree')
     @mock.patch('datary.Datary.get_metadata')
     def test_recollect_last_commit(self, mock_metadata, mock_filetree, mock_get_describerepo):
-        mock_filetree.return_value = {'a': 'a_sha1', 'b': {'bb': 'bb_sha1'}, 'c': 'c_sha1'}
+        mock_filetree.return_value = {
+            '__self': '__self_sha1',
+            'a': 'a_sha1',
+            'b': {
+                '__self': '__self_sha1',
+                'bb': 'bb_sha1'},
+            'c': 'c_sha1'}
+
         mock_get_describerepo.return_value = self.json_repo
         mock_metadata.return_value.json.return_value = self.metadata
-
         result = self.datary.recollect_last_commit({'uuid': self.repo_uuid})
         assert mock_filetree.called
         assert mock_get_describerepo.called
