@@ -338,7 +338,7 @@ class Datary():
 
         """
 
-        url = urljoin(URL_BASE, "workdir/{}/filetree".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdirs/{}/filetree".format(wdir_uuid))
 
         response = self.request(url, 'GET', **{'headers': self.headers})
 
@@ -646,7 +646,7 @@ class Datary():
             "Add new directory to Datary.",
             path=os.path.join(path, dirname))
 
-        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
                    "filemode": 40000,
@@ -679,7 +679,7 @@ class Datary():
          """
         logger.info("Add new file to Datary.")
 
-        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
                    "filemode": 100644,
@@ -713,7 +713,7 @@ class Datary():
         """
         logger.info("Modify an existing file in Datary.")
 
-        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "modify",
                    "filemode": 100644,
@@ -754,7 +754,7 @@ class Datary():
             dirname=dirname,
             path=os.path.join(path, dirname))
 
-        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "delete",
                    "filemode": 40000,
@@ -790,7 +790,7 @@ class Datary():
             wdir_uuid=wdir_uuid)
 
         # TODO: No delete permitted yet.
-        url = urljoin(URL_BASE, "workdir/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "delete",
                    "filemode": 100644,
