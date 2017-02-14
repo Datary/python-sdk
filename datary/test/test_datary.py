@@ -29,7 +29,7 @@ class DataryTestCase(unittest.TestCase):
                     ['c/a', 'caa', 'data_caa', 'caa_sha1'],
                     ['d', 'dd', 'data_dd', 'dd2_sha1']]
 
-    element = {'path': 'a', 'filename': 'aa', 'data': 'data_aa', 'sha1': 'aa_sha1'}
+    element = {'path': 'a', 'filename': 'aa', 'data': {'kern': {'data_aa': []}, 'meta': {}}, 'sha1': 'aa_sha1'}
 
     json_repo = {
             "owner":   "b22x2h1h-23wf-1j56-253h-21c3u5st3851",

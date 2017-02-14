@@ -684,8 +684,8 @@ class Datary():
                    "filemode": 100644,
                    "dirname": element.get('path'),
                    "basename": element.get('filename'),
-                   "kern": json.dumps(element.get('kern')),
-                   "meta": json.dumps(element.get('meta'))}
+                   "kern": json.dumps(element.get('data', {}).get('kern')),
+                   "meta": json.dumps(element.get('data', {}).get('meta'))}
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
@@ -719,8 +719,8 @@ class Datary():
                    "filemode": 100644,
                    "dirname": element.get('path'),
                    "basename": element.get('filename'),
-                   "kern": json.dumps(element.get('kern')),
-                   "meta": json.dumps(element.get('meta'))}
+                   "kern": json.dumps(element.get('data', {}).get('kern')),
+                   "meta": json.dumps(element.get('data', {}).get('meta'))}
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
