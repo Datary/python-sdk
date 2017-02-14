@@ -248,7 +248,6 @@ class Datary():
 
         """
         logger.info("Getting Datary user repo and wdir uuids")
-
         url = urljoin(
             URL_BASE,
             "repos/{}".format(repo_uuid) if repo_uuid else "me/repos")
@@ -685,7 +684,8 @@ class Datary():
                    "filemode": 100644,
                    "dirname": element.get('path'),
                    "basename": element.get('filename'),
-                   "slug": json.dumps(element.get('data'))}
+                   "kern": json.dumps(element.get('kern')),
+                   "meta": json.dumps(element.get('meta'))}
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
@@ -719,7 +719,8 @@ class Datary():
                    "filemode": 100644,
                    "dirname": element.get('path'),
                    "basename": element.get('filename'),
-                   "slug": json.dumps(element.get('data'))}
+                   "kern": json.dumps(element.get('kern')),
+                   "meta": json.dumps(element.get('meta'))}
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
@@ -774,13 +775,12 @@ class Datary():
     def delete_file(self, wdir_uuid, element):
         """
         Delete file.
-        -- NOT IN USE --
 
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid                         working directory id
-        element           list            [path, filename, data, sha1]
+        element           Dic             element with path & filename
         ================  =============   ====================================
 
         """
@@ -789,14 +789,13 @@ class Datary():
             element=element,
             wdir_uuid=wdir_uuid)
 
-        # TODO: No delete permitted yet.
         url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
-        payload = {"action": "delete",
+        payload = {"action": "remove",
                    "filemode": 100644,
                    "dirname": element.get('path'),
-                   "basename": element.get('filename'),
-                   "slug": json.dumps(element.get('data'))}
+                   "basename": element.get('filename')
+                   }
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
