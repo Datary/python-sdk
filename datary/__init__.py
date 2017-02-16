@@ -26,7 +26,6 @@ class Datary():
         "business",
         "climate",
         "consumer",
-        "socioeconomics",
         "education",
         "energy",
         "finance",
@@ -37,7 +36,8 @@ class Datary():
         "nature",
         "science",
         "sports",
-        "telecomunications",
+        "socioeconomics",
+        "telecommunications",
         "transportation",
         "other"
     ]
