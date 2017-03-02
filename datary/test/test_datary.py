@@ -31,6 +31,8 @@ class DataryTestCase(unittest.TestCase):
 
     element = {'path': 'a', 'filename': 'aa', 'data': {'kern': {'data_aa': []}, 'meta': {}}, 'sha1': 'aa_sha1'}
 
+    inode = 'c46ac2d596ee898fd949c0bb0bb8f114482de450'
+
     json_repo = {
             "owner":   "b22x2h1h-23wf-1j56-253h-21c3u5st3851",
             "creator": "b22x2h1h-23wf-1j56-253h-21c3u5st3851",
@@ -440,6 +442,15 @@ class DataryTestCase(unittest.TestCase):
         self.datary.delete_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         mock_request.return_value = None
         self.datary.delete_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
+        self.assertEqual(mock_request.call_count, 2)
+
+    @mock.patch('datary.Datary.request')
+    def test_delete_inode(self, mock_request):
+        # TODO: Unkwnown api method changes??
+        mock_request.return_value = MockRequestResponse("")
+        self.datary.delete_inode(self.json_repo.get('workdir', {}).get('uuid'), self.inode)
+        mock_request.return_value = None
+        self.datary.delete_inode(self.json_repo.get('workdir', {}).get('uuid'), self.inode)
         self.assertEqual(mock_request.call_count, 2)
 
     def test_Datary_SizeLimitException(self):

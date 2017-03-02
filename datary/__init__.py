@@ -802,6 +802,32 @@ class Datary():
         if response:
             logger.info("File has been deleted.")
 
+    def delete_inode(self, wdir_uuid, inode):
+        """
+        Delete using inode.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid                         working directory id
+        inode             str             directory or file inode.
+        ================  =============   ====================================
+        """
+        logger.info(
+            "Delete by inode.", wdir_uuid=wdir_uuid, inode=inode)
+
+        if inode:
+            url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+
+            payload = {"action": "remove",
+                       "inode": inode
+                       }
+
+            response = self.request(
+                url, 'POST', **{'data': payload, 'headers': self.headers})
+            if response:
+                logger.info("Element has been deleted using inode.")
+
 
 class Datary_SizeLimitException(Exception):
     """
