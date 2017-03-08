@@ -388,9 +388,14 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 0)
         self.assertEqual(mock_modify.call_count, 1)
 
-    def test_commit_diff_tostring(self):
+    @mock.patch('datary.datetime')
+    def test_commit_diff_tostring(self, mock_datetime):
+
+        datetime_value = "12/03/1990-12:04"
+        mock_datetime.now().strftime.return_value = datetime_value
+
         test_diff = {'add': [{'path': 'path1', 'filename': 'filename1'}, {'path': 'path2', 'filename': 'filename2'}]}
-        test_diff_result = 'add\n*****************\n+  path1/filename1\n+  path2/filename2\ndelete\n*****************\nupdate\n*****************\n'
+        test_diff_result = 'Changes at {}\nADD\n*****************\n+  path1/filename1\n+  path2/filename2\nDELETE\n*****************\nUPDATE\n*****************\n'.format(datetime_value)
 
         # Empty diff
         result = self.datary.commit_diff_tostring([])
@@ -398,6 +403,10 @@ class DataryTestCase(unittest.TestCase):
 
         result2 = self.datary.commit_diff_tostring(test_diff)
         self.assertEqual(result2, test_diff_result)
+
+        mock_datetime.now().strftime.side_effect = Exception('test exception in datetime')
+        result3 = self.datary.commit_diff_tostring(test_diff)
+        self.assertEqual(result3, '')
 
     @mock.patch('datary.Datary.request')
     def test_add_dir(self, mock_request):

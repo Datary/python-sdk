@@ -4,6 +4,7 @@ import json
 import requests
 import structlog
 
+from datetime import datetime
 from requests import RequestException
 
 try:
@@ -609,19 +610,21 @@ class Datary():
 
         """
         result = ""
-        try:
-            for action in sorted(list(self.COMMIT_ACTIONS.keys())):
-                result += "{}\n*****************\n".format(action)
-                for commit_data in difference.get(action, []):
-                    result += "{}  {}/{}\n".format(
-                        self.COMMIT_ACTIONS.get(action, '?'),
-                        commit_data.get('path'),
-                        commit_data.get('filename'))
-        except Exception as ex:
-            result = ""
-            logger.error(
-                'Fail translating commit differences to string - {}'
-                .format(ex))
+
+        if difference:
+            try:
+                result = "Changes at {}\n".format(datetime.now().strftime("%d/%m/%Y-%H:%M"))
+                for action in sorted(list(self.COMMIT_ACTIONS.keys())):
+                    result += "{}\n*****************\n".format(action.upper())
+                    for commit_data in difference.get(action, []):
+                        result += "{}  {}/{}\n".format(
+                            self.COMMIT_ACTIONS.get(action, '?'),
+                            commit_data.get('path'),
+                            commit_data.get('filename'))
+            except Exception as ex:
+                logger.error(
+                    'Fail translating commit differences to string - {}'.format(ex))
+
         return result
 
 ##########################################################################
