@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+import random
 import requests
 import structlog
 
 from datetime import datetime
 from requests import RequestException
+from .utils import *
 
 try:
     from urllib.parse import urljoin
@@ -378,6 +380,34 @@ class Datary():
 
         return response.json() if response else {}
 
+    def get_original(self, repo_uuid, datary_file_sha1):
+        """
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        repo_uuid         int             repository id
+        datary_file_sha1  str
+        ================  =============   ====================================
+
+        Returns:
+            (dict) dataset original data
+        """
+        url = urljoin(
+            URL_BASE,
+            "datasets/{}/original".format(datary_file_sha1))
+
+        params = {'namespace': repo_uuid}
+
+        response = self.request(
+            url, 'GET', **{'headers': self.headers, 'params': params})
+        if not response:
+            logger.error(
+                "Not original retrieved.",
+                repo_uuid=repo_uuid,
+                datary_file_sha1=datary_file_sha1)
+
+        return response.json() if response else {}
+
 ##########################################################################
 #                             Categories Methods
 ##########################################################################
@@ -507,7 +537,7 @@ class Datary():
                                                     'sha1': sha1}
         return result
 
-    def compare_commits(self, last_commit, actual_commit, strict=True):
+    def compare_commits(self, last_commit, actual_commit, changes=[], strict=True, **kwargs):
         """
         Compare two commits and retrieve hot elements to change
         and the action to do.
@@ -830,6 +860,66 @@ class Datary():
                 url, 'POST', **{'data': payload, 'headers': self.headers})
             if response:
                 logger.info("Element has been deleted using inode.")
+
+    def clear_index(self, wdir_uuid):
+        """
+        Clear changes in repo.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid                         working directory id
+        ================  =============   ====================================
+        """
+
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+
+        response = self.request(url, 'DELETE', **{'headers': self.headers})
+        if response:
+            logger.info("Repo index has been cleared.")
+
+    def clean_repo(self, repo_uuid, **kwargs):
+        """
+        Clean repo data from datary & algolia.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid                         working directory id
+        ================  =============   ====================================
+        """
+        repo = self.get_describerepo(repo_uuid=repo_uuid, **kwargs)
+
+        if repo:
+            wdir_uuid = repo.get('workdir', {}).get('uuid')
+
+            # clear changes
+            self.clear_index(wdir_uuid)
+
+            # get filetree
+            filetree = self.get_wdir_filetree(wdir_uuid)
+
+            # flatten filetree to list
+            flatten_filetree = flatten(filetree, sep='/')
+
+            # TODO: REMOVE THIS SHIT..
+            # add foo file, workingdir cant be empty..
+            foo_element = {
+                'path': '',
+                'filename': 'foo_{}'.format(random.randint(0, 99)),
+                'data': {'meta': {}, 'kern': []}
+                }
+
+            self.add_file(wdir_uuid, foo_element)
+            self.commit(repo_uuid, 'Commit foo file to clean repo')
+
+            for path in [x for x in flatten_filetree.keys() if '__self' not in x]:
+                self.delete_file(wdir_uuid, {'path': "/".join(path.split('/')[:-1]), 'filename': path.split('/')[-1]})
+
+            self.commit(repo_uuid, 'Commit delete all files to clean repo')
+
+        else:
+            logger.error('Fail to clean_repo, repo not found in datary.')
 
 
 class Datary_SizeLimitException(Exception):
