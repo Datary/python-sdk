@@ -2,9 +2,11 @@
 import mock
 import requests
 import unittest
+import collections
+
 from unittest.mock import patch
 from collections import OrderedDict
-from datary import Datary, Datary_SizeLimitException, nested_dict_to_list
+from datary import Datary, Datary_SizeLimitException, nested_dict_to_list, flatten
 from .mock_requests import MockRequestResponse
 
 
@@ -16,6 +18,7 @@ class DataryTestCase(unittest.TestCase):
 
     url = 'http://datary.io/test'  # not exist, it's false+
     repo_uuid = '1234-1234-21-asd-123'
+    wdir_uuid = '4456-2123-55-as2-146'
     commit_sha1 = ""  # TODO: view commit sha1 format
     datary_file_sha1 = ""  # TODO: View datary_file_sha1
 
@@ -82,6 +85,15 @@ class DataryTestCase(unittest.TestCase):
                 "file_test2": "3a26a47b6e7f28c77380eccc8aec23sd6dc0201e"
                 }
             }
+        }
+
+    filetree = {
+        '__self': '__self_sha1',
+        'a': 'a_sha1',
+        'b': {
+            '__self': '__self_sha1',
+            'bb': 'bb_sha1'},
+        'c': 'c_sha1'
         }
 
     categories = [{
@@ -224,7 +236,6 @@ class DataryTestCase(unittest.TestCase):
 
     @mock.patch('datary.Datary.request')
     def test_get_commit_filetree(self, mock_request):
-        # TODO: Unkwnown api method for filetree??
         mock_request.return_value = MockRequestResponse("", json=self.wdir_json.get('filetree'))
         filetree = self.datary.get_commit_filetree(self.repo_uuid, self.commit_sha1)
         self.assertEqual(mock_request.call_count, 1)
@@ -239,7 +250,6 @@ class DataryTestCase(unittest.TestCase):
 
     @mock.patch('datary.Datary.request')
     def test_get_metadata(self, mock_request):
-        # TODO: Unkwnown api method for metadata??
         mock_request.return_value = MockRequestResponse("", json=self.metadata)
         metadata = self.datary.get_metadata(self.repo_uuid, self.datary_file_sha1)
         self.assertEqual(mock_request.call_count, 1)
@@ -250,6 +260,20 @@ class DataryTestCase(unittest.TestCase):
         metadata2 = self.datary.get_metadata(self.repo_uuid, self.datary_file_sha1)
         assert(isinstance(metadata2, dict))
         self.assertEqual(metadata2, {})
+
+    @mock.patch('datary.Datary.request')
+    def test_get_original(self, mock_request):
+
+        mock_request.return_value = MockRequestResponse("", json=self.element.get('data', {}))
+        original = self.datary.get_original(self.repo_uuid, self.datary_file_sha1)
+        self.assertEqual(mock_request.call_count, 1)
+        assert(isinstance(original, dict))
+        self.assertEqual(original, self.element.get('data', {}))
+
+        mock_request.return_value = None
+        original2 = self.datary.get_original(self.repo_uuid, self.datary_file_sha1)
+        assert(isinstance(original2, dict))
+        self.assertEqual(original2, {})
 
     @mock.patch('datary.Datary.request')
     def test_get_categories(self, mock_request):
@@ -281,13 +305,7 @@ class DataryTestCase(unittest.TestCase):
     @mock.patch('datary.Datary.get_commit_filetree')
     @mock.patch('datary.Datary.get_metadata')
     def test_recollect_last_commit(self, mock_metadata, mock_filetree, mock_get_describerepo):
-        mock_filetree.return_value = {
-            '__self': '__self_sha1',
-            'a': 'a_sha1',
-            'b': {
-                '__self': '__self_sha1',
-                'bb': 'bb_sha1'},
-            'c': 'c_sha1'}
+        mock_filetree.return_value = self.filetree
 
         mock_get_describerepo.return_value = self.json_repo
         mock_metadata.return_value.json.return_value = self.metadata
@@ -455,12 +473,44 @@ class DataryTestCase(unittest.TestCase):
 
     @mock.patch('datary.Datary.request')
     def test_delete_inode(self, mock_request):
-        # TODO: Unkwnown api method changes??
         mock_request.return_value = MockRequestResponse("")
         self.datary.delete_inode(self.json_repo.get('workdir', {}).get('uuid'), self.inode)
         mock_request.return_value = None
         self.datary.delete_inode(self.json_repo.get('workdir', {}).get('uuid'), self.inode)
         self.assertEqual(mock_request.call_count, 2)
+
+        with self.assertRaises(Exception):
+            self.datary.delete_inode(self.json_repo.get('workdir', {}).get('uuid'))
+
+    @mock.patch('datary.Datary.request')
+    def test_clear_index(self, mock_request):
+        mock_request.return_value = MockRequestResponse("", json={})
+        original = self.datary.clear_index(self.wdir_uuid)
+        self.assertEqual(mock_request.call_count, 1)
+        self.assertEqual(original, True)
+
+        mock_request.reset_mock()
+        mock_request.return_value = None
+        original2 = self.datary.clear_index(self.wdir_uuid)
+        self.assertEqual(mock_request.call_count, 1)
+        self.assertEqual(original2, False)
+
+    @mock.patch('datary.Datary.delete_file')
+    @mock.patch('datary.Datary.add_file')
+    @mock.patch('datary.Datary.get_wdir_filetree')
+    @mock.patch('datary.Datary.commit')
+    @mock.patch('datary.Datary.clear_index')
+    @mock.patch('datary.Datary.get_describerepo')
+    def test_clean_repo(self, mock_get_describerepo, mock_clear_index, mock_commit,
+                        mock_get_wdir_filetree, mock_add_file, mock_delete_file):
+
+        mock_get_describerepo.return_value = self.json_repo
+        mock_get_wdir_filetree.return_value = self.filetree
+
+        self.datary.clean_repo(self.repo_uuid)
+
+        mock_get_describerepo.return_value = None
+        self.datary.clean_repo(self.repo_uuid)
 
     def test_Datary_SizeLimitException(self):
         a = Datary_SizeLimitException('test_msg', 'test_src_path', size=4)
@@ -488,6 +538,25 @@ class DataryTestCase(unittest.TestCase):
         result = nested_dict_to_list("", test)
         for r in result:
             assert r in expected
+
+    def test_flatten(self):
+        test = OrderedDict(
+            {'a': 2, 'b': 2, 'c': {'ca': 3, 'cb': MockRequestResponse(''), 'cd': [1, 3, 4], 'cc': {'cca': 1}}})
+        test_result_1 = collections.OrderedDict([
+           ('a', 2), ('b', 2), ('c/ca', 3), ('c/cb', test.get('c', {}).get('cb')), ('c/cc/cca', 1), ('c/cd/1', 3),
+           ('c/cd/0', 1), ('c/cd/2', 4)])
+
+        test_result_2 = collections.OrderedDict([
+            ('test_a', 2), ('test_c_ca', 3), ('test_c_cd_1', 3), ('test_c_cd_2', 4), ('test_c_cd_0', 1),
+            ('test_c_cb', test.get('c', {}).get('cb')), ('test_c_cc_cca', 1), ('test_b', 2)])
+
+        result = flatten(test, '', sep='/')
+        result2 = flatten(test, 'test')
+
+        for retrieved_result, test_result in [(result, test_result_1), (result2, test_result_2)]:
+            for k, v in test_result.items():
+                assert k in retrieved_result
+                self.assertEqual(retrieved_result[k], v)
 
 
 class MockRequestsTestCase(unittest.TestCase):

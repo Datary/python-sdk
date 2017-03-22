@@ -4,10 +4,10 @@ import json
 import random
 import requests
 import structlog
+import collections
 
 from datetime import datetime
 from requests import RequestException
-from .utils import *
 
 try:
     from urllib.parse import urljoin
@@ -610,7 +610,7 @@ class Datary():
         """
         # compares commits and retrieves hot elements -> new, modified, deleted
         hot_elements = self.compare_commits(
-            last_commit, actual_commit, kwargs.get('strict', False))
+            last_commit, actual_commit, strict=kwargs.get('strict', False))
 
         logger.info(
             "There are hot elements to commit ({} add; {} update; {} delete;"
@@ -776,7 +776,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid                         working directory id
+        wdir_uuid         str             working directory id
         path              str
         dirname           str             directory name
         ================  =============   ====================================
@@ -812,7 +812,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid                         working directory id
+        wdir_uuid         str             working directory id
         element           Dic             element with path & filename
         ================  =============   ====================================
 
@@ -842,24 +842,23 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid                         working directory id
+        wdir_uuid         str             working directory id
         inode             str             directory or file inode.
         ================  =============   ====================================
         """
         logger.info(
             "Delete by inode.", wdir_uuid=wdir_uuid, inode=inode)
 
-        if inode:
-            url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
-            payload = {"action": "remove",
-                       "inode": inode
-                       }
+        payload = {"action": "remove",
+                   "inode": inode
+                   }
 
-            response = self.request(
-                url, 'POST', **{'data': payload, 'headers': self.headers})
-            if response:
-                logger.info("Element has been deleted using inode.")
+        response = self.request(
+            url, 'POST', **{'data': payload, 'headers': self.headers})
+        if response:
+            logger.info("Element has been deleted using inode.")
 
     def clear_index(self, wdir_uuid):
         """
@@ -868,7 +867,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid                         working directory id
+        wdir_uuid         str             working directory id
         ================  =============   ====================================
         """
 
@@ -877,6 +876,9 @@ class Datary():
         response = self.request(url, 'DELETE', **{'headers': self.headers})
         if response:
             logger.info("Repo index has been cleared.")
+            return True
+
+        return False
 
     def clean_repo(self, repo_uuid, **kwargs):
         """
@@ -885,7 +887,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid                         working directory id
+        repo_uuid         str               repository id
         ================  =============   ====================================
         """
         repo = self.get_describerepo(repo_uuid=repo_uuid, **kwargs)
@@ -954,3 +956,23 @@ def nested_dict_to_list(path, dic):
 
                 result.append([path, key, value])
     return result
+
+
+def flatten(d, parent_key='', sep='_'):
+    """
+    Transform dictionary multilevel values to one level dict, concatenating
+    the keys with sep between them.
+    """
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            if isinstance(v, list):
+                list_keys = [str(i) for i in range(0, len(v))]
+                items.extend(
+                    flatten(dict(zip(list_keys, v)), new_key, sep=sep).items())
+            else:
+                items.append((new_key, v))
+    return collections.OrderedDict(items)
