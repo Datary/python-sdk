@@ -243,8 +243,15 @@ class DataryTestCase(unittest.TestCase):
 
     @mock.patch('datary.Datary.request')
     def test_get_wdir_filetree(self, mock_request):
+        mock_request.return_value = MockRequestResponse("", json=self.wdir_json.get('changes'))
+        changes = self.datary.get_wdir_filetree(self.repo_uuid)
+        self.assertEqual(mock_request.call_count, 1)
+        assert(isinstance(changes, dict))
+
+    @mock.patch('datary.Datary.request')
+    def test_get_wdir_changes(self, mock_request):
         mock_request.return_value = MockRequestResponse("", json=self.wdir_json.get('filetree'))
-        filetree = self.datary.get_wdir_filetree(self.repo_uuid)
+        filetree = self.datary.get_wdir_changes(self.repo_uuid)
         self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(filetree, dict))
 

@@ -346,6 +346,24 @@ class Datary():
 
         return response.json() if response else {}
 
+    def get_wdir_changes(self, wdir_uuid):
+        """
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid         str              working directory id
+        ================  =============   ====================================
+
+        Returns:
+            (dict) changes in workdir.
+        """
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+
+        response = self.request(url, 'GET', **{'headers': self.headers})
+
+        return response.json() if response else {}
+
+
 ##########################################################################
 #                             Datasets Methods
 ##########################################################################
@@ -503,11 +521,9 @@ class Datary():
 
             # Take metadata to retrieve sha-1 and compare with
             for path, filename, datary_file_sha1 in filetree_matrix:
-                metadata = self.get_metadata(
-                    repo.get('uuid'), datary_file_sha1)
+                metadata = self.get_metadata(repo.get('uuid'), datary_file_sha1)
                 # append format path | filename | data (not required) | sha1
-                last_commit.append(
-                    (path, filename, None, metadata.get("sha1")))
+                last_commit.append((path, filename, None, metadata.get("sha1")))
         except Exception:
             logger.warning(
                 "Fail recollecting last commit",
@@ -593,7 +609,6 @@ class Datary():
 
         return difference
 
-        # añadir elementos al commit
     def add_commit(self, wdir_uuid, last_commit, actual_commit, **kwargs):
         """
         Given the last commit and actual commit,
