@@ -247,7 +247,7 @@ class Datary():
         ==============  =============   ====================================
 
         Returns:
-            (list or str) repository with the given repo_uuid.
+            (list or dict) repository with the given repo_uuid.
 
         """
         logger.info("Getting Datary user repo and wdir uuids")
@@ -257,8 +257,8 @@ class Datary():
 
         response = self.request(url, 'GET', **{'headers': self.headers})
 
-        repos_data = response.json() if response.text else {}
-        repo = None
+        repos_data = response.json() if response else {}
+        repo = {}
 
         # TODO: refactor
         if isinstance(repos_data, list) and (repo_uuid or repo_name):
@@ -296,10 +296,9 @@ class Datary():
             raise ValueError('Must pass the repo uuid to delete the repo.')
 
         url = urljoin(URL_BASE, "repos/{}".format(repo_uuid))
-
         response = self.request(url, 'DELETE', **{'headers': self.headers})
 
-        return response.text
+        return response.text if response else None
 
 ##########################################################################
 #                             Filetree Methods
@@ -346,7 +345,7 @@ class Datary():
 
         return response.json() if response else {}
 
-    def get_wdir_changes(self, wdir_uuid):
+    def get_wdir_changes(self, wdir_uuid=None, **kwargs):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -357,8 +356,12 @@ class Datary():
         Returns:
             (dict) changes in workdir.
         """
-        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
+        # try to take wdir_uuid with kwargs
+        if not wdir_uuid:
+            wdir_uuid = self.get_describerepo(**kwargs).get('workdir', {}).get('uuid')
+
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}

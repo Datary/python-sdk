@@ -209,7 +209,7 @@ class DataryTestCase(unittest.TestCase):
         mock_request.return_value = MockRequestResponse("", status_code=204, json=self.json_repo)
         repo2 = self.datary.get_describerepo(self.repo_uuid)
         assert isinstance(repo, dict)
-        self.assertEqual(repo2.get('name'), None)
+        self.assertEqual(repo2.get('name'), 'test_repo')
 
         mock_request.return_value = MockRequestResponse("aaa", json=[self.json_repo, self.json_repo2])
         repo3 = self.datary.get_describerepo('0dc6379e-741d-11e6-8b77-86f30ca893d3')
@@ -222,7 +222,12 @@ class DataryTestCase(unittest.TestCase):
 
         mock_request.return_value = MockRequestResponse("a", json=[])
         repo5 = self.datary.get_describerepo(repo_name='test_repo2')
-        self.assertEqual(repo5, None)
+        self.assertEqual(repo5, {})
+
+        # check fail requests returns None
+        mock_request.return_value = None
+        repo6 = self.datary.get_describerepo(repo_name='test_repo2')
+        self.assertEqual(repo6, {})
 
     @mock.patch('datary.Datary.request')
     def test_deleterepo(self, mock_request):
@@ -249,10 +254,17 @@ class DataryTestCase(unittest.TestCase):
         assert(isinstance(changes, dict))
 
     @mock.patch('datary.Datary.request')
-    def test_get_wdir_changes(self, mock_request):
+    @mock.patch('datary.Datary.get_describerepo')
+    def test_get_wdir_changes(self, mock_describerepo, mock_request):
         mock_request.return_value = MockRequestResponse("", json=self.wdir_json.get('filetree'))
-        filetree = self.datary.get_wdir_changes(self.repo_uuid)
+        filetree = self.datary.get_wdir_changes(self.wdir_uuid)
         self.assertEqual(mock_request.call_count, 1)
+        assert(isinstance(filetree, dict))
+
+        mock_describerepo.return_value = self.json_repo
+        mock_request.return_value = MockRequestResponse("", json=self.wdir_json.get('filetree'))
+        filetree = self.datary.get_wdir_changes(repo_uuid=self.repo_uuid)
+        self.assertEqual(mock_request.call_count, 2)
         assert(isinstance(filetree, dict))
 
     @mock.patch('datary.Datary.request')
