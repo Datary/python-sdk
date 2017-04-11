@@ -42,8 +42,7 @@ class Datary():
         "socioeconomics",
         "telecommunications",
         "transportation",
-        "other"
-    ]
+        "other"]
 
     # Datary Entity Meta Field Allowed
     ALLOWED_DATARY_META_FIELDS = [
@@ -71,7 +70,6 @@ class Datary():
         """
         Init Datary class
         """
-
         self.username = kwargs.get('username')
         self.password = kwargs.get('password')
         self.token = kwargs.get('token')
@@ -487,7 +485,7 @@ class Datary():
             - Fail retrieving last commit.
 
         Returns:
-            Last commit in list with the path, filename, sha1.
+            Last commit in list with the dirname, basename, sha1.
 
         """
         ftree = {}
@@ -523,10 +521,10 @@ class Datary():
             filetree_matrix = nested_dict_to_list("", ftree)
 
             # Take metadata to retrieve sha-1 and compare with
-            for path, filename, datary_file_sha1 in filetree_matrix:
+            for dirname, basename, datary_file_sha1 in filetree_matrix:
                 metadata = self.get_metadata(repo.get('uuid'), datary_file_sha1)
-                # append format path | filename | data (not required) | sha1
-                last_commit.append((path, filename, None, metadata.get("sha1")))
+                # append format dirname | basename | data (not required) | sha1
+                last_commit.append((dirname, basename, None, metadata.get("sha1")))
         except Exception:
             logger.warning(
                 "Fail recollecting last commit",
@@ -538,7 +536,7 @@ class Datary():
 
     def make_index(self, lista):
         """
-        Transforms commit list into an index using path + filename as key
+        Transforms commit list into an index using dirname + basename as key
         and sha1 as value.
 
         ================  =============   ====================================
@@ -549,11 +547,11 @@ class Datary():
 
         """
         result = {}
-        for path, filename, data, sha1 in lista:
-            result[os.path.join(path, filename)] = {'path': path,
-                                                    'filename': filename,
-                                                    'data': data,
-                                                    'sha1': sha1}
+        for dirname, basename, data, sha1 in lista:
+            result[os.path.join(dirname, basename)] = {'dirname': dirname,
+                                                       'basename': basename,
+                                                       'data': data,
+                                                       'sha1': sha1}
         return result
 
     def compare_commits(self, last_commit, actual_commit, changes=[], strict=True, **kwargs):
@@ -667,8 +665,8 @@ class Datary():
                     for commit_data in difference.get(action, []):
                         result += "{}  {}/{}\n".format(
                             self.COMMIT_ACTIONS.get(action, '?'),
-                            commit_data.get('path'),
-                            commit_data.get('filename'))
+                            commit_data.get('dirname'),
+                            commit_data.get('basename'))
             except Exception as ex:
                 logger.error(
                     'Fail translating commit differences to string - {}'.format(ex))
@@ -722,7 +720,7 @@ class Datary():
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory id
-        element           list            [path, filename, data, sha1]
+        element           list            [dirname, basename, data, sha1]
         dirname           str             directory name
         ================  =============   ====================================
 
@@ -733,8 +731,8 @@ class Datary():
 
         payload = {"action": "add",
                    "filemode": 100644,
-                   "dirname": element.get('path'),
-                   "basename": element.get('filename'),
+                   "dirname": element.get('dirname'),
+                   "basename": element.get('basename'),
                    "kern": json.dumps(element.get('data', {}).get('kern')),
                    "meta": json.dumps(element.get('data', {}).get('meta'))}
 
@@ -758,7 +756,7 @@ class Datary():
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory id
-        element           list            [path, filename, data, sha1]
+        element           list            [dirname, basename, data, sha1]
         ================  =============   ====================================
 
         """
@@ -768,8 +766,8 @@ class Datary():
 
         payload = {"action": "modify",
                    "filemode": 100644,
-                   "dirname": element.get('path'),
-                   "basename": element.get('filename'),
+                   "dirname": element.get('dirname'),
+                   "basename": element.get('basename'),
                    "kern": json.dumps(element.get('data', {}).get('kern')),
                    "meta": json.dumps(element.get('data', {}).get('meta'))}
 
@@ -795,7 +793,7 @@ class Datary():
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory id
-        path              str
+        path              str             parent path of directory to delete
         dirname           str             directory name
         ================  =============   ====================================
 
@@ -831,7 +829,7 @@ class Datary():
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory id
-        element           Dic             element with path & filename
+        element           obj             element with dirname & basename
         ================  =============   ====================================
 
         """
@@ -844,8 +842,8 @@ class Datary():
 
         payload = {"action": "remove",
                    "filemode": 100644,
-                   "dirname": element.get('path'),
-                   "basename": element.get('filename')
+                   "dirname": element.get('dirname'),
+                   "basename": element.get('basename')
                    }
 
         response = self.request(
@@ -925,8 +923,8 @@ class Datary():
             # TODO: REMOVE THIS SHIT..
             # add foo file, workingdir cant be empty..
             foo_element = {
-                'path': '',
-                'filename': 'foo_{}'.format(random.randint(0, 99)),
+                'dirname': '',
+                'basename': 'foo_{}'.format(random.randint(0, 99)),
                 'data': {'meta': {}, 'kern': []}
                 }
 
@@ -934,7 +932,7 @@ class Datary():
             self.commit(repo_uuid, 'Commit foo file to clean repo')
 
             for path in [x for x in flatten_filetree.keys() if '__self' not in x]:
-                self.delete_file(wdir_uuid, {'path': "/".join(path.split('/')[:-1]), 'filename': path.split('/')[-1]})
+                self.delete_file(wdir_uuid, {'dirname': "/".join(path.split('/')[:-1]), 'basename': path.split('/')[-1]})
 
             self.commit(repo_uuid, 'Commit delete all files to clean repo')
 
