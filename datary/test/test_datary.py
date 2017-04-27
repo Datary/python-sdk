@@ -111,6 +111,33 @@ class DataryTestCase(unittest.TestCase):
         "locale": {"es-ES": "Deportes"}
         }]
 
+    members = [
+        {
+            "uuid": "b71fb2a2-3b0a-452e-8479-d30f2b42f0a3",
+            "username": "username1",
+            "signedUpAt": "2016-04-05T19:55:45.315Z",
+            "profile": {
+                "displayName": "USERNAME 1",
+                "avatar": {
+                    "thumbnail": "test1.png",
+                    "verbatim": "test1.png"
+                }
+            }
+        },
+        {
+            "uuid": "b71fb2a2-3a0b-407e-9876-d7034b42f0a6",
+            "username": "username2",
+            "signedUpAt": "2017-02-05T19:55:45.315Z",
+            "profile": {
+                "displayName": "USERNAME 2",
+                "avatar": {
+                    "thumbnail": "test2.png",
+                    "verbatim": "test2.png"
+                }
+            }
+        },
+    ]
+
     metadata = {"sha1": "sha1_value"}  # TODO: Update sha1 with similar one
 
     @mock.patch('datary.Datary.request')
@@ -530,6 +557,22 @@ class DataryTestCase(unittest.TestCase):
 
         mock_get_describerepo.return_value = None
         self.datary.clean_repo(self.repo_uuid)
+
+    @mock.patch('datary.Datary.request')
+    def test_get_members(self, mock_request):
+
+        mock_request.return_value = MockRequestResponse("aaa", json=self.members)
+        member = self.datary.get_members(member_name='username1')
+        self.assertEqual(member, self.members[0])
+
+        member2 = self.datary.get_members(member_uuid=self.members[1].get('uuid'))
+        self.assertEqual(member2, self.members[1])
+
+        members_fail = self.datary.get_members(member_name='username3')
+        self.assertEqual(members_fail, {})
+
+        members_limit = self.datary.get_members()
+        assert isinstance(members_limit, list)
 
     def test_Datary_SizeLimitException(self):
         a = Datary_SizeLimitException('test_msg', 'test_src_path', size=4)
