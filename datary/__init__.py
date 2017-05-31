@@ -4,10 +4,11 @@ import json
 import random
 import requests
 import structlog
-import collections
 
 from datetime import datetime
 from requests import RequestException
+
+from datary.utils import (flatten, nested_dict_to_list, get_element)
 
 try:
     from urllib.parse import urljoin
@@ -366,6 +367,21 @@ class Datary():
 
         return response.json() if response else {}
 
+    def format_wdir_changes_to_filetreeformat(self, wdir_changes_tree):
+        """
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_changes_tree dict            working changes tree
+        ================  =============   ====================================
+
+        Returns:
+            (dict) changes in workdir formatting as filetree format.
+        """
+
+        return {os.path.join(item.get('dirname', ''), item.get('basename', '')): item.get('inode', 'unkwown_dataset_uuid') for sublist in list(wdir_changes_tree)for item in sublist}
+
+
 ##########################################################################
 #                             Datasets Methods
 ##########################################################################
@@ -427,6 +443,34 @@ class Datary():
                 datary_file_sha1=datary_file_sha1)
 
         return response.json() if response else {}
+
+    def get_dataset_uuid(self, wdir_uuid, path='', filename=''):
+        """
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        repo_uuid         str             repo uuid.
+        wdir_uuid         str             wdir uuid.
+        path              str             path of the file in Datary.
+        filename          str             filename of the file in Datary.
+        ================  =============   ====================================
+
+        Returns:
+            (string) uuid dataset original data
+        """
+
+        filepath = os.path.join(path, filename)
+
+        # retrieve wdir filetree
+        wdir_filetree = self.get_wdir_filetree(wdir_uuid)
+
+        # retrieve last commit filetree
+        wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(self.get_wdir_changes(wdir_uuid).values())
+
+        # retrieve dataset uuid
+        dataset_uuid = get_element(wdir_changes_filetree, filepath) or get_element(wdir_filetree, filepath) or {}
+
+        return dataset_uuid
 
 ##########################################################################
 #                             Categories Methods
@@ -494,6 +538,32 @@ class Datary():
         filetree_matrix = []
 
         try:
+
+            # retrieve last filetree commited
+            ftree = self.get_last_commit_filetree(repo)
+
+            # List of Path | Filename | Sha1
+            filetree_matrix = nested_dict_to_list("", ftree)
+
+            # Take metadata to retrieve sha-1 and compare with
+            for path, filename, datary_file_sha1 in filetree_matrix:
+                metadata = self.get_metadata(repo.get('uuid'), datary_file_sha1)
+                # append format path | filename | data (not required) | sha1
+                last_commit.append((path, filename, None, metadata.get("sha1")))
+        except Exception:
+            logger.warning(
+                "Fail recollecting last commit",
+                repo=repo,
+                ftree={},
+                last_commit=[])
+
+        return last_commit
+
+    def get_last_commit_filetree(self, repo={}):
+
+        ftree = {}
+
+        try:
             # check if have the repo.
             if 'apex' not in repo:
                 repo.update(self.get_describerepo(repo.get('uuid')))
@@ -518,22 +588,10 @@ class Datary():
                     "No ftree found with repo_uuid {} , last_sha1 {}".
                     format(repo.get('uuid'), last_sha1))
 
-            # List of Path | Filename | Sha1
-            filetree_matrix = nested_dict_to_list("", ftree)
+        except Exception as ex:
+            logger.warning("Fail getting last commit - {}".format(ex), repo=repo)
 
-            # Take metadata to retrieve sha-1 and compare with
-            for path, filename, datary_file_sha1 in filetree_matrix:
-                metadata = self.get_metadata(repo.get('uuid'), datary_file_sha1)
-                # append format path | filename | data (not required) | sha1
-                last_commit.append((path, filename, None, metadata.get("sha1")))
-        except Exception:
-            logger.warning(
-                "Fail recollecting last commit",
-                repo=repo,
-                ftree={},
-                last_commit=[])
-
-        return last_commit
+        return ftree
 
     def make_index(self, lista):
         """
@@ -640,7 +698,7 @@ class Datary():
             self.add_file(wdir_uuid, element)
 
         for element in hot_elements.get('update', []):
-            self.modify_file(wdir_uuid, element)
+            self.modify_file(wdir_uuid, element, **kwargs)
 
         for element in hot_elements.get('delete', []):
             self.delete_file(wdir_uuid, element)
@@ -677,6 +735,7 @@ class Datary():
 ##########################################################################
 #                              Add methods
 ##########################################################################
+
     def add_dir(self, wdir_uuid, path, dirname):
         """
         (DEPRECATED)
@@ -749,9 +808,62 @@ class Datary():
 #                              Modify methods
 ##########################################################################
 
-    def modify_file(self, wdir_uuid, element):
+    def modify_request(self, wdir_uuid, element):
+        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+
+        payload = {
+            "action": "modify",
+            "filemode": 100644,
+            "dirname": element.get('path'),
+            "basename": element.get('filename'),
+            "kern": json.dumps(element.get('data', {}).get('kern')),
+            "meta": json.dumps(element.get('data', {}).get('meta'))}
+
+        response = self.request(url, 'POST', **{'data': payload, 'headers': self.headers})
+
+        if response:
+            logger.info(
+                "File has been modified in workdir.",
+                url=url,
+                payload=payload,
+                element=element)
+
+    def modify_file(self, wdir_uuid, element, mod_style='override', **kwargs):
         """
         Modifies an existing file in Datary.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid         str             working directory id
+        element           list            [path, filename, data, sha1]
+        mod_style         str o callable  'override' by default,
+                                          'update-append' mod_style,
+                                          'update-row' mod_style,
+                                           <callable> function to use.
+        ================  =============   ====================================
+        """
+        # Override method
+        if mod_style == 'override':
+            self.override_file(wdir_uuid, element)
+
+        # Update Append method
+        elif mod_style == 'update-append':
+            self.update_append_file(wdir_uuid, element)
+
+        # TODO: ADD update-row method
+
+        # Inject own modify solution method
+        elif callable(mod_style):
+            mod_style(wdir_uuid, element, callback_request=self.modify_request)
+
+        # Default..
+        else:
+            logger.error('NOT VALID modify style passed.')
+
+    def override_file(self, wdir_uuid, element):
+        """
+        Override an existing file in Datary.
 
         ================  =============   ====================================
         Parameter         Type            Description
@@ -761,25 +873,40 @@ class Datary():
         ================  =============   ====================================
 
         """
-        logger.info("Modify an existing file in Datary.")
+        logger.info("Override an existing file in Datary.")
 
-        url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        self.modify_request(wdir_uuid, element)
 
-        payload = {"action": "modify",
-                   "filemode": 100644,
-                   "dirname": element.get('path'),
-                   "basename": element.get('filename'),
-                   "kern": json.dumps(element.get('data', {}).get('kern')),
-                   "meta": json.dumps(element.get('data', {}).get('meta'))}
+    def update_append_file(self, wdir_uuid, element):
+        """
+        Update append an existing file in Datary.
 
-        response = self.request(
-            url, 'POST', **{'data': payload, 'headers': self.headers})
-        if response:
-            logger.info(
-                "File has been modified in workdir.",
-                url=url,
-                payload=payload,
-                element=element)
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid         str             working directory id
+        element           list            [path, filename, data, sha1]
+        ================  =============   ====================================
+
+        """
+        logger.info("Update an existing file in Datary.")
+        self.modify_request(wdir_uuid, element)
+
+    def update_row_file(self, wdir_uuid, element):
+        """
+        Update row on existing file in Datary.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid         str             working directory id
+        element           list            [path, filename, data, sha1]
+        ================  =============   ====================================
+
+        """
+        logger.info("Update an existing file in Datary.")
+        self.modify_request(wdir_uuid, element)
+
 
 ##########################################################################
 #                              Delete methods
@@ -814,7 +941,8 @@ class Datary():
 
         response = self.request(
             url, 'GET', **{'data': payload, 'headers': self.headers})
-        # TODO: No delete permitted yet.
+
+        # TODO: No delete folder permitted yet.
         if response:
             logger.info(
                 "Directory has been deleted in workdir",
@@ -863,17 +991,14 @@ class Datary():
         inode             str             directory or file inode.
         ================  =============   ====================================
         """
-        logger.info(
-            "Delete by inode.", wdir_uuid=wdir_uuid, inode=inode)
+        logger.info("Delete by inode.", wdir_uuid=wdir_uuid, inode=inode)
 
         url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
-
-        payload = {"action": "remove",
-                   "inode": inode
-                   }
+        payload = {"action": "remove", "inode": inode}
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
+
         if response:
             logger.info("Element has been deleted using inode.")
 
@@ -997,43 +1122,3 @@ class Datary_SizeLimitException(Exception):
 
     def __str__(self):
         return "{};{};{}".format(self.msg, self.src_path, self.size)
-
-
-def nested_dict_to_list(path, dic):
-    """
-    Transform nested dict to list
-    """
-    result = []
-
-    for key, value in dic.items():
-        # omit __self value key..
-        if key != '__self':
-            if isinstance(value, dict):
-                aux = path + key + "/"
-                result.extend(nested_dict_to_list(aux, value))
-            else:
-                if path.endswith("/"):
-                    path = path[:-1]
-
-                result.append([path, key, value])
-    return result
-
-
-def flatten(d, parent_key='', sep='_'):
-    """
-    Transform dictionary multilevel values to one level dict, concatenating
-    the keys with sep between them.
-    """
-    items = []
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            items.extend(flatten(v, new_key, sep=sep).items())
-        else:
-            if isinstance(v, list):
-                list_keys = [str(i) for i in range(0, len(v))]
-                items.extend(
-                    flatten(dict(zip(list_keys, v)), new_key, sep=sep).items())
-            else:
-                items.append((new_key, v))
-    return collections.OrderedDict(items)

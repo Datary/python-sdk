@@ -6,7 +6,8 @@ import collections
 
 from unittest.mock import patch
 from collections import OrderedDict
-from datary import Datary, Datary_SizeLimitException, nested_dict_to_list, flatten
+from datary import Datary, Datary_SizeLimitException
+from datary.utils import nested_dict_to_list, flatten
 from .mock_requests import MockRequestResponse
 
 
