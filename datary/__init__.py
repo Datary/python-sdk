@@ -10,7 +10,7 @@ from datetime import datetime
 from urllib.parse import urljoin
 from requests import RequestException
 
-from datary.utils import (flatten, nested_dict_to_list, get_element,
+from datary.utils import (flatten, nested_dict_to_list, get_element, force_list,
                           exclude_empty_values, add_element, get_dimension,
                           remove_list_duplicates, dict2orderedlist)
 
@@ -394,7 +394,7 @@ class Datary():
             (dict) changes in workdir formatting as filetree format.
         """
 
-        return {os.path.join(item.get('dirname', ''), item.get('basename', '')): item.get('inode', 'unkwown_dataset_uuid') for sublist in list(wdir_changes_tree)for item in sublist}
+        return {os.path.join(item.get('dirname', ''), item.get('basename', '')): item.get('inode', 'unkwown_dataset_uuid') for sublist in force_list(wdir_changes_tree) for item in force_list(sublist)}
 
 
 ##########################################################################
@@ -486,6 +486,13 @@ class Datary():
         dataset_uuid = get_element(wdir_changes_filetree, filepath) or get_element(wdir_filetree, filepath) or {}
 
         return dataset_uuid
+
+    version 2
+    http://{{host}}/workdirs/{{wd-pub}}/filetree?pathname=test1/test2(test3/file_test123
+
+
+
+
 
 ##########################################################################
 #                             Categories Methods

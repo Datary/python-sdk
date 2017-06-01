@@ -92,6 +92,32 @@ class DataryTestCase(unittest.TestCase):
             }
         }
 
+    changes = {
+        "removedElements": [
+            {
+                "dirname": "",
+                "basename": "fileB",
+                "inode": "inode1"
+            },
+            {
+                "dirname": "",
+                "basename": "fileA",
+                "inode": "inode2"
+            }],
+        "renamedElements": [],
+        "modifiedElements": [{
+                "dirname": "",
+                "basename": "fileB",
+                "inode": "inode1"
+            }],
+        "addedElements": [{
+                "dirname": "",
+                "basename": "fileC",
+                "inode": "inode3"
+            }]
+        }
+
+
     filetree = {
         '__self': '__self_sha1',
         'a': 'a_sha1',
@@ -317,6 +343,15 @@ class DataryTestCase(unittest.TestCase):
         filetree = self.datary.get_wdir_changes(repo_uuid=self.repo_uuid)
         self.assertEqual(mock_request.call_count, 2)
         assert(isinstance(filetree, dict))
+
+    def test_format_wdir_changes_to_filetreeformat(self):
+        import ipdb; ipdb.set_trace()
+        treeformated_changes = self.datary.format_wdir_changes_to_filetreeformat(self.changes)
+
+
+        self.assertEqual(treeformated_changes, [])
+
+
 
     @mock.patch('datary.Datary.request')
     def test_get_metadata(self, mock_request):
