@@ -934,7 +934,7 @@ class Datary():
             # Check if rowzero is header..
             is_rowzero_header = self._calculate_rowzero_header_confindence(
                     stored_element.get('meta', {}).get('axisHeaders', {}).get('*'),  # stored element axisheader
-                    stored_element.get('data', {}).get('kern', [[]])[0]              # stored element first row
+                    stored_element.get('kern', [[]])[0]              # stored element first row
                     )
 
             # update kern
@@ -959,8 +959,31 @@ class Datary():
             for element_keypath in element_keys:
                 pass
 
-                # TODO: NOT FINISHED...
-                # add_element(stored_element, element_keypath, get_element(update_element.get('data', {}).get('kern')))
+                is_rowzero_header = self._calculate_rowzero_header_confindence(
+                    stored_element.get('meta', {}).get('axisHeaders', {}).get(element_keypath, []),        # stored element axisheader
+                    get_element(stored_element.get('kern', {}), element_keypath+"/0") or []                # stored element first row
+                    )
+
+                # update kern
+                updated_keypath_array = self._update_arrays_elements(
+                    original_array=get_element(stored_element.get('kern', {}), element_keypath) or [],
+                    update_array=get_element(update_element.get('data', {}).get('kern', {}), element_keypath),
+                    is_rowzero_header=is_rowzero_header
+                    )
+
+                # Update meta
+                updated_keypath_meta = self._reload_meta(
+                    kern=updated_keypath_array,
+                    original_meta=stored_element.get('meta', {}),
+                    path_key=element_keypath,
+                    rowzero_header=is_rowzero_header)
+
+                # add updated kern to keypath
+                add_element(stored_element.get('kern', {}), element_keypath, updated_keypath_array)
+
+                # add updated meta to stored element
+                add_element(stored_element, 'meta', updated_keypath_meta, override=True)
+
         else:
             logger.warning('Not compatible type elements to update {} - {}'.format(
                 type(stored_element.get('kern')).__name__,
@@ -994,10 +1017,10 @@ class Datary():
                 path_key + "/*": row_zero if is_rowzero_header else ['Header'] * len(row_zero)
             }
 
-            add_element(updated_meta, '/'.join(["axisHeaders", path_key]), axisheaders)
+            add_element(updated_meta, '/'.join(["axisHeaders", path_key]), axisheaders, override=True)
 
             # Update dimension
-            add_element(updated_meta, '/'.join(["dimension", path_key]), get_dimension(kern))
+            add_element(updated_meta, '/'.join(["dimension", path_key]), get_dimension(kern), override=True)
 
         except Exception as ex:
             logger.error('Fail reloading meta.. - {}'.format(ex))
