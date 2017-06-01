@@ -112,37 +112,124 @@ def _get_element_by_names(source, names):
         return source
 
 
-def add_element(source, path, value, separator=r'[/.]'):
-    return _add_element_by_names(source, exclude_empty_values(re.split(separator, path)), value)
+def add_element(source, path, value, separator=r'[/.]', override=False):
+
+    return _add_element_by_names(source, exclude_empty_values(re.split(separator, path)), value, override)
 
 
-def _add_element_by_names(source, names, value):
+def _add_element_by_names(source, names, value, override=False):
 
     if source is None:
         return False
 
     else:
+
         if names and names[0]:
             head, *rest = names
-            if head not in source:
+
+            # list and digit head
+            if isinstance(source, list) and head.isdigit():
+                head = int(head)
+
+            # head not in source :(
+            elif head not in source:
                 source[head] = {}
 
+            # more heads in rest
             if rest:
-                # Head find but isn't a dict no navigate for it.
-                if not isinstance(source[head], dict):
+                # Head find but isn't a dict or list to navigate for it.
+                if not isinstance(source[head], (dict, list)):
                     return False
 
                 _add_element_by_names(source[head], rest, value)
 
+            # it's final head
             else:
 
-                if isinstance(source[head], list):
+                if not override and isinstance(source[head], list):
                     source[head].append(value)
 
-                elif isinstance(source[head], dict) and isinstance(value, dict):
+                elif not override and isinstance(source[head], dict) and isinstance(value, dict):
                     source[head].update(value)
 
                 else:
                     source[head] = value
 
         return source
+
+
+def find_value_in_object(attr, obj):
+    """Return values for any key coincidence with attr in obj or any other nested dict."""
+    # Carry on inspecting inside the list or tuple
+    if isinstance(obj, (collections.Iterator, list)):
+        for item in obj:
+            yield from find_value_in_object(attr, item)
+
+    # Final object (dict or entity) inspect inside
+    elif isinstance(obj, collections.Mapping):
+
+        # If result is found, inspect inside and return inner results
+        if attr in obj:
+
+            # If it is iterable, just return the inner elements (avoid nested
+            # lists)
+            if isinstance(obj[attr], (collections.Iterator, list)):
+                for item in obj[attr]:
+                    yield item
+
+            # If not, return just the objects
+            else:
+                yield obj[attr]
+
+        # Carry on inspecting inside the object
+        for item in obj.values():
+            if item:
+                yield from find_value_in_object(attr, item)
+
+
+def force_list(element):
+    """
+    Given an element or a list, concatenates every element and clean it to create a
+    full text
+    """
+    if element is None:
+        return []
+
+    if isinstance(element, (collections.Iterator, list)):
+        return element
+    else:
+        return [element]
+
+
+def remove_list_duplicates(lista, unique=False):
+    """
+    Remove duplicated elements in a list.
+    Args:
+        lista: List with elements to clean duplicates.
+    """
+    result = []
+    allready = []
+
+    for elem in lista:
+        if elem not in result:
+            result.append(elem)
+        else:
+            allready.append(elem)
+
+    if unique:
+        for elem in allready:
+            result = list(filter((elem).__ne__, result))
+
+    return result
+
+
+def check_fields(fields, args):
+    """Check that every field given in fields is included in args.args.
+
+    - fields (tuple): fieldes to be searched in args
+    - args (dict): dictionary whose keys will be checked against fields
+    """
+    for field in fields:
+        if field not in args:
+            return False
+    return True
