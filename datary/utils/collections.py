@@ -233,3 +233,18 @@ def check_fields(fields, args):
         if field not in args:
             return False
     return True
+
+
+def get_dimension(array):
+    """
+    Get dimension of an array getting the number of rows and the max num of columns.
+    """
+    result = [0, 0]
+
+    if all(isinstance(el, list) for el in array):
+        result = [len(array), len(max([x for x in array], key=len,))]
+
+    elif array and isinstance(array, list):
+        result = [1, len(array)]
+
+    return result

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import json
 import random
 import requests
@@ -8,7 +9,8 @@ import structlog
 from datetime import datetime
 from requests import RequestException
 
-from datary.utils import (flatten, nested_dict_to_list, get_element)
+from datary.utils import (flatten, nested_dict_to_list, get_element,
+                          add_element, remove_list_duplicates, get_dimension)
 
 try:
     from urllib.parse import urljoin
@@ -243,7 +245,7 @@ class Datary():
         ==============  =============   ====================================
         Parameter       Type            Description
         ==============  =============   ====================================
-        repo_uuid       str             repository id
+        repo_uuid       str             repository uuid
         repo_name       str             repository name
         ==============  =============   ====================================
 
@@ -283,7 +285,7 @@ class Datary():
         ==============  =============   ====================================
         Parameter       Type            Description
         ==============  =============   ====================================
-        repo_uuid       str              repository id
+        repo_uuid       str              repository uuid
         repo_name       str             repository name
         ==============  =============   ====================================
 
@@ -386,13 +388,13 @@ class Datary():
 #                             Datasets Methods
 ##########################################################################
 
-    def get_metadata(self, repo_uuid, datary_file_sha1):
+    def get_metadata(self, repo_uuid, dataset_sha1):
         """
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
         repo_uuid         int             repository id
-        datary_file_sha1  str
+        dataset_sha1  str
         ================  =============   ====================================
 
         Returns:
@@ -402,7 +404,7 @@ class Datary():
 
         url = urljoin(
             URL_BASE,
-            "datasets/{}/metadata".format(datary_file_sha1))
+            "datasets/{}/metadata".format(dataset_sha1))
 
         params = {'namespace': repo_uuid}
 
@@ -412,35 +414,35 @@ class Datary():
             logger.error(
                 "Not metadata retrieved.",
                 repo_uuid=repo_uuid,
-                datary_file_sha1=datary_file_sha1)
+                dataset_sha1=dataset_sha1)
 
         return response.json() if response else {}
 
-    def get_original(self, repo_uuid, datary_file_sha1):
+    def get_original(self, dataset_sha1, repo_uuid='', wdir_uuid=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        repo_uuid         int             repository id
-        datary_file_sha1  str
+        repo_uuid         str             repository uuid
+        wdir_uuid         str             workingdir uuid
+        dataset_sha1  str             dataset uuid
         ================  =============   ====================================
 
         Returns:
             (dict) dataset original data
         """
-        url = urljoin(
-            URL_BASE,
-            "datasets/{}/original".format(datary_file_sha1))
+        response = None
 
-        params = {'namespace': repo_uuid}
+        if (repo_uuid or wdir_uuid) and dataset_sha1:
 
-        response = self.request(
-            url, 'GET', **{'headers': self.headers, 'params': params})
-        if not response:
-            logger.error(
-                "Not original retrieved.",
-                repo_uuid=repo_uuid,
-                datary_file_sha1=datary_file_sha1)
+            url = urljoin(URL_BASE, "datasets/{}/original".format(dataset_sha1))
+            params = {'namespace': repo_uuid} if repo_uuid else {'domain': wdir_uuid}
+            response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+            if not response:
+                logger.error(
+                    "Not original retrieved.",
+                    repo_uuid=repo_uuid,
+                    dataset_sha1=dataset_sha1)
 
         return response.json() if response else {}
 
@@ -500,7 +502,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        repo_uuid         int             repository id
+        repo_uuid         int             repository uuid
         commit_message    str             message commit description
         ================  =============   ====================================
 
@@ -546,8 +548,8 @@ class Datary():
             filetree_matrix = nested_dict_to_list("", ftree)
 
             # Take metadata to retrieve sha-1 and compare with
-            for path, filename, datary_file_sha1 in filetree_matrix:
-                metadata = self.get_metadata(repo.get('uuid'), datary_file_sha1)
+            for path, filename, dataset_sha1 in filetree_matrix:
+                metadata = self.get_metadata(repo.get('uuid'), dataset_sha1)
                 # append format path | filename | data (not required) | sha1
                 last_commit.append((path, filename, None, metadata.get("sha1")))
         except Exception:
@@ -674,13 +676,13 @@ class Datary():
         Given the last commit and actual commit,
         takes hot elements to ADD, UPDATE or DELETE.
 
-        ================  =============   ====================
+        ================  =============   =======================
         Parameter         Type            Description
-        ================  =============   ====================
-        wdir_uuid         str             working directory id
+        ================  =============   =======================
+        wdir_uuid         str             working directory uuid
         last_commit       list            [path|filename|sha1]
         actual_commit     list            [path|filename|sha1]
-        ================  =============   ====================
+        ================  =============   =======================
 
         """
         # compares commits and retrieves hot elements -> new, modified, deleted
@@ -744,7 +746,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         path              str             path to the new directory
         dirname           str             name of the new directory
         ================  =============   ====================================
@@ -779,7 +781,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         element           list            [path, filename, data, sha1]
         dirname           str             directory name
         ================  =============   ====================================
@@ -807,6 +809,7 @@ class Datary():
 ##########################################################################
 #                              Modify methods
 ##########################################################################
+    ROWZERO_HEADER_CONFIDENCE_VALUE = 0.5
 
     def modify_request(self, wdir_uuid, element):
         url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
@@ -835,7 +838,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         element           list            [path, filename, data, sha1]
         mod_style         str o callable  'override' by default,
                                           'update-append' mod_style,
@@ -868,7 +871,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         element           list            [path, filename, data, sha1]
         ================  =============   ====================================
 
@@ -884,13 +887,149 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         element           list            [path, filename, data, sha1]
         ================  =============   ====================================
 
         """
         logger.info("Update an existing file in Datary.")
-        self.modify_request(wdir_uuid, element)
+
+        stored_dataset_uuid = self.get_dataset_uuid(
+             wdir_uuid=wdir_uuid,
+             path=element.get('path', ''),
+             filename=element.get('filename', ''))
+
+        stored_element = self.get_original(
+            dataset_uuid=stored_dataset_uuid,
+            wdir_uuid=wdir_uuid)
+
+        # update kern
+        self.update_kern(stored_element, element)
+
+        # send modify request
+        self.modify_request(wdir_uuid, stored_element)
+
+    def update_kern(self, stored_element, update_element):
+        """
+        Update one element with other.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        stored_element    dict            element stored to update
+        update_element    dict            update element
+        ================  =============   ====================================
+        """
+        logger.info("Updating kern...")
+
+        # LIST stored element
+        if isinstance(stored_element.get('kern'), list) and isinstance(update_element.get('data', {}).get('kern'), list):
+
+            stored_element['kern'] = self._update_arrays_elements(
+                stored_element['kern'],
+                update_element.get('data', {}).get('kern'),
+                self._calculate_rowzero_header_confindence(
+                    stored_element.get('meta', {}).get('axisHeaders', {}).get('*'),  # stored element axisheader
+                    stored_element.get('data', {}).get('kern', [[]])[0]              # stored element first row
+                    ))
+
+            stored_element['meta'] = self._reload_meta(stored_element)
+
+        # DICT stored element
+        elif isinstance(stored_element.get('kern'), dict) and isinstance(update_element.get('data', {}).get('kern'), dict):
+            element_keys = set([re.split("[0-9]", x)[0] for x in list(flatten(update_element.get('data', {}).get('kern'), sep='/').keys())])
+
+            # add element
+            for element_keypath in element_keys:
+                add_element(stored_element, element_keypath, get_element(update_element.get('data', {}).get('kern')))
+
+        else:
+
+            logger.warning('Not compatible type elements to update {} - {}'.format(
+                type(stored_element.get('kern')).__name__,
+                type(update_element.get('data', {}).get('kern')).__name__,))
+
+    def _reload_meta(self, kern, original_meta):
+        """
+        Reload element meta by default.
+            - update axisheaders
+            - update dimension
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        kern              dict or list    element kern
+        original_meta     dict            element meta
+        ================  =============   ====================================
+        """
+
+        updated_meta = {}
+        updated_meta.update(original_meta)
+
+        try:
+            # TODO: UPDATE AXISHEADERS HERE..
+
+
+            updated_meta['dimension'] = get_dimension(kern)
+
+        except Exception as ex:
+            logger.error('Fail reloading meta.. - {}'.format(ex))
+
+            updated_meta = original_meta
+
+        return updated_meta
+
+    def _calculate_rowzero_header_confindence(self, axisheaders, row_zero):
+        """
+        Calculate the cofidence index if the first row contains headers comparing
+        this headers with the axisheaders. If this index is lower than the
+        ROWZERO_HEADER_CONFIDENCE_VALUE we think that the data in row_zero doesnt contains
+        headers.
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        axisheaders       list            list of axisheaders
+        rowzero           list            list with firt row of the element.
+        ================  =============   ====================================
+        """
+
+        row_zero_header_confidence = 0
+
+        if axisheaders:
+            row_zero_header_confidence = float(sum([axisheaders.count(x) for x in row_zero]))/len(axisheaders)
+
+        return row_zero_header_confidence > self.ROWZERO_HEADER_CONFIDENCE_VALUE
+
+    def _merge_headers(self, header1, header2):
+        """
+        Merge 2 headers without losing the header 1 order and removing repeated
+        elements from header2 in header1.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        header1           list            1st element header, must maintain its order
+        header2           list            2nd element header
+        ================  =============   ====================================
+        """
+
+        return remove_list_duplicates(header1 + header2)
+
+    def _update_arrays_elements(self, array1, array2, rowzero_header):
+
+        result = []
+
+        if rowzero_header:
+            self._merge_headers(array1[0], array2[0])
+
+
+
+
+
+
+        return result
+
+
 
     def update_row_file(self, wdir_uuid, element):
         """
@@ -899,7 +1038,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         element           list            [path, filename, data, sha1]
         ================  =============   ====================================
 
@@ -920,8 +1059,8 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
-        path              str
+        wdir_uuid         str             working directory uuid
+        path              str             path to directory
         dirname           str             directory name
         ================  =============   ====================================
 
@@ -957,7 +1096,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         element           Dic             element with path & filename
         ================  =============   ====================================
 
@@ -987,7 +1126,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         inode             str             directory or file inode.
         ================  =============   ====================================
         """
@@ -1009,7 +1148,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_uuid         str             working directory id
+        wdir_uuid         str             working directory uuid
         ================  =============   ====================================
         """
 
@@ -1029,7 +1168,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        repo_uuid         str               repository id
+        repo_uuid         str             repository uuid
         ================  =============   ====================================
         """
         repo = self.get_describerepo(repo_uuid=repo_uuid, **kwargs)
@@ -1074,7 +1213,7 @@ class Datary():
         ==============  =============   ====================================
         Parameter       Type            Description
         ==============  =============   ====================================
-        member_uuid     str             member_uuid id
+        member_uuid     str             member_uuid uuid
         member_name     str             member_name
         limit           int             number of results limit (default=20)
         ==============  =============   ====================================
