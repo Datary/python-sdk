@@ -14,7 +14,11 @@ from .mock_requests import MockRequestResponse
 class DataryTestCase(unittest.TestCase):
 
     # default params to test Datary class
-    params = {'username': 'pepe', 'password': 'pass', 'token': '123'}
+    test_username = 'pepe'
+    test_password = 'pass'
+    test_token = '123'
+
+    params = {'username': test_username, 'password': test_password, 'token': test_token}
     datary = Datary(**params)
 
     url = 'http://datary.io/test'  # not exist, it's false
@@ -145,20 +149,20 @@ class DataryTestCase(unittest.TestCase):
     def test_get_user_token(self, mock_request):
 
         # Assert init class data & token introduced by args
-        self.assertEqual(self.datary.username, 'pepe')
-        self.assertEqual(self.datary.password, 'pass')
-        self.assertEqual(self.datary.token, '123')
+        self.assertEqual(self.datary.username, self.test_username)
+        self.assertEqual(self.datary.password, self.test_password)
+        self.assertEqual(self.datary.token, self.test_token)
         self.assertEqual(mock_request.call_count, 0)
 
         # Assert get token in __init__
-        mock_request.return_value = MockRequestResponse("", headers={'x-set-token': '123'})
+        mock_request.return_value = MockRequestResponse("", headers={'x-set-token': self.test_token})
         self.datary = Datary(**{'username': 'pepe', 'password': 'pass'})
         self.assertEqual(mock_request.call_count, 1)
 
         # Assert get token by the method without args.
-        mock_request.return_value = MockRequestResponse("", headers={'x-set-token': '123'})
+        mock_request.return_value = MockRequestResponse("", headers={'x-set-token': self.test_token})
         token1 = self.datary.get_user_token()
-        self.assertEqual(token1, '123')
+        self.assertEqual(token1, self.test_token)
 
         # Assert get token by method     with args.
         mock_request.return_value = MockRequestResponse("", headers={'x-set-token': '456'})
@@ -172,11 +176,30 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(mock_request.call_count, 4)
 
     @mock.patch('datary.requests')
+    def test_sign_out(self, mock_request):
+
+        # Fail sign out
+        mock_request.get.return_value = MockRequestResponse("Err", status_code=500)
+        self.datary.sign_out()
+        self.assertEqual(self.datary.token, self.test_token)
+        self.assertEqual(mock_request.get.call_count, 1)
+
+        # reset mock
+        mock_request.get.reset_mock()
+
+        # Succes sign out
+        mock_request.get.return_value = MockRequestResponse("OK", status_code=200)
+        self.assertEqual(self.datary.token, self.test_token)
+        self.datary.sign_out()
+        self.assertEqual(self.datary.token, None)
+        self.assertEqual(mock_request.get.call_count, 1)
+
+    @mock.patch('datary.requests')
     def test_request(self, mock_requests):
 
-        mock_requests.get.return_value = MockRequestResponse("ok", headers={'x-set-token': '123'})
-        mock_requests.post.return_value = MockRequestResponse("ok", headers={'x-set-token': '123'})
-        mock_requests.delete.return_value = MockRequestResponse("ok", headers={'x-set-token': '123'})
+        mock_requests.get.return_value = MockRequestResponse("ok", headers={'x-set-token': self.test_token})
+        mock_requests.post.return_value = MockRequestResponse("ok", headers={'x-set-token': self.test_token})
+        mock_requests.delete.return_value = MockRequestResponse("ok", headers={'x-set-token': self.test_token})
 
         # test GET
         result1 = self.datary.request(self.url, 'GET')

@@ -7,15 +7,12 @@ import requests
 import structlog
 
 from datetime import datetime
+from urllib.parse import urljoin
 from requests import RequestException
 
-from datary.utils import (flatten, nested_dict_to_list, get_element, exclude_empty_values,
-                          add_element, remove_list_duplicates, get_dimension, dict2orderedlist)
-
-try:
-    from urllib.parse import urljoin
-except ImportError:
-    from urlparse import urljoin
+from datary.utils import (flatten, nested_dict_to_list, get_element,
+                          exclude_empty_values, add_element, get_dimension,
+                          remove_list_duplicates, dict2orderedlist)
 
 from . import version
 
@@ -133,7 +130,11 @@ class Datary():
         # Make sign_out request.
         response = self.request(url, 'GET')
 
-        if not response:
+        if response:
+            self.token = None
+            logger.info('Sign Out Succesfull!')
+
+        else:
             logger.error(
                 "Fail to make Sign Out succesfully :(",
                 response=response)
