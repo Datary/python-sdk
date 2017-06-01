@@ -100,9 +100,9 @@ def _get_element_by_names(source, names):
     else:
         if names:
             head, *rest = names
-            if head in source:
+            if isinstance(source, dict) and head in source:
                 return _get_element_by_names(source[head], rest)
-            elif head.isdigit():
+            elif isinstance(source, list) and head.isdigit():
                 return _get_element_by_names(source[int(head)], rest)
             elif not names[0]:
                 pass
@@ -115,6 +115,8 @@ def _get_element_by_names(source, names):
 def add_element(source, path, value, separator=r'[/.]', override=False):
 
     return _add_element_by_names(source, exclude_empty_values(re.split(separator, path)), value, override)
+
+_ROOT_SPECIAL_ADD_ELEMENT = '__aux_datary_root__'
 
 
 def _add_element_by_names(source, names, value, override=False):
@@ -131,6 +133,10 @@ def _add_element_by_names(source, names, value, override=False):
             if isinstance(source, list) and head.isdigit():
                 head = int(head)
 
+            # use special carater __root__
+            elif head == '' and not rest:
+                head = _ROOT_SPECIAL_ADD_ELEMENT
+
             # head not in source :(
             elif head not in source:
                 source[head] = {}
@@ -146,14 +152,28 @@ def _add_element_by_names(source, names, value, override=False):
             # it's final head
             else:
 
-                if not override and isinstance(source[head], list):
-                    source[head].append(value)
+                # it's root SPECIAL case
+                if head == _ROOT_SPECIAL_ADD_ELEMENT:
 
-                elif not override and isinstance(source[head], dict) and isinstance(value, dict):
-                    source[head].update(value)
+                    if not override and isinstance(source, list):
+                        source.append(value)
+
+                    elif not override and isinstance(source, dict) and isinstance(value, dict):
+                        source.update(value)
+
+                    else:
+                        source = value
 
                 else:
-                    source[head] = value
+
+                    if not override and isinstance(source[head], list):
+                        source[head].append(value)
+
+                    elif not override and isinstance(source[head], dict) and isinstance(value, dict):
+                        source[head].update(value)
+
+                    else:
+                        source[head] = value
 
         return source
 
@@ -248,3 +268,13 @@ def get_dimension(array):
         result = [1, len(array)]
 
     return result
+
+
+def dict2orderedlist(dic, order_list, default=''):
+    """
+    Return a list with dict values ordered by a list of key passed in args.
+    """
+    d = []
+    for key_order in order_list:
+        d.append(dic.get(key_order, default))
+    return d

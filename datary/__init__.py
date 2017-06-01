@@ -9,8 +9,8 @@ import structlog
 from datetime import datetime
 from requests import RequestException
 
-from datary.utils import (flatten, nested_dict_to_list, get_element,
-                          add_element, remove_list_duplicates, get_dimension)
+from datary.utils import (flatten, nested_dict_to_list, get_element, exclude_empty_values,
+                          add_element, remove_list_duplicates, get_dimension, dict2orderedlist)
 
 try:
     from urllib.parse import urljoin
@@ -425,7 +425,7 @@ class Datary():
         ================  =============   ====================================
         repo_uuid         str             repository uuid
         wdir_uuid         str             workingdir uuid
-        dataset_sha1  str             dataset uuid
+        dataset_sha1      str             dataset uuid
         ================  =============   ====================================
 
         Returns:
@@ -436,7 +436,7 @@ class Datary():
         if (repo_uuid or wdir_uuid) and dataset_sha1:
 
             url = urljoin(URL_BASE, "datasets/{}/original".format(dataset_sha1))
-            params = {'namespace': repo_uuid} if repo_uuid else {'domain': wdir_uuid}
+            params = exclude_empty_values({'namespace': repo_uuid, 'scope': wdir_uuid})
             response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
             if not response:
                 logger.error(
@@ -893,23 +893,29 @@ class Datary():
 
         """
         logger.info("Update an existing file in Datary.")
+        try:
 
-        stored_dataset_uuid = self.get_dataset_uuid(
-             wdir_uuid=wdir_uuid,
-             path=element.get('path', ''),
-             filename=element.get('filename', ''))
+            # retrieve original dataset_uuid from datary
+            stored_dataset_uuid = self.get_dataset_uuid(
+                 wdir_uuid=wdir_uuid,
+                 path=element.get('path', ''),
+                 filename=element.get('filename', ''))
 
-        stored_element = self.get_original(
-            dataset_uuid=stored_dataset_uuid,
-            wdir_uuid=wdir_uuid)
+            # retrieve original dataset from datary
+            stored_element = self.get_original(
+                dataset_uuid=stored_dataset_uuid,
+                wdir_uuid=wdir_uuid)
 
-        # update kern
-        self.update_kern(stored_element, element)
+            # update elements
+            self.update_elements(stored_element, element)
 
-        # send modify request
-        self.modify_request(wdir_uuid, stored_element)
+            # send modify request
+            self.modify_request(wdir_uuid, stored_element)
 
-    def update_kern(self, stored_element, update_element):
+        except Exception as ex:
+            logger.error('Update append failed - {}'.format(ex))
+
+    def update_elements(self, stored_element, update_element):
         """
         Update one element with other.
 
@@ -920,20 +926,30 @@ class Datary():
         update_element    dict            update element
         ================  =============   ====================================
         """
-        logger.info("Updating kern...")
+        logger.info("Updating element")
 
         # LIST stored element
         if isinstance(stored_element.get('kern'), list) and isinstance(update_element.get('data', {}).get('kern'), list):
 
-            stored_element['kern'] = self._update_arrays_elements(
-                stored_element['kern'],
-                update_element.get('data', {}).get('kern'),
-                self._calculate_rowzero_header_confindence(
+            # Check if rowzero is header..
+            is_rowzero_header = self._calculate_rowzero_header_confindence(
                     stored_element.get('meta', {}).get('axisHeaders', {}).get('*'),  # stored element axisheader
                     stored_element.get('data', {}).get('kern', [[]])[0]              # stored element first row
-                    ))
+                    )
 
-            stored_element['meta'] = self._reload_meta(stored_element)
+            # update kern
+            stored_element['kern'] = self._update_arrays_elements(
+                original_array=stored_element.get('kern', {}),
+                update_array=update_element.get('data', {}).get('kern', {}),
+                is_rowzero_header=is_rowzero_header
+                )
+
+            # update meta
+            stored_element['meta'] = self._reload_meta(
+                kern=stored_element.get('kern', {}),
+                original_meta=stored_element.get('meta', {}),
+                path_key='',
+                rowzero_header=is_rowzero_header)
 
         # DICT stored element
         elif isinstance(stored_element.get('kern'), dict) and isinstance(update_element.get('data', {}).get('kern'), dict):
@@ -941,15 +957,16 @@ class Datary():
 
             # add element
             for element_keypath in element_keys:
-                add_element(stored_element, element_keypath, get_element(update_element.get('data', {}).get('kern')))
+                pass
 
+                # TODO: NOT FINISHED...
+                # add_element(stored_element, element_keypath, get_element(update_element.get('data', {}).get('kern')))
         else:
-
             logger.warning('Not compatible type elements to update {} - {}'.format(
                 type(stored_element.get('kern')).__name__,
                 type(update_element.get('data', {}).get('kern')).__name__,))
 
-    def _reload_meta(self, kern, original_meta):
+    def _reload_meta(self, kern, original_meta, path_key='', is_rowzero_header=False):
         """
         Reload element meta by default.
             - update axisheaders
@@ -958,23 +975,32 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        kern              dict or list    element kern
-        original_meta     dict            element meta
+        kern              dict or list    element kern.
+        original_meta     dict            element meta.
+        path_key          str             path keys to array in a dict.
+        is_rowzero_header    boolean         Rowzero contains array header.
         ================  =============   ====================================
         """
-
         updated_meta = {}
         updated_meta.update(original_meta)
 
         try:
-            # TODO: UPDATE AXISHEADERS HERE..
+            rows = get_element(kern, '/'.join(exclude_empty_values([path_key])))
+            row_zero = rows[0]
 
+            # Update axisheaders
+            axisheaders = {
+                path_key + "": [x[0] for x in rows],
+                path_key + "/*": row_zero if is_rowzero_header else ['Header'] * len(row_zero)
+            }
 
-            updated_meta['dimension'] = get_dimension(kern)
+            add_element(updated_meta, '/'.join(["axisHeaders", path_key]), axisheaders)
+
+            # Update dimension
+            add_element(updated_meta, '/'.join(["dimension", path_key]), get_dimension(kern))
 
         except Exception as ex:
             logger.error('Fail reloading meta.. - {}'.format(ex))
-
             updated_meta = original_meta
 
         return updated_meta
@@ -1015,36 +1041,26 @@ class Datary():
 
         return remove_list_duplicates(header1 + header2)
 
-    def _update_arrays_elements(self, array1, array2, rowzero_header):
+    def _update_arrays_elements(self, original_array, update_array, is_rowzero_header):
 
         result = []
 
-        if rowzero_header:
-            self._merge_headers(array1[0], array2[0])
+        # row zero contains data headers
+        if is_rowzero_header:
+            merged_headers = self._merge_headers(original_array[0], update_array[0])
+            result.append(merged_headers)
 
+            for data in original_array[1:]:
+                result.append(dict2orderedlist(zip(original_array[0], data), merged_headers, default=''))
 
+            for data in update_array[1:]:
+                result.append(dict2orderedlist(zip(update_array[0], data), merged_headers, default=''))
 
-
-
+        # row zero contains data headers
+        else:
+            original_array.extend(update_array)
 
         return result
-
-
-
-    def update_row_file(self, wdir_uuid, element):
-        """
-        Update row on existing file in Datary.
-
-        ================  =============   ====================================
-        Parameter         Type            Description
-        ================  =============   ====================================
-        wdir_uuid         str             working directory uuid
-        element           list            [path, filename, data, sha1]
-        ================  =============   ====================================
-
-        """
-        logger.info("Update an existing file in Datary.")
-        self.modify_request(wdir_uuid, element)
 
 
 ##########################################################################
