@@ -126,6 +126,18 @@ class Datary():
 
         return user_token
 
+    def sign_out(self):
+
+        url = urljoin(URL_BASE, "connection/signOut")
+
+        # Make sign_out request.
+        response = self.request(url, 'GET')
+
+        if not response:
+            logger.error(
+                "Fail to make Sign Out succesfully :(",
+                response=response)
+
     def request(self, url, http_method, **kwargs):
         """
         Sends request to Datary passing config through arguments.
@@ -809,7 +821,7 @@ class Datary():
 ##########################################################################
 #                              Modify methods
 ##########################################################################
-    ROWZERO_HEADER_CONFIDENCE_VALUE = 0.5
+    _ROWZERO_HEADER_CONFIDENCE_VALUE = 0.5
 
     def modify_request(self, wdir_uuid, element):
         url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
@@ -1032,7 +1044,7 @@ class Datary():
         """
         Calculate the cofidence index if the first row contains headers comparing
         this headers with the axisheaders. If this index is lower than the
-        ROWZERO_HEADER_CONFIDENCE_VALUE we think that the data in row_zero doesnt contains
+        _ROWZERO_HEADER_CONFIDENCE_VALUE we think that the data in row_zero doesnt contains
         headers.
         ================  =============   ====================================
         Parameter         Type            Description
@@ -1047,7 +1059,7 @@ class Datary():
         if axisheaders:
             row_zero_header_confidence = float(sum([axisheaders.count(x) for x in row_zero]))/len(axisheaders)
 
-        return row_zero_header_confidence > self.ROWZERO_HEADER_CONFIDENCE_VALUE
+        return row_zero_header_confidence > self._ROWZERO_HEADER_CONFIDENCE_VALUE
 
     def _merge_headers(self, header1, header2):
         """

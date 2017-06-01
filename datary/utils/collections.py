@@ -34,44 +34,16 @@ def exclude_empty_values(args):
     return exclude_values(['', 'None', None, [], {}], args)
 
 
-def nested_dict_to_list(path, dic):
-    """
-    Transform nested dict to list
-    """
-    result = []
+def check_fields(fields, args):
+    """Check that every field given in fields is included in args.args.
 
-    for key, value in dic.items():
-        # omit __self value key..
-        if key != '__self':
-            if isinstance(value, dict):
-                aux = path + key + "/"
-                result.extend(nested_dict_to_list(aux, value))
-            else:
-                if path.endswith("/"):
-                    path = path[:-1]
-
-                result.append([path, key, value])
-    return result
-
-
-def flatten(d, parent_key='', sep='_'):
+    - fields (tuple): fieldes to be searched in args
+    - args (dict): dictionary whose keys will be checked against fields
     """
-    Transform dictionary multilevel values to one level dict, concatenating
-    the keys with sep between them.
-    """
-    items = []
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            items.extend(flatten(v, new_key, sep=sep).items())
-        else:
-            if isinstance(v, list):
-                list_keys = [str(i) for i in range(0, len(v))]
-                items.extend(
-                    flatten(dict(zip(list_keys, v)), new_key, sep=sep).items())
-            else:
-                items.append((new_key, v))
-    return collections.OrderedDict(items)
+    for field in fields:
+        if field not in args:
+            return False
+    return True
 
 
 def get_element(source, path, separator=r'[/.]'):
@@ -178,6 +150,60 @@ def _add_element_by_names(source, names, value, override=False):
         return source
 
 
+def force_list(element):
+    """
+    Given an element or a list, concatenates every element and clean it to create a
+    full text
+    """
+    if element is None:
+        return []
+
+    if isinstance(element, (collections.Iterator, list)):
+        return element
+    else:
+        return [element]
+
+
+def flatten(d, parent_key='', sep='_'):
+    """
+    Transform dictionary multilevel values to one level dict, concatenating
+    the keys with sep between them.
+    """
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            if isinstance(v, list):
+                list_keys = [str(i) for i in range(0, len(v))]
+                items.extend(
+                    flatten(dict(zip(list_keys, v)), new_key, sep=sep).items())
+            else:
+                items.append((new_key, v))
+    return collections.OrderedDict(items)
+
+
+def nested_dict_to_list(path, dic):
+    """
+    Transform nested dict to list
+    """
+    result = []
+
+    for key, value in dic.items():
+        # omit __self value key..
+        if key != '__self':
+            if isinstance(value, dict):
+                aux = path + key + "/"
+                result.extend(nested_dict_to_list(aux, value))
+            else:
+                if path.endswith("/"):
+                    path = path[:-1]
+
+                result.append([path, key, value])
+    return result
+
+
 def find_value_in_object(attr, obj):
     """Return values for any key coincidence with attr in obj or any other nested dict."""
     # Carry on inspecting inside the list or tuple
@@ -207,20 +233,6 @@ def find_value_in_object(attr, obj):
                 yield from find_value_in_object(attr, item)
 
 
-def force_list(element):
-    """
-    Given an element or a list, concatenates every element and clean it to create a
-    full text
-    """
-    if element is None:
-        return []
-
-    if isinstance(element, (collections.Iterator, list)):
-        return element
-    else:
-        return [element]
-
-
 def remove_list_duplicates(lista, unique=False):
     """
     Remove duplicated elements in a list.
@@ -243,16 +255,14 @@ def remove_list_duplicates(lista, unique=False):
     return result
 
 
-def check_fields(fields, args):
-    """Check that every field given in fields is included in args.args.
-
-    - fields (tuple): fieldes to be searched in args
-    - args (dict): dictionary whose keys will be checked against fields
+def dict2orderedlist(dic, order_list, default=''):
     """
-    for field in fields:
-        if field not in args:
-            return False
-    return True
+    Return a list with dict values ordered by a list of key passed in args.
+    """
+    d = []
+    for key_order in order_list:
+        d.append(dic.get(key_order, default))
+    return d
 
 
 def get_dimension(array):
@@ -268,13 +278,3 @@ def get_dimension(array):
         result = [1, len(array)]
 
     return result
-
-
-def dict2orderedlist(dic, order_list, default=''):
-    """
-    Return a list with dict values ordered by a list of key passed in args.
-    """
-    d = []
-    for key_order in order_list:
-        d.append(dic.get(key_order, default))
-    return d

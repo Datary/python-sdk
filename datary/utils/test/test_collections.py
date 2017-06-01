@@ -157,3 +157,31 @@ class UtilsCollectionsTestCase(unittest.TestCase):
 
         self.assertEqual(result, expected)
         self.assertEqual(result1, expected1)
+
+    def test_dict2orderedlist(self):
+        test_dict = {'a': 1, 'b': 2, 'c': 3}
+
+        result1 = dict2orderedlist(test_dict, ['a', 'b', 'c'])
+        result2 = dict2orderedlist(test_dict, ['a', 'c'])
+        result3 = dict2orderedlist(test_dict, ['c', 'b', 'a'])
+
+        self.assertEqual(result1, [1, 2, 3])
+        self.assertEqual(result2, [1, 3])
+        self.assertEqual(result3, [3, 2, 1])
+
+    def test_get_dimension(self):
+
+        test = [1, 2, 3]
+        test2 = [test, test, test]
+        test3 = [test2, test, test2]
+        bad_test = "bad_test"
+
+        result1 = get_dimension(test)
+        result2 = get_dimension(test2)
+        result3 = get_dimension(test3)
+        result4 = get_dimension(bad_test)
+
+        self.assertEqual(result1, [1, 3])
+        self.assertEqual(result2, [3, 3])
+        self.assertEqual(result3, [3, 3])  # could need a fix this case..
+        self.assertEqual(result4, [0, 0])
