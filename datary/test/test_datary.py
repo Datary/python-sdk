@@ -25,7 +25,7 @@ class DataryTestCase(unittest.TestCase):
     repo_uuid = '1234-1234-21-asd-123'
     wdir_uuid = '4456-2123-55-as2-146'
     commit_sha1 = "3256-1125-23-ab3-246"
-    dataset_sha1 = "9132-3323-15-xs2-627"
+    dataset_uuid = "9132-3323-15-xs2-627"
 
     # old_ commit
     commit_test1 = [['a', 'aa', 'data_aa', 'aa_sha1'],
@@ -356,13 +356,13 @@ class DataryTestCase(unittest.TestCase):
     @mock.patch('datary.Datary.request')
     def test_get_metadata(self, mock_request):
         mock_request.return_value = MockRequestResponse("", json=self.metadata)
-        metadata = self.datary.get_metadata(self.repo_uuid, self.dataset_sha1)
+        metadata = self.datary.get_metadata(self.repo_uuid, self.dataset_uuid)
         self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(metadata, dict))
         self.assertEqual(metadata, self.metadata)
 
         mock_request.return_value = None
-        metadata2 = self.datary.get_metadata(self.repo_uuid, self.dataset_sha1)
+        metadata2 = self.datary.get_metadata(self.repo_uuid, self.dataset_uuid)
         assert(isinstance(metadata2, dict))
         self.assertEqual(metadata2, {})
 
@@ -370,13 +370,13 @@ class DataryTestCase(unittest.TestCase):
     def test_get_original(self, mock_request):
 
         mock_request.return_value = MockRequestResponse("", json=self.element.get('data', {}))
-        original = self.datary.get_original(self.repo_uuid, self.dataset_sha1)
+        original = self.datary.get_original(self.repo_uuid, self.dataset_uuid)
         self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(original, dict))
         self.assertEqual(original, self.element.get('data', {}))
 
         mock_request.return_value = None
-        original2 = self.datary.get_original(self.repo_uuid, self.dataset_sha1)
+        original2 = self.datary.get_original(self.repo_uuid, self.dataset_uuid)
         assert(isinstance(original2, dict))
         self.assertEqual(original2, {})
 

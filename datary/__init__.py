@@ -393,21 +393,25 @@ class Datary():
         Returns:
             (dict) changes in workdir formatting as filetree format.
         """
+        result = {}
 
-        return {os.path.join(item.get('dirname', ''), item.get('basename', '')): item.get('inode', 'unkwown_dataset_uuid') for sublist in force_list(wdir_changes_tree) for item in force_list(sublist)}
+        for sublist in list(wdir_changes_tree):
+            for item in force_list(sublist):
+                add_element(result, os.path.join(item.get('dirname', ''), item.get('basename', '')), item.get('inode', 'unkwown_dataset_uuid'))
 
+        return result
 
 ##########################################################################
 #                             Datasets Methods
 ##########################################################################
 
-    def get_metadata(self, repo_uuid, dataset_sha1):
+    def get_metadata(self, repo_uuid, dataset_uuid):
         """
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
         repo_uuid         int             repository id
-        dataset_sha1  str
+        dataset_uuid  str
         ================  =============   ====================================
 
         Returns:
@@ -417,7 +421,7 @@ class Datary():
 
         url = urljoin(
             URL_BASE,
-            "datasets/{}/metadata".format(dataset_sha1))
+            "datasets/{}/metadata".format(dataset_uuid))
 
         params = {'namespace': repo_uuid}
 
@@ -427,18 +431,18 @@ class Datary():
             logger.error(
                 "Not metadata retrieved.",
                 repo_uuid=repo_uuid,
-                dataset_sha1=dataset_sha1)
+                dataset_uuid=dataset_uuid)
 
         return response.json() if response else {}
 
-    def get_original(self, dataset_sha1, repo_uuid='', wdir_uuid=''):
+    def get_original(self, dataset_uuid, repo_uuid='', wdir_uuid=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
+        dataset_uuid      str             dataset uuid
         repo_uuid         str             repository uuid
         wdir_uuid         str             workingdir uuid
-        dataset_sha1      str             dataset uuid
         ================  =============   ====================================
 
         Returns:
@@ -446,20 +450,57 @@ class Datary():
         """
         response = None
 
-        if (repo_uuid or wdir_uuid) and dataset_sha1:
+        if (repo_uuid or wdir_uuid) and dataset_uuid:
 
-            url = urljoin(URL_BASE, "datasets/{}/original".format(dataset_sha1))
+            url = urljoin(URL_BASE, "datasets/{}/original".format(dataset_uuid))
             params = exclude_empty_values({'namespace': repo_uuid, 'scope': wdir_uuid})
             response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
-            if not response:
+            if not response or not response.json():
                 logger.error(
-                    "Not original retrieved.",
-                    repo_uuid=repo_uuid,
-                    dataset_sha1=dataset_sha1)
+                    "Not original retrieved from wdir scope",
+                    namespace=repo_uuid,
+                    scope=wdir_uuid,
+                    dataset_uuid=dataset_uuid)
+
+                params = exclude_empty_values({'namespace': repo_uuid, 'scope': repo_uuid})
+                response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+                if not response:
+                    logger.error(
+                        "Not original retrieved from repo scope",
+                        namespace=repo_uuid,
+                        scope=repo_uuid,
+                        dataset_uuid=dataset_uuid)
 
         return response.json() if response else {}
 
     def get_dataset_uuid(self, wdir_uuid, path='', filename=''):
+        """
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        wdir_uuid         str             workdir uuid
+        path              str             path of dataset
+        filename          str             filename of dataset
+        ================  =============   ====================================
+
+        Returns:
+            (str) uuid of dataset in path introduced in args.
+        """
+
+        filepath = os.path.join(path, filename)
+
+        # retrieve wdir filetree
+        wdir_filetree = self.get_wdir_filetree(wdir_uuid)
+
+        # retrieve last commit filetree
+        wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(self.get_wdir_changes(wdir_uuid).values())
+
+        # retrieve dataset uuid
+        dataset_uuid = get_element(wdir_changes_filetree, filepath) or get_element(wdir_filetree, filepath) or {}
+
+        return dataset_uuid
+
+    def get_commited_dataset_uuid(self, wdir_uuid, path='', filename=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -558,8 +599,8 @@ class Datary():
             filetree_matrix = nested_dict_to_list("", ftree)
 
             # Take metadata to retrieve sha-1 and compare with
-            for path, filename, dataset_sha1 in filetree_matrix:
-                metadata = self.get_metadata(repo.get('uuid'), dataset_sha1)
+            for path, filename, dataset_uuid in filetree_matrix:
+                metadata = self.get_metadata(repo.get('uuid'), dataset_uuid)
                 # append format path | filename | data (not required) | sha1
                 last_commit.append((path, filename, None, metadata.get("sha1")))
         except Exception:
@@ -863,7 +904,7 @@ class Datary():
 
         # Update Append method
         elif mod_style == 'update-append':
-            self.update_append_file(wdir_uuid, element)
+            self.update_append_file(wdir_uuid, element, **kwargs)
 
         # TODO: ADD update-row method
 
@@ -891,7 +932,7 @@ class Datary():
 
         self.modify_request(wdir_uuid, element)
 
-    def update_append_file(self, wdir_uuid, element):
+    def update_append_file(self, wdir_uuid, element, **kwargs):
         """
         Update append an existing file in Datary.
 
@@ -915,13 +956,26 @@ class Datary():
             # retrieve original dataset from datary
             stored_element = self.get_original(
                 dataset_uuid=stored_dataset_uuid,
+                repo_uuid=kwargs.get('repo_uuid'),
                 wdir_uuid=wdir_uuid)
+
+            if not stored_element:
+                raise Exception('Fail to retrieve original data ({}) from Datary workdir({}):( '.format(stored_dataset_uuid, wdir_uuid))
 
             # update elements
             self.update_elements(stored_element, element)
 
+            # introduce stored_element into element data
+            element['data'] = {
+                'kern': stored_element.get('__kern'),
+                'meta': stored_element.get('__meta')
+                }
+
             # send modify request
-            self.modify_request(wdir_uuid, stored_element)
+            self.modify_request(wdir_uuid, element={
+                "path": element.get('path', ''),
+                "filename": element.get('filename', ''),
+                "data": element.get('data')})
 
         except Exception as ex:
             logger.error('Update append failed - {}'.format(ex))
@@ -940,44 +994,43 @@ class Datary():
         logger.info("Updating element")
 
         # LIST stored element
-        if isinstance(stored_element.get('kern'), list) and isinstance(update_element.get('data', {}).get('kern'), list):
+        if isinstance(stored_element.get('__kern'), list) and isinstance(update_element.get('data', {}).get('kern'), list):
 
             # Check if rowzero is header..
             is_rowzero_header = self._calculate_rowzero_header_confindence(
-                    stored_element.get('meta', {}).get('axisHeaders', {}).get('*'),  # stored element axisheader
-                    stored_element.get('kern', [[]])[0]              # stored element first row
+                    stored_element.get('__meta', {}).get('axisHeaders', {}).get('*'),  # stored element axisheader
+                    stored_element.get('__kern', [[]])[0]              # stored element first row
                     )
 
             # update kern
-            stored_element['kern'] = self._update_arrays_elements(
-                original_array=stored_element.get('kern', {}),
+            stored_element['__kern'] = self._update_arrays_elements(
+                original_array=stored_element.get('__kern', {}),
                 update_array=update_element.get('data', {}).get('kern', {}),
                 is_rowzero_header=is_rowzero_header
                 )
 
             # update meta
-            stored_element['meta'] = self._reload_meta(
-                kern=stored_element.get('kern', {}),
-                original_meta=stored_element.get('meta', {}),
+            stored_element['__meta'] = self._reload_meta(
+                kern=stored_element.get('__kern', {}),
+                original_meta=stored_element.get('__meta', {}),
                 path_key='',
-                rowzero_header=is_rowzero_header)
+                is_rowzero_header=is_rowzero_header)
 
         # DICT stored element
-        elif isinstance(stored_element.get('kern'), dict) and isinstance(update_element.get('data', {}).get('kern'), dict):
+        elif isinstance(stored_element.get('__kern'), dict) and isinstance(update_element.get('data', {}).get('kern'), dict):
             element_keys = set([re.split("[0-9]", x)[0] for x in list(flatten(update_element.get('data', {}).get('kern'), sep='/').keys())])
 
             # add element
             for element_keypath in element_keys:
-                pass
 
                 is_rowzero_header = self._calculate_rowzero_header_confindence(
-                    stored_element.get('meta', {}).get('axisHeaders', {}).get(element_keypath, []),        # stored element axisheader
-                    get_element(stored_element.get('kern', {}), element_keypath+"/0") or []                # stored element first row
+                    stored_element.get('__meta', {}).get('axisHeaders', {}).get(element_keypath, []),        # stored element axisheader
+                    get_element(stored_element.get('__kern', {}), element_keypath+"/0") or []                # stored element first row
                     )
 
                 # update kern
                 updated_keypath_array = self._update_arrays_elements(
-                    original_array=get_element(stored_element.get('kern', {}), element_keypath) or [],
+                    original_array=get_element(stored_element.get('__kern', {}), element_keypath) or [],
                     update_array=get_element(update_element.get('data', {}).get('kern', {}), element_keypath),
                     is_rowzero_header=is_rowzero_header
                     )
@@ -985,19 +1038,19 @@ class Datary():
                 # Update meta
                 updated_keypath_meta = self._reload_meta(
                     kern=updated_keypath_array,
-                    original_meta=stored_element.get('meta', {}),
+                    original_meta=stored_element.get('__meta', {}),
                     path_key=element_keypath,
-                    rowzero_header=is_rowzero_header)
+                    is_rowzero_header=is_rowzero_header)
 
                 # add updated kern to keypath
-                add_element(stored_element.get('kern', {}), element_keypath, updated_keypath_array)
+                add_element(stored_element.get('__kern', {}), element_keypath, updated_keypath_array)
 
                 # add updated meta to stored element
-                add_element(stored_element, 'meta', updated_keypath_meta, override=True)
+                add_element(stored_element, '__meta', updated_keypath_meta, override=True)
 
         else:
             logger.warning('Not compatible type elements to update {} - {}'.format(
-                type(stored_element.get('kern')).__name__,
+                type(stored_element.get('__kern')).__name__,
                 type(update_element.get('data', {}).get('kern')).__name__,))
 
     def _reload_meta(self, kern, original_meta, path_key='', is_rowzero_header=False):
@@ -1016,16 +1069,23 @@ class Datary():
         ================  =============   ====================================
         """
         updated_meta = {}
+        row_zero = []
         updated_meta.update(original_meta)
 
         try:
             rows = get_element(kern, '/'.join(exclude_empty_values([path_key])))
-            row_zero = rows[0]
+            row_zero = rows[0] if rows else []
+
+            if rows:
+                if isinstance(row_zero, list):
+                    row_zero = rows[0]
+                else:
+                    row_zero = rows
 
             # Update axisheaders
             axisheaders = {
-                path_key + "": [x[0] for x in rows],
-                path_key + "/*": row_zero if is_rowzero_header else ['Header'] * len(row_zero)
+                os.path.join(path_key, ""): [force_list(x)[0] for x in rows],
+                os.path.join(path_key, "*"): row_zero if is_rowzero_header else ['Header'] * (len(row_zero) if rows and isinstance(rows[0], list) else 1)
             }
 
             add_element(updated_meta, '/'.join(["axisHeaders", path_key]), axisheaders, override=True)
@@ -1052,7 +1112,6 @@ class Datary():
         rowzero           list            list with firt row of the element.
         ================  =============   ====================================
         """
-
         row_zero_header_confidence = 0
 
         if axisheaders:
@@ -1076,7 +1135,6 @@ class Datary():
         return remove_list_duplicates(header1 + header2)
 
     def _update_arrays_elements(self, original_array, update_array, is_rowzero_header):
-
         result = []
 
         # row zero contains data headers
@@ -1085,13 +1143,14 @@ class Datary():
             result.append(merged_headers)
 
             for data in original_array[1:]:
-                result.append(dict2orderedlist(zip(original_array[0], data), merged_headers, default=''))
+                result.append(dict2orderedlist(dict(zip(original_array[0], data)), merged_headers, default=''))
 
             for data in update_array[1:]:
-                result.append(dict2orderedlist(zip(update_array[0], data), merged_headers, default=''))
+                result.append(dict2orderedlist(dict(zip(update_array[0], data)), merged_headers, default=''))
 
         # row zero contains data headers
         else:
+            result = original_array
             original_array.extend(update_array)
 
         return result
