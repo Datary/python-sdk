@@ -464,35 +464,25 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        repo_uuid         str             repo uuid.
         wdir_uuid         str             wdir uuid.
         path              str             path of the file in Datary.
         filename          str             filename of the file in Datary.
         ================  =============   ====================================
 
         Returns:
-            (string) uuid dataset original data
+            (string) uuid dataset/s of pathname introduced.
         """
 
-        filepath = os.path.join(path, filename)
+        pathname = os.path.join(path, filename)
 
-        # retrieve wdir filetree
-        wdir_filetree = self.get_wdir_filetree(wdir_uuid)
+        url = urljoin(URL_BASE, "/workdirs/{}/filetree".format(wdir_uuid))
+        params = exclude_empty_values({'pathname': pathname})
+        response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+        if not response:
+            logger.error(
+                "Not response retrieved.")
 
-        # retrieve last commit filetree
-        wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(self.get_wdir_changes(wdir_uuid).values())
-
-        # retrieve dataset uuid
-        dataset_uuid = get_element(wdir_changes_filetree, filepath) or get_element(wdir_filetree, filepath) or {}
-
-        return dataset_uuid
-
-    version 2
-    http://{{host}}/workdirs/{{wd-pub}}/filetree?pathname=test1/test2(test3/file_test123
-
-
-
-
+        return response.json() if response else {}
 
 ##########################################################################
 #                             Categories Methods
@@ -832,6 +822,7 @@ class Datary():
     _ROWZERO_HEADER_CONFIDENCE_VALUE = 0.5
 
     def modify_request(self, wdir_uuid, element):
+
         url = urljoin(URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {
