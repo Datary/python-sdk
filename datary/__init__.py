@@ -387,7 +387,7 @@ class Datary():
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        wdir_changes_tree dict            working changes tree
+        wdir_changes_tree list            working changes tree
         ================  =============   ====================================
 
         Returns:
@@ -486,17 +486,19 @@ class Datary():
         Returns:
             (str) uuid of dataset in path introduced in args.
         """
-
+        dataset_uuid = None
         filepath = os.path.join(path, filename)
 
-        # retrieve wdir filetree
-        wdir_filetree = self.get_wdir_filetree(wdir_uuid)
+        if filepath:
 
-        # retrieve last commit filetree
-        wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(self.get_wdir_changes(wdir_uuid).values())
+            # retrieve wdir filetree
+            wdir_filetree = self.get_wdir_filetree(wdir_uuid)
 
-        # retrieve dataset uuid
-        dataset_uuid = get_element(wdir_changes_filetree, filepath) or get_element(wdir_filetree, filepath) or {}
+            # retrieve last commit filetree
+            wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(self.get_wdir_changes(wdir_uuid).values())
+
+            # retrieve dataset uuid
+            dataset_uuid = get_element(wdir_changes_filetree, filepath) or get_element(wdir_filetree, filepath) or None
 
         return dataset_uuid
 
@@ -513,15 +515,16 @@ class Datary():
         Returns:
             (string) uuid dataset/s of pathname introduced.
         """
-
+        response = {}
         pathname = os.path.join(path, filename)
 
-        url = urljoin(URL_BASE, "/workdirs/{}/filetree".format(wdir_uuid))
-        params = exclude_empty_values({'pathname': pathname})
-        response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
-        if not response:
-            logger.error(
-                "Not response retrieved.")
+        if pathname:
+            url = urljoin(URL_BASE, "/workdirs/{}/filetree".format(wdir_uuid))
+            params = exclude_empty_values({'pathname': pathname})
+            response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+            if not response:
+                logger.error(
+                    "Not response retrieved.")
 
         return response.json() if response else {}
 

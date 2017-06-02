@@ -95,28 +95,27 @@ class DataryTestCase(unittest.TestCase):
     changes = {
         "removedElements": [
             {
-                "dirname": "",
-                "basename": "fileB",
-                "inode": "inode1"
+                "dirname": "b",
+                "basename": "bb",
+                "inode": "inode1_changes"
             },
             {
                 "dirname": "",
-                "basename": "fileA",
-                "inode": "inode2"
+                "basename": "a",
+                "inode": "inode2_changes"
             }],
         "renamedElements": [],
         "modifiedElements": [{
-                "dirname": "",
-                "basename": "fileB",
-                "inode": "inode1"
+                "dirname": "b",
+                "basename": "bb",
+                "inode": "inode1_changes"
             }],
         "addedElements": [{
                 "dirname": "",
-                "basename": "fileC",
-                "inode": "inode3"
+                "basename": "d",
+                "inode": "inode3_changes"
             }]
         }
-
 
     filetree = {
         '__self': '__self_sha1',
@@ -345,13 +344,12 @@ class DataryTestCase(unittest.TestCase):
         assert(isinstance(filetree, dict))
 
     def test_format_wdir_changes_to_filetreeformat(self):
-        import ipdb; ipdb.set_trace()
-        treeformated_changes = self.datary.format_wdir_changes_to_filetreeformat(self.changes)
+        treeformated_changes = self.datary.format_wdir_changes_to_filetreeformat(self.changes.values())
 
-
-        self.assertEqual(treeformated_changes, [])
-
-
+        self.assertEqual(len(treeformated_changes.keys()), 3)
+        self.assertEqual(treeformated_changes.get('a'), 'inode2_changes')
+        self.assertEqual(treeformated_changes.get('b'), {'bb': 'inode1_changes'})
+        self.assertEqual(treeformated_changes.get('d'), 'inode3_changes')
 
     @mock.patch('datary.Datary.request')
     def test_get_metadata(self, mock_request):
@@ -379,6 +377,71 @@ class DataryTestCase(unittest.TestCase):
         original2 = self.datary.get_original(self.repo_uuid, self.dataset_uuid)
         assert(isinstance(original2, dict))
         self.assertEqual(original2, {})
+
+    @mock.patch('datary.Datary.get_wdir_filetree')
+    @mock.patch('datary.Datary.get_wdir_changes')
+    def test_get_dataset_uuid(self, mock_get_wdir_changes, mock_get_wdir_filetree):
+
+        mock_get_wdir_filetree.return_value = self.filetree
+        mock_get_wdir_changes.return_value = self.changes
+
+        path = 'b'
+        filename = 'bb'
+
+        empty_result = self.datary.get_dataset_uuid(self.wdir_uuid)
+        self.assertEqual(empty_result, None)
+
+        from_changes_result = self.datary.get_dataset_uuid(self.wdir_uuid, path, filename)
+        self.assertEqual(from_changes_result, 'inode1_changes')
+        self.assertEqual(mock_get_wdir_filetree.call_count, 1)
+        self.assertEqual(mock_get_wdir_changes.call_count, 1)
+
+        mock_get_wdir_filetree.reset_mock()
+        mock_get_wdir_changes.reset_mock()
+
+        # retrive from filetree
+        path = ''
+        filename = 'c'
+
+        from_commit_result = self.datary.get_dataset_uuid(self.wdir_uuid, path, filename)
+
+        self.assertEqual(from_commit_result, 'c_sha1')
+        self.assertEqual(mock_get_wdir_filetree.call_count, 1)
+        self.assertEqual(mock_get_wdir_changes.call_count, 1)
+
+        mock_get_wdir_filetree.reset_mock()
+        mock_get_wdir_changes.reset_mock()
+
+        # NOT exists
+        path = 'bb'
+        filename = 'b'
+
+        no_result = self.datary.get_dataset_uuid(self.wdir_uuid, path, filename)
+        self.assertEqual(no_result, None)
+        self.assertEqual(mock_get_wdir_filetree.call_count, 1)
+        self.assertEqual(mock_get_wdir_changes.call_count, 1)
+
+    @mock.patch('datary.Datary.request')
+    def test_get_commited_dataset_uuid(self, mock_request):
+
+        # no args path and filename introduced
+        mock_request.return_value = MockRequestResponse("", json=self.dataset_uuid)
+        result_no_pathname = self.datary.get_commited_dataset_uuid(self.wdir_uuid)
+        self.assertEqual(result_no_pathname, {})
+        self.assertEqual(mock_request.call_count, 0)
+
+        # good case
+        result = self.datary.get_commited_dataset_uuid(self.wdir_uuid, 'path', 'filename')
+        self.assertEqual(result, self.dataset_uuid)
+        self.assertEqual(mock_request.call_count, 1)
+
+        # datary request return None
+        mock_request.reset_mock()
+        mock_request.return_value = None
+
+        no_response_result = self.datary.get_commited_dataset_uuid(self.wdir_uuid, 'path', 'filename')
+        self.assertEqual(no_response_result, {})
+        self.assertEqual(mock_request.call_count, 1)
 
     @mock.patch('datary.Datary.request')
     def test_get_categories(self, mock_request):
@@ -549,14 +612,30 @@ class DataryTestCase(unittest.TestCase):
         self.datary.add_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         self.assertEqual(mock_request.call_count, 2)
 
-    @mock.patch('datary.Datary.request')
-    def test_modify_file(self, mock_request):
-        # TODO: Unkwnown api method changes??
-        mock_request.return_value = MockRequestResponse("")
+    @mock.patch('datary.Datary.override_file')
+    @mock.patch('datary.Datary.update_append_file')
+    def test_modify_file(self, mock_update_append, mock_override_file):
+
+        mock_mod_style = mock.MagicMock()
+
+        # override mode
         self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
-        mock_request.return_value = None
-        self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
-        self.assertEqual(mock_request.call_count, 2)
+        self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element, mod_style='override')
+        self.assertEqual(mock_override_file.call_count, 2)
+
+        # update-append mode
+        self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element, mod_style='update-append')
+        self.assertEqual(mock_update_append.call_count, 1)
+
+        # callable mode
+        self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element, mod_style=mock_mod_style)
+        self.assertEqual(mock_mod_style.call_count, 1)
+
+        # unexisting mode
+        self.datary.modify_file(self.json_repo.get('workdir', {}).get('uuid'), self.element, mod_style="magic-mode")
+        self.assertEqual(mock_override_file.call_count, 2)
+        self.assertEqual(mock_update_append.call_count, 1)
+        self.assertEqual(mock_mod_style.call_count, 1)
 
     @mock.patch('datary.Datary.request')
     def test_delete_dir(self, mock_request):
