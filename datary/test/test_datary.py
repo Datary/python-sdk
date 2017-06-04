@@ -39,6 +39,8 @@ class DataryTestCase(unittest.TestCase):
 
     element = {'path': 'a', 'filename': 'aa', 'data': {'kern': {'data_aa': []}, 'meta': {}}, 'sha1': 'aa_sha1'}
 
+    original = {'__kern': {'data_aa': []}, '__meta': {}}
+
     inode = 'c46ac2d596ee898fd949c0bb0bb8f114482de450'
 
     json_repo = {
@@ -170,6 +172,11 @@ class DataryTestCase(unittest.TestCase):
 
     metadata = {"sha1": "sha1_value"}  # TODO: Update sha1 with similar one
 
+
+##########################################################################
+#                             Auth & Request
+##########################################################################
+
     @mock.patch('datary.Datary.request')
     def test_get_user_token(self, mock_request):
 
@@ -255,6 +262,11 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(mock_requests.post.call_count, 1)
         self.assertEqual(mock_requests.delete.call_count, 1)
 
+
+##########################################################################
+#                             Repository Methods
+##########################################################################
+
     @mock.patch('datary.Datary.request')
     @mock.patch('datary.Datary.get_describerepo')
     def test_create_repo(self, mock_describerepo, mock_request):
@@ -315,6 +327,11 @@ class DataryTestCase(unittest.TestCase):
         with self.assertRaises(Exception):
             self.datary.delete_repo()
 
+
+##########################################################################
+#                             Filetree Methods
+##########################################################################
+
     @mock.patch('datary.Datary.request')
     def test_get_commit_filetree(self, mock_request):
         mock_request.return_value = MockRequestResponse("", json=self.wdir_json.get('filetree'))
@@ -351,6 +368,11 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(treeformated_changes.get('b'), {'bb': 'inode1_changes'})
         self.assertEqual(treeformated_changes.get('d'), 'inode3_changes')
 
+
+##########################################################################
+#                             Datasets Methods
+##########################################################################
+
     @mock.patch('datary.Datary.request')
     def test_get_metadata(self, mock_request):
         mock_request.return_value = MockRequestResponse("", json=self.metadata)
@@ -367,11 +389,11 @@ class DataryTestCase(unittest.TestCase):
     @mock.patch('datary.Datary.request')
     def test_get_original(self, mock_request):
 
-        mock_request.return_value = MockRequestResponse("", json=self.element.get('data', {}))
+        mock_request.return_value = MockRequestResponse("", json=self.original)
         original = self.datary.get_original(self.repo_uuid, self.dataset_uuid)
         self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(original, dict))
-        self.assertEqual(original, self.element.get('data', {}))
+        self.assertEqual(original, self.original)
 
         mock_request.return_value = None
         original2 = self.datary.get_original(self.repo_uuid, self.dataset_uuid)
@@ -443,6 +465,11 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(no_response_result, {})
         self.assertEqual(mock_request.call_count, 1)
 
+
+##########################################################################
+#                             Categories Methods
+##########################################################################
+
     @mock.patch('datary.Datary.request')
     def test_get_categories(self, mock_request):
         mock_request.return_value = MockRequestResponse("", json=self.categories,)
@@ -457,6 +484,11 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(mock_request.call_count, 1)
         self.assertEqual(len(categories), len(self.datary.DATARY_CATEGORIES))
         self.assertEqual(sorted(categories), sorted(self.datary.DATARY_CATEGORIES))
+
+
+##########################################################################
+#                            Commits method's
+##########################################################################
 
     @mock.patch('datary.Datary.request')
     def test_commit(self, mock_request):
@@ -594,6 +626,11 @@ class DataryTestCase(unittest.TestCase):
         result3 = self.datary.commit_diff_tostring(test_diff)
         self.assertEqual(result3, '')
 
+
+##########################################################################
+#                              Add methods
+##########################################################################
+
     @mock.patch('datary.Datary.request')
     def test_add_dir(self, mock_request):
         # TODO: Unkwnown api method changes?
@@ -610,6 +647,19 @@ class DataryTestCase(unittest.TestCase):
         self.datary.add_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         mock_request.return_value = None
         self.datary.add_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
+        self.assertEqual(mock_request.call_count, 2)
+
+
+##########################################################################
+#                              Modify methods
+##########################################################################
+
+    @mock.patch('datary.Datary.request')
+    def test_modify_request(self, mock_request):
+        mock_request.return_value = MockRequestResponse("")
+        self.datary.modify_request(self.json_repo.get('workdir', {}).get('uuid'), self.element)
+        mock_request.return_value = None
+        self.datary.modify_request(self.json_repo.get('workdir', {}).get('uuid'), self.element)
         self.assertEqual(mock_request.call_count, 2)
 
     @mock.patch('datary.Datary.override_file')
@@ -636,6 +686,87 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(mock_override_file.call_count, 2)
         self.assertEqual(mock_update_append.call_count, 1)
         self.assertEqual(mock_mod_style.call_count, 1)
+
+    @mock.patch('datary.Datary.modify_request')
+    def test_override_file(self, mock_modify_requests):
+
+        mock_modify_requests.return_value = MockRequestResponse("")
+        self.datary.override_file(self.json_repo.get('workdir', {}).get('uuid'), self.element)
+        self.assertEqual(mock_modify_requests.call_count, 1)
+
+    @mock.patch('datary.Datary.modify_request')
+    @mock.patch('datary.Datary.update_elements')
+    @mock.patch('datary.Datary.get_original')
+    @mock.patch('datary.Datary.get_dataset_uuid')
+    def test_update_append_file(self, mock_get_dataset_uuid, mock_get_original, mock_update_elements, mock_modify_request):
+
+        # all good.
+        mock_get_dataset_uuid.return_value = self.dataset_uuid
+        mock_get_original.return_value = self.original
+
+        self.datary.update_append_file(
+            wdir_uuid=self.json_repo.get('workdir', {}).get('uuid'),
+            element=self.element,
+            repo_uuid=self.repo_uuid)
+
+        self.assertEqual(mock_get_dataset_uuid.call_count, 1)
+        self.assertEqual(mock_get_original.call_count, 1)
+        self.assertEqual(mock_update_elements.call_count, 1)
+        self.assertEqual(mock_update_elements.call_count, 1)
+
+        mock_get_dataset_uuid.reset_mock()
+        mock_get_original.reset_mock()
+        mock_update_elements.reset_mock()
+        mock_update_elements.reset_mock()
+
+        # Not retrieve orignal case..
+        mock_get_original.return_value = None
+
+        self.datary.update_append_file(
+            wdir_uuid=self.json_repo.get('workdir', {}).get('uuid'),
+            element=self.element,
+            repo_uuid=self.repo_uuid)
+
+        self.assertEqual(mock_get_dataset_uuid.call_count, 1)
+        self.assertEqual(mock_get_original.call_count, 1)
+        self.assertEqual(mock_update_elements.call_count, 0)
+        self.assertEqual(mock_update_elements.call_count, 0)
+
+    @mock.patch('datary.Datary._reload_meta')
+    @mock.patch('datary.Datary._update_arrays_elements')
+    @mock.patch('datary.Datary._calculate_rowzero_header_confindence')
+    def test_update_elements(self, mock_calculate_rowzero_header_confindence, mock_update_arrays_elements, mock_reload_meta):
+        # TODO: DO THIS TEST..
+        pass
+
+    def test_reload_meta(self):
+        # TODO: DO THIS TEST..
+        # self.datary._reload_meta(kern, original_meta, path_key='', is_rowzero_header=False)
+        pass
+
+    def test_calculate_rowzero_header_confindence(self):
+        # TODO: DO THIS TEST..
+        pass
+
+    def test_merge_headers(self):
+
+        header1 = ['H1', 'H2', 'H3']
+        header2 = ['H4', 'H2', 'H1']
+
+        result = self.datary._merge_headers(header1, header2)
+        self.assertEqual(result, ['H1', 'H2', 'H3', 'H4'])
+
+        result2 = self.datary._merge_headers(result, ['H5', 'pepe'])
+        self.assertEqual(result2, ['H1', 'H2', 'H3', 'H4', 'H5', 'pepe'])
+
+    def test_update_arrays_elements(self):
+        # TODO: DO THIS TEST..
+        # _update_arrays_elements(self, original_array, update_array, is_rowzero_header)
+        pass
+
+##########################################################################
+#                              Delete methods
+##########################################################################
 
     @mock.patch('datary.Datary.request')
     def test_delete_dir(self, mock_request):
@@ -696,6 +827,11 @@ class DataryTestCase(unittest.TestCase):
         mock_get_describerepo.return_value = None
         self.datary.clean_repo(self.repo_uuid)
 
+
+##########################################################################
+#                              Members methods
+##########################################################################
+
     @mock.patch('datary.Datary.request')
     def test_get_members(self, mock_request):
 
@@ -711,52 +847,6 @@ class DataryTestCase(unittest.TestCase):
 
         members_limit = self.datary.get_members()
         assert isinstance(members_limit, list)
-
-    def test_Datary_SizeLimitException(self):
-        a = Datary_SizeLimitException('test_msg', 'test_src_path', size=4)
-
-        self.assertEqual(a.msg, 'test_msg')
-        self.assertEqual(a.src_path, 'test_src_path')
-        self.assertEqual(a.size, 4)
-        self.assertEqual(str(a), 'test_msg;test_src_path;4')
-
-    def test_nested_dict_to_list(self):
-        expected = [['', 'b', 'bv2'], ['', 'a', 'av1'], ['c', 'cc', 'ccv1'],
-                    ['c', 'ca', 'cav1'], ['c', 'cb', 'cbv1'], ['ccca', 'ccaa', 'ccaav1']]
-
-        test = OrderedDict([
-            ('b', 'bv2'),
-            ('a', 'av1'),
-            ('c', OrderedDict([
-                ('cc', 'ccv1'),
-                ('ca', 'cav1'),
-                ('cb', 'cbv1'),
-                ('cca', OrderedDict([
-                    ('ccaa', 'ccaav1')])),
-            ]))])
-
-        result = nested_dict_to_list("", test)
-        for r in result:
-            assert r in expected
-
-    def test_flatten(self):
-        test = OrderedDict(
-            {'a': 2, 'b': 2, 'c': {'ca': 3, 'cb': MockRequestResponse(''), 'cd': [1, 3, 4], 'cc': {'cca': 1}}})
-        test_result_1 = collections.OrderedDict([
-           ('a', 2), ('b', 2), ('c/ca', 3), ('c/cb', test.get('c', {}).get('cb')), ('c/cc/cca', 1), ('c/cd/1', 3),
-           ('c/cd/0', 1), ('c/cd/2', 4)])
-
-        test_result_2 = collections.OrderedDict([
-            ('test_a', 2), ('test_c_ca', 3), ('test_c_cd_1', 3), ('test_c_cd_2', 4), ('test_c_cd_0', 1),
-            ('test_c_cb', test.get('c', {}).get('cb')), ('test_c_cc_cca', 1), ('test_b', 2)])
-
-        result = flatten(test, '', sep='/')
-        result2 = flatten(test, 'test')
-
-        for retrieved_result, test_result in [(result, test_result_1), (result2, test_result_2)]:
-            for k, v in test_result.items():
-                assert k in retrieved_result
-                self.assertEqual(retrieved_result[k], v)
 
 
 class MockRequestsTestCase(unittest.TestCase):
