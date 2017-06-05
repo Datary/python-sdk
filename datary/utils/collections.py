@@ -88,8 +88,6 @@ def add_element(source, path, value, separator=r'[/.]', override=False):
 
     return _add_element_by_names(source, exclude_empty_values(re.split(separator, path)), value, override)
 
-_ROOT_SPECIAL_ADD_ELEMENT = '__aux_datary_root__'
-
 
 def _add_element_by_names(source, names, value, override=False):
 
@@ -104,10 +102,6 @@ def _add_element_by_names(source, names, value, override=False):
             # list and digit head
             if isinstance(source, list) and head.isdigit():
                 head = int(head)
-
-            # use special carater __root__
-            elif head == '' and not rest:
-                head = _ROOT_SPECIAL_ADD_ELEMENT
 
             # head not in source :(
             elif head not in source:
@@ -124,28 +118,14 @@ def _add_element_by_names(source, names, value, override=False):
             # it's final head
             else:
 
-                # it's root SPECIAL case
-                if head == _ROOT_SPECIAL_ADD_ELEMENT:
+                if not override and isinstance(source[head], list):
+                    source[head].append(value)
 
-                    if not override and isinstance(source, list):
-                        source.append(value)
-
-                    elif not override and isinstance(source, dict) and isinstance(value, dict):
-                        source.update(value)
-
-                    else:
-                        source = value
+                elif not override and isinstance(source[head], dict) and isinstance(value, dict):
+                    source[head].update(value)
 
                 else:
-
-                    if not override and isinstance(source[head], list):
-                        source[head].append(value)
-
-                    elif not override and isinstance(source[head], dict) and isinstance(value, dict):
-                        source[head].update(value)
-
-                    else:
-                        source[head] = value
+                    source[head] = value
 
         return source
 

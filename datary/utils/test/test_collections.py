@@ -52,6 +52,7 @@ class UtilsCollectionsTestCase(unittest.TestCase):
             get_element({'start': {'day': 1, }}, 'start.maria'), None)
         self.assertEqual(get_element(
             {'start': {'day': {'name': "Monday", 'num': 1}, }}, 'start/day.num'), 1)
+        self.assertEqual(get_element({'start': [0, 1, 2]}, 'start.1'), 1)
 
     def test_add_element(self):
         self.assertEqual(add_element(None, '', None), False)
@@ -84,6 +85,7 @@ class UtilsCollectionsTestCase(unittest.TestCase):
 
         self.assertEqual(add_element(result, 'a.aa', 2), {'a': {'aa': [2], 'ab': 3}})
         self.assertEqual(add_element(result, 'a.aa', 4), {'a': {'aa': [2, 4], 'ab': 3}})
+        self.assertEqual(add_element({'a': [1, 3]}, 'a.1', 2), {'a': [1, 2]})
 
         # TEST Add to dict
         result['a']['aa'] = {}
