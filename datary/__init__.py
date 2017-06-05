@@ -2,7 +2,7 @@
 import structlog
 
 from datary.auth import DataryAuth
-from datary.categories import DataryCatagories
+from datary.categories import DataryCategories
 from datary.commits import DataryCommits
 from datary.datasets import DataryDatasets
 from datary.filetrees import DataryFiletrees
@@ -16,7 +16,7 @@ logger = structlog.getLogger(__name__)
 URL_BASE = "http://api.datary.io/"
 
 
-class Datary(DataryAuth, DataryCatagories, DataryCommits, DataryDatasets, DataryFiletrees, DataryMembers,
+class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets, DataryFiletrees, DataryMembers,
              DataryAddOperation, DataryModifyOperation, DataryRemoveOperation, DataryRepos):
 
     __version__ = version.__version__
