@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import sys
 import mock
+
 import requests
 import unittest
-import collections
 
 from unittest.mock import patch
 from collections import OrderedDict
@@ -739,7 +740,7 @@ class DataryTestCase(unittest.TestCase):
         # TODO: DO THIS TEST..
         pass
 
-    @mock.patch('datary.utils.get_dimension')
+    @mock.patch('datary.get_dimension')
     def test_reload_meta(self, mock_get_dimension):
 
         # false mock
@@ -814,8 +815,15 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(meta_array_after_ex, meta_array_init)
 
     def test_calculate_rowzero_header_confindence(self):
-        # TODO: DO THIS TEST..
-        pass
+
+        axisheaders = ['b', 'c', 'a']
+        axisheaders2 = ['bb', 'cc', 'a']
+
+        self.assertEqual(self.datary._calculate_rowzero_header_confindence([], axisheaders), False)
+        self.assertEqual(self.datary._calculate_rowzero_header_confindence(axisheaders, axisheaders), True)
+        self.assertEqual(self.datary._calculate_rowzero_header_confindence(axisheaders, sorted(axisheaders)), True)
+        self.assertEqual(self.datary._calculate_rowzero_header_confindence(axisheaders, axisheaders2), False)
+        self.assertEqual(self.datary._calculate_rowzero_header_confindence(axisheaders, axisheaders2, float(1)/3), True)
 
     def test_merge_headers(self):
 

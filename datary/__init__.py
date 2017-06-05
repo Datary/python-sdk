@@ -1103,7 +1103,7 @@ class Datary():
 
         return updated_meta
 
-    def _calculate_rowzero_header_confindence(self, axisheaders, row_zero):
+    def _calculate_rowzero_header_confindence(self, axisheaders, row_zero, confidence_err=_ROWZERO_HEADER_CONFIDENCE_VALUE):
         """
         Calculate the cofidence index if the first row contains headers comparing
         this headers with the axisheaders. If this index is lower than the
@@ -1121,7 +1121,7 @@ class Datary():
         if axisheaders:
             row_zero_header_confidence = float(sum([axisheaders.count(x) for x in row_zero]))/len(axisheaders)
 
-        return row_zero_header_confidence > self._ROWZERO_HEADER_CONFIDENCE_VALUE
+        return row_zero_header_confidence >= confidence_err
 
     def _merge_headers(self, header1, header2):
         """
