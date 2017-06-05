@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 import structlog
+from requests import RequestException
 
 logger = structlog.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class DataryRequests():
                     kwargs=kwargs)
 
         # Request Exception
-        except requests.RequestException as e:
+        except RequestException as e:
             logger.error(
                 "Fail request to Datary - {}".format(e),
                 url=url,

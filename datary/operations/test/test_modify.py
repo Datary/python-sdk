@@ -133,7 +133,7 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(mock_update_arrays_elements.call_count, 0)
         self.assertEqual(mock_reload_meta.call_count, 0)
 
-    @mock.patch('datary.get_dimension')
+    @mock.patch('datary.operations.modify.get_dimension')
     def test_reload_meta(self, mock_get_dimension):
 
         # false mock

@@ -125,7 +125,7 @@ class DataryCommitsTestCase(DataryTestCase):
         self.assertEqual(mock_delete.call_count, 0)
         self.assertEqual(mock_modify.call_count, 1)
 
-    @mock.patch('datary.datetime')
+    @mock.patch('datary.commits.commits.datetime')
     def test_commit_diff_tostring(self, mock_datetime):
 
         datetime_value = "12/03/1990-12:04"
@@ -133,8 +133,7 @@ class DataryCommitsTestCase(DataryTestCase):
 
         test_diff = {'add': [{'path': 'path1', 'filename': 'filename1'}, {'path': 'path2', 'filename': 'filename2'}]}
         test_diff_result = (
-            'Changes at {}\nADD\n*****************\n+  path1/filename1\n+  path2/filename2\nDELETE\n',
-            '*****************\nUPDATE\n*****************\n'.format(datetime_value))
+            'Changes at {}\nADD\n*****************\n+  path1/filename1\n+  path2/filename2\nDELETE\n*****************\nUPDATE\n*****************\n'.format(datetime_value))
 
         # Empty diff
         result = self.datary.commit_diff_tostring([])

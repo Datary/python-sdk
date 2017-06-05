@@ -38,7 +38,7 @@ class DataryTestCase(DataryTestCase):
 
         self.assertEqual(mock_request.call_count, 4)
 
-    @mock.patch('datary.requests')
+    @mock.patch('datary.requests.requests.requests')
     def test_sign_out(self, mock_request):
 
         # Fail sign out

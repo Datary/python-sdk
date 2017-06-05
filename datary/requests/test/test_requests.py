@@ -8,7 +8,7 @@ from datary.test.mock_requests import MockRequestResponse
 
 class DataryRequestsTestCase(DataryTestCase):
 
-    @mock.patch('datary.requests')
+    @mock.patch('datary.requests.requests.requests')
     def test_request(self, mock_requests):
 
         mock_requests.get.return_value = MockRequestResponse("ok", headers={'x-set-token': self.test_token})
