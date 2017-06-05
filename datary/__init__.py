@@ -452,6 +452,7 @@ class Datary():
 
         if (repo_uuid or wdir_uuid) and dataset_uuid:
 
+            # look in changes or namespace only if not wdir_uuid
             url = urljoin(URL_BASE, "datasets/{}/original".format(dataset_uuid))
             params = exclude_empty_values({'namespace': repo_uuid, 'scope': wdir_uuid})
             response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
@@ -1046,7 +1047,7 @@ class Datary():
                     is_rowzero_header=is_rowzero_header)
 
                 # add updated kern to keypath
-                add_element(stored_element.get('__kern', {}), element_keypath, updated_keypath_array)
+                add_element(stored_element.get('__kern', {}), element_keypath, updated_keypath_array, override=True)
 
                 # add updated meta to stored element
                 add_element(stored_element, '__meta', updated_keypath_meta, override=True)
@@ -1077,25 +1078,21 @@ class Datary():
 
         try:
             rows = get_element(kern, '/'.join(exclude_empty_values([path_key])))
-            row_zero = rows[0] if rows else []
 
             if rows:
-                if isinstance(row_zero, list):
-                    row_zero = rows[0]
-                else:
-                    row_zero = rows
+                row_zero = rows[0] if isinstance(row_zero, list) else rows
 
-            # Update axisheaders
-            axisheaders = {
-                path_key: [force_list(x)[0] for x in rows],
-                os.path.join(path_key, "*"): row_zero if is_rowzero_header else ['Header{}'.format(x) for x in range(1, (len(row_zero) if rows and isinstance(rows[0], list) else 1) + 1)]
-            }
+                # Update axisheaders
+                axisheaders = {
+                    path_key: [force_list(x)[0] for x in rows],
+                    os.path.join(path_key, "*"): row_zero if is_rowzero_header else ['Header{}'.format(x) for x in range(1, (len(row_zero) if rows and isinstance(rows[0], list) else 1) + 1)]
+                }
 
-            add_element(updated_meta, "axisHeaders", axisheaders)
+                add_element(updated_meta, "axisHeaders", axisheaders)
 
-            # Update dimension
-            dimension = get_dimension(rows) if path_key else {"": get_dimension(kern)}
-            add_element(updated_meta, '/'.join(["dimension", path_key]), dimension)
+                # Update dimension
+                dimension = get_dimension(rows) if path_key else {"": get_dimension(kern)}
+                add_element(updated_meta, '/'.join(["dimension", path_key]), dimension)
 
         except Exception as ex:
             logger.error('Fail reloading meta.. - {}'.format(ex))

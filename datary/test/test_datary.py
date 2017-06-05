@@ -6,9 +6,8 @@ import requests
 import unittest
 
 from unittest.mock import patch
-from collections import OrderedDict
 from datary import Datary, Datary_SizeLimitException
-from datary.utils import nested_dict_to_list, flatten, get_dimension
+from datary.utils import get_dimension
 from .mock_requests import MockRequestResponse
 
 
@@ -38,9 +37,9 @@ class DataryTestCase(unittest.TestCase):
                     ['c/a', 'caa', 'data_caa', 'caa_sha1'],
                     ['d', 'dd', 'data_dd', 'dd2_sha1']]
 
-    element = {'path': 'a', 'filename': 'aa', 'data': {'kern': {'data_aa': []}, 'meta': {}}, 'sha1': 'aa_sha1'}
+    element = {'path': 'a', 'filename': 'aa', 'data': {'kern': {'data_aa': [[4, 5, 6]]}, 'meta': {}}, 'sha1': 'aa_sha1'}
 
-    original = {'__kern': {'data_aa': []}, '__meta': {}}
+    original = {'__kern': {'data_aa': [[1, 2, 3]]}, '__meta': {}}
 
     inode = 'c46ac2d596ee898fd949c0bb0bb8f114482de450'
 
@@ -391,15 +390,47 @@ class DataryTestCase(unittest.TestCase):
     def test_get_original(self, mock_request):
 
         mock_request.return_value = MockRequestResponse("", json=self.original)
-        original = self.datary.get_original(self.repo_uuid, self.dataset_uuid)
+        original = self.datary.get_original(self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(original, dict))
         self.assertEqual(original, self.original)
 
-        mock_request.return_value = None
-        original2 = self.datary.get_original(self.repo_uuid, self.dataset_uuid)
+        mock_request.reset_mock()
+
+        # not dataset_uuid, introduced
+        original2 = self.datary.get_original(self.dataset_uuid, self.repo_uuid, self.wdir_uuid)
+        self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(original2, dict))
-        self.assertEqual(original2, {})
+        self.assertEqual(original2, self.original)
+
+        mock_request.reset_mock()
+
+        # not dataset_uuid, introduced
+        original3 = self.datary.get_original(self.dataset_uuid, wdir_uuid=self.wdir_uuid)
+        self.assertEqual(mock_request.call_count, 1)
+        assert(isinstance(original3, dict))
+        self.assertEqual(original3, self.original)
+
+        mock_request.reset_mock()
+        mock_request.side_effect = iter([None, MockRequestResponse("", json=self.original)])
+        original4 = self.datary.get_original(self.dataset_uuid, self.repo_uuid)
+        self.assertEqual(mock_request.call_count, 2)
+        assert(isinstance(original4, dict))
+        self.assertEqual(original4, self.original)
+
+        mock_request.reset_mock()
+        mock_request.side_effect = iter([None, None])
+        original4b = self.datary.get_original(self.dataset_uuid, self.repo_uuid)
+        self.assertEqual(mock_request.call_count, 2)
+        assert(isinstance(original4b, dict))
+        self.assertEqual(original4b, {})
+
+        mock_request.reset_mock()
+        # not dataset_uuid, introduced
+        original5 = self.datary.get_original(None)
+        self.assertEqual(mock_request.call_count, 0)
+        assert(isinstance(original5, dict))
+        self.assertEqual(original5, {})
 
     @mock.patch('datary.Datary.get_wdir_filetree')
     @mock.patch('datary.Datary.get_wdir_changes')
@@ -737,8 +768,48 @@ class DataryTestCase(unittest.TestCase):
     @mock.patch('datary.Datary._update_arrays_elements')
     @mock.patch('datary.Datary._calculate_rowzero_header_confindence')
     def test_update_elements(self, mock_calculate_rowzero_header_confindence, mock_update_arrays_elements, mock_reload_meta):
-        # TODO: DO THIS TEST..
-        pass
+
+        original_dict = {'__kern': {'data_aa': [[1, 2, 3]], 'data_b': [[7, 8, 9]]}, '__meta': {}}
+        original_list = {'__kern': [[1, 2, 3]], '__meta': {}}
+
+        element_dict = {'path': 'a', 'filename': 'aa', 'data': {'kern': {'data_aa': [[4, 5, 6]], 'data_b': [[7, 8, 9]]}, 'meta': {}}, 'sha1': 'aa_sha1'}
+        element_list = {'path': 'a', 'filename': 'aa', 'data': {'kern': [[4, 5, 6]], 'meta': {}}, 'sha1': 'aa_sha1'}
+
+        mock_calculate_rowzero_header_confindence.return_value = True
+        mock_update_arrays_elements.return_value = 'kern_updated'
+        mock_reload_meta.side_effect = iter([{}, 'meta_reloaded'])
+
+        # case kern dict vs dict
+        self.datary.update_elements(original_dict, element_dict)
+        self.assertEqual(mock_calculate_rowzero_header_confindence.call_count, 2)
+        self.assertEqual(mock_update_arrays_elements.call_count, 2)
+        self.assertEqual(mock_reload_meta.call_count, 2)
+        self.assertEqual(original_dict.get('__kern').get('data_aa'), 'kern_updated')
+        self.assertEqual(original_dict.get('__meta'), 'meta_reloaded')
+
+        mock_calculate_rowzero_header_confindence.reset_mock()
+        mock_update_arrays_elements.reset_mock()
+        mock_reload_meta.reset_mock()
+
+        mock_reload_meta.side_effect = iter(['meta_reloaded'])
+
+        self.datary.update_elements(original_list, element_list)
+
+        self.assertEqual(mock_calculate_rowzero_header_confindence.call_count, 1)
+        self.assertEqual(mock_update_arrays_elements.call_count, 1)
+        self.assertEqual(mock_reload_meta.call_count, 1)
+        self.assertEqual(original_list.get('__kern'), 'kern_updated')
+        self.assertEqual(original_list.get('__meta'), 'meta_reloaded')
+
+        mock_calculate_rowzero_header_confindence.reset_mock()
+        mock_update_arrays_elements.reset_mock()
+        mock_reload_meta.reset_mock()
+
+        # case not permitted log warning
+        self.datary.update_elements(self.original, element_list)
+        self.assertEqual(mock_calculate_rowzero_header_confindence.call_count, 0)
+        self.assertEqual(mock_update_arrays_elements.call_count, 0)
+        self.assertEqual(mock_reload_meta.call_count, 0)
 
     @mock.patch('datary.get_dimension')
     def test_reload_meta(self, mock_get_dimension):
@@ -809,9 +880,15 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(meta_array.get('axisHeaders', {}).get('*'), ['Header1'])
         self.assertEqual(meta_array.get('dimension', {}).get(''), [3, 1])
 
+        # test empty rows
+        meta_array_empty_rows = self.datary._reload_meta([], meta_array_init, path_key='', is_rowzero_header=False)
+        self.assertEqual(isinstance(meta_array_empty_rows, dict), True)
+        self.assertEqual(meta_array_empty_rows, meta_array_init)
+
         # test capture exception
         mock_get_dimension.side_effect = Exception("Test exception")
         meta_array_after_ex = self.datary._reload_meta(kern_array, meta_array_init, path_key='', is_rowzero_header=False)
+        self.assertEqual(isinstance(meta_array_after_ex, dict), True)
         self.assertEqual(meta_array_after_ex, meta_array_init)
 
     def test_calculate_rowzero_header_confindence(self):
@@ -837,9 +914,23 @@ class DataryTestCase(unittest.TestCase):
         self.assertEqual(result2, ['H1', 'H2', 'H3', 'H4', 'H5', 'pepe'])
 
     def test_update_arrays_elements(self):
-        # TODO: DO THIS TEST..
-        # _update_arrays_elements(self, original_array, update_array, is_rowzero_header)
-        pass
+
+        kern1 = [['h1', 'h2', 'h3'], [1, 2, 3], [4, 5, 6]]
+        kern2 = [['h1', 'h5', 'h7'], [7, 8, 9], [10, 11, 12], [0, 13, 14]]
+
+        result_kern_with_headers = self.datary._update_arrays_elements(kern1, kern2, True)
+        result_kern_without_headers = self.datary._update_arrays_elements(kern1[1:], kern2[1:], False)
+
+        self.assertEqual(isinstance(result_kern_with_headers, list), True)
+        self.assertEqual(all([isinstance(x, list) for x in result_kern_with_headers]), True)
+        self.assertEqual(result_kern_with_headers[0], ['h1', 'h2', 'h3', 'h5', 'h7'])
+        self.assertEqual(result_kern_with_headers[-1], [0, '', '', 13, 14])
+
+        self.assertEqual(isinstance(result_kern_without_headers, list), True)
+        self.assertEqual(all([isinstance(x, list) for x in result_kern_without_headers]), True)
+        self.assertEqual(result_kern_without_headers[0], kern1[1])
+        self.assertEqual(result_kern_without_headers[-1], kern2[-1])
+
 
 ##########################################################################
 #                              Delete methods
@@ -924,6 +1015,23 @@ class DataryTestCase(unittest.TestCase):
 
         members_limit = self.datary.get_members()
         assert isinstance(members_limit, list)
+
+
+class Datary_SizeLimitExceptionTestCase(unittest.TestCase):
+
+    test_msg = 'test_msg'
+    path = 'test_path/folder/example'
+    size = 9999
+
+    def test_init(self):
+
+        test_ex = Datary_SizeLimitException(msg=self.test_msg, src_path=self.path, size=self.size)
+
+        self.assertEqual(test_ex.msg, self.test_msg)
+        self.assertEqual(test_ex.src_path, self.path)
+        self.assertEqual(test_ex.size, self.size)
+
+        self.assertEqual(str(test_ex), ";".join([self.test_msg, self.path, str(self.size)]))
 
 
 class MockRequestsTestCase(unittest.TestCase):
