@@ -275,6 +275,6 @@ def get_dimension(array):
         result = [len(array), len(max([x for x in array], key=len,))]
 
     elif array and isinstance(array, list):
-        result = [1, len(array)]
+        result = [len(array), 1]
 
     return result

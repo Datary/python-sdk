@@ -7,7 +7,7 @@ import collections
 from unittest.mock import patch
 from collections import OrderedDict
 from datary import Datary, Datary_SizeLimitException
-from datary.utils import nested_dict_to_list, flatten
+from datary.utils import nested_dict_to_list, flatten, get_dimension
 from .mock_requests import MockRequestResponse
 
 
@@ -739,10 +739,79 @@ class DataryTestCase(unittest.TestCase):
         # TODO: DO THIS TEST..
         pass
 
-    def test_reload_meta(self):
-        # TODO: DO THIS TEST..
-        # self.datary._reload_meta(kern, original_meta, path_key='', is_rowzero_header=False)
-        pass
+    @mock.patch('datary.utils.get_dimension')
+    def test_reload_meta(self, mock_get_dimension):
+
+        # false mock
+        mock_get_dimension.side_effect = get_dimension
+
+        # kern test data
+        kern_with_header = [['H1', 'H2', 'H3'], [1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        kern_without_header = kern_with_header[1:]
+        kern_dict_with_header = {'a': kern_with_header, 'b': kern_with_header[:-1]}
+        kern_dict_without_header = {'a': kern_with_header[1:], 'b': kern_with_header[1:-1]}
+        kern_array = ['a', 'b', 'c']
+        meta_array_init = {'axisHeaders': {'': [], '*': []}, 'dimension': {"": [23, 21]}}
+
+        # kern list with header
+        meta_with_header = self.datary._reload_meta(kern_with_header, {}, path_key='', is_rowzero_header=True)
+        assert(isinstance(meta_with_header, dict))
+        self.assertEqual(meta_with_header.get('axisHeaders', {}).get('*'), ['H1', 'H2', 'H3'])
+        self.assertEqual(meta_with_header.get('axisHeaders', {}).get(''), ['H1', 1, 4, 7])
+        self.assertEqual(meta_with_header.get('dimension', {}).get(''), [4, 3])
+
+        # kern list without header
+        meta_without_header = self.datary._reload_meta(kern_without_header, {}, path_key='', is_rowzero_header=False)
+        assert(isinstance(meta_without_header, dict))
+        self.assertEqual(meta_without_header.get('axisHeaders', {}).get('*'), ['Header{}'.format(x) for x in range(1, len(kern_with_header[0]) + 1)])
+        self.assertEqual(meta_without_header.get('axisHeaders', {}).get(''), [1, 4, 7])
+        self.assertEqual(meta_without_header.get('dimension', {}).get(''), [3, 3])
+
+        # kern dict with header
+        meta_dict_with_header = self.datary._reload_meta(kern_dict_with_header, {}, path_key='a', is_rowzero_header=True)
+        assert(isinstance(meta_dict_with_header, dict))
+        self.assertEqual(meta_dict_with_header.get('axisHeaders', {}).get('a/*'), ['H1', 'H2', 'H3'])
+        self.assertEqual(meta_dict_with_header.get('axisHeaders', {}).get('a'), ['H1', 1, 4, 7])
+        self.assertEqual(meta_dict_with_header.get('dimension', {}).get('a'), [4, 3])
+
+        # kern dict update meta with other meta
+        meta_dict_with_header = self.datary._reload_meta(kern_dict_with_header, meta_dict_with_header, path_key='b', is_rowzero_header=True)
+        assert(isinstance(meta_dict_with_header, dict))
+        self.assertEqual(meta_dict_with_header.get('axisHeaders', {}).get('a/*'), ['H1', 'H2', 'H3'])
+        self.assertEqual(meta_dict_with_header.get('axisHeaders', {}).get('a'), ['H1', 1, 4, 7])
+        self.assertEqual(meta_dict_with_header.get('axisHeaders', {}).get('b/*'), ['H1', 'H2', 'H3'])
+        self.assertEqual(meta_dict_with_header.get('axisHeaders', {}).get('b'), ['H1', 1, 4])
+        self.assertEqual(meta_dict_with_header.get('dimension', {}).get('a'), [4, 3])
+        self.assertEqual(meta_dict_with_header.get('dimension', {}).get('b'), [3, 3])
+
+        # kern dict without header
+        meta_dict_without_header = self.datary._reload_meta(kern_dict_without_header, {}, path_key='a', is_rowzero_header=False)
+        assert(isinstance(meta_dict_without_header, dict))
+        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get('a/*'), ['Header{}'.format(x) for x in range(1, len(kern_dict_without_header.get('a')[0]) + 1)])
+        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get('a'), [1, 4, 7])
+        self.assertEqual(meta_dict_without_header.get('dimension', {}).get('a'), [3, 3])
+
+        # kern dict update meta without other meta
+        meta_dict_without_header = self.datary._reload_meta(kern_dict_without_header, meta_dict_without_header, path_key='b', is_rowzero_header=False)
+        assert(isinstance(meta_dict_without_header, dict))
+        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get('a/*'), ['Header{}'.format(x) for x in range(1, len(kern_dict_without_header.get('a')[0]) + 1)])
+        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get('a'), [1, 4, 7])
+        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get('b/*'), ['Header{}'.format(x) for x in range(1, len(kern_dict_without_header.get('b')[0]) + 1)])
+        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get('b'), [1, 4])
+        self.assertEqual(meta_dict_without_header.get('dimension', {}).get('a'), [3, 3])
+        self.assertEqual(meta_dict_without_header.get('dimension', {}).get('b'), [2, 3])
+
+        # case array and override meta
+        meta_array = self.datary._reload_meta(kern_array, meta_array_init, path_key='', is_rowzero_header=False)
+        assert(isinstance(meta_array, dict))
+        self.assertEqual(meta_array.get('axisHeaders', {}).get(''), ['a', 'b', 'c'])
+        self.assertEqual(meta_array.get('axisHeaders', {}).get('*'), ['Header1'])
+        self.assertEqual(meta_array.get('dimension', {}).get(''), [3, 1])
+
+        # test capture exception
+        mock_get_dimension.side_effect = Exception("Test exception")
+        meta_array_after_ex = self.datary._reload_meta(kern_array, meta_array_init, path_key='', is_rowzero_header=False)
+        self.assertEqual(meta_array_after_ex, meta_array_init)
 
     def test_calculate_rowzero_header_confindence(self):
         # TODO: DO THIS TEST..

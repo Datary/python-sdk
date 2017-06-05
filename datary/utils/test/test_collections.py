@@ -181,7 +181,7 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         result3 = get_dimension(test3)
         result4 = get_dimension(bad_test)
 
-        self.assertEqual(result1, [1, 3])
+        self.assertEqual(result1, [3, 1])
         self.assertEqual(result2, [3, 3])
         self.assertEqual(result3, [3, 3])  # could need a fix this case..
         self.assertEqual(result4, [0, 0])

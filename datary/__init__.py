@@ -1087,14 +1087,15 @@ class Datary():
 
             # Update axisheaders
             axisheaders = {
-                os.path.join(path_key, ""): [force_list(x)[0] for x in rows],
-                os.path.join(path_key, "*"): row_zero if is_rowzero_header else ['Header'] * (len(row_zero) if rows and isinstance(rows[0], list) else 1)
+                path_key: [force_list(x)[0] for x in rows],
+                os.path.join(path_key, "*"): row_zero if is_rowzero_header else ['Header{}'.format(x) for x in range(1, (len(row_zero) if rows and isinstance(rows[0], list) else 1) + 1)]
             }
 
-            add_element(updated_meta, '/'.join(["axisHeaders", path_key]), axisheaders, override=True)
+            add_element(updated_meta, "axisHeaders", axisheaders)
 
             # Update dimension
-            add_element(updated_meta, '/'.join(["dimension", path_key]), get_dimension(kern), override=True)
+            dimension = get_dimension(rows) if path_key else {"": get_dimension(kern)}
+            add_element(updated_meta, '/'.join(["dimension", path_key]), dimension)
 
         except Exception as ex:
             logger.error('Fail reloading meta.. - {}'.format(ex))
