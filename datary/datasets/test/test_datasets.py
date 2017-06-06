@@ -32,7 +32,8 @@ class DataryDatasetsTestCase(DataryTestCase):
         mock_request.reset_mock()
 
         # not dataset_uuid, introduced
-        original2 = self.datary.get_original(self.dataset_uuid, self.repo_uuid, self.wdir_uuid)
+        original2 = self.datary.get_original(
+            self.dataset_uuid, self.repo_uuid, self.wdir_uuid)
         self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(original2, dict))
         self.assertEqual(original2, self.original)
@@ -40,13 +41,15 @@ class DataryDatasetsTestCase(DataryTestCase):
         mock_request.reset_mock()
 
         # not dataset_uuid, introduced
-        original3 = self.datary.get_original(self.dataset_uuid, wdir_uuid=self.wdir_uuid)
+        original3 = self.datary.get_original(
+            self.dataset_uuid, wdir_uuid=self.wdir_uuid)
         self.assertEqual(mock_request.call_count, 1)
         assert(isinstance(original3, dict))
         self.assertEqual(original3, self.original)
 
         mock_request.reset_mock()
-        mock_request.side_effect = iter([None, MockRequestResponse("", json=self.original)])
+        mock_request.side_effect = iter(
+            [None, MockRequestResponse("", json=self.original)])
         original4 = self.datary.get_original(self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 2)
         assert(isinstance(original4, dict))
@@ -54,7 +57,8 @@ class DataryDatasetsTestCase(DataryTestCase):
 
         mock_request.reset_mock()
         mock_request.side_effect = iter([None, None])
-        original4b = self.datary.get_original(self.dataset_uuid, self.repo_uuid)
+        original4b = self.datary.get_original(
+            self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 2)
         assert(isinstance(original4b, dict))
         self.assertEqual(original4b, {})
@@ -68,7 +72,8 @@ class DataryDatasetsTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.get_wdir_filetree')
     @mock.patch('datary.Datary.get_wdir_changes')
-    def test_get_dataset_uuid(self, mock_get_wdir_changes, mock_get_wdir_filetree):
+    def test_get_dataset_uuid(self, mock_get_wdir_changes,
+                              mock_get_wdir_filetree):
 
         mock_get_wdir_filetree.return_value = self.filetree
         mock_get_wdir_changes.return_value = self.changes
@@ -79,7 +84,8 @@ class DataryDatasetsTestCase(DataryTestCase):
         empty_result = self.datary.get_dataset_uuid(self.wdir_uuid)
         self.assertEqual(empty_result, None)
 
-        from_changes_result = self.datary.get_dataset_uuid(self.wdir_uuid, path, filename)
+        from_changes_result = self.datary.get_dataset_uuid(
+            self.wdir_uuid, path, filename)
         self.assertEqual(from_changes_result, 'inode1_changes')
         self.assertEqual(mock_get_wdir_filetree.call_count, 1)
         self.assertEqual(mock_get_wdir_changes.call_count, 1)
@@ -91,7 +97,8 @@ class DataryDatasetsTestCase(DataryTestCase):
         path = ''
         filename = 'c'
 
-        from_commit_result = self.datary.get_dataset_uuid(self.wdir_uuid, path, filename)
+        from_commit_result = self.datary.get_dataset_uuid(
+            self.wdir_uuid, path, filename)
 
         self.assertEqual(from_commit_result, 'c_sha1')
         self.assertEqual(mock_get_wdir_filetree.call_count, 1)
@@ -104,7 +111,8 @@ class DataryDatasetsTestCase(DataryTestCase):
         path = 'bb'
         filename = 'b'
 
-        no_result = self.datary.get_dataset_uuid(self.wdir_uuid, path, filename)
+        no_result = self.datary.get_dataset_uuid(
+            self.wdir_uuid, path, filename)
         self.assertEqual(no_result, None)
         self.assertEqual(mock_get_wdir_filetree.call_count, 1)
         self.assertEqual(mock_get_wdir_changes.call_count, 1)
@@ -113,13 +121,16 @@ class DataryDatasetsTestCase(DataryTestCase):
     def test_get_commited_dataset_uuid(self, mock_request):
 
         # no args path and filename introduced
-        mock_request.return_value = MockRequestResponse("", json=self.dataset_uuid)
-        result_no_pathname = self.datary.get_commited_dataset_uuid(self.wdir_uuid)
+        mock_request.return_value = MockRequestResponse(
+            "", json=self.dataset_uuid)
+        result_no_pathname = self.datary.get_commited_dataset_uuid(
+            self.wdir_uuid)
         self.assertEqual(result_no_pathname, {})
         self.assertEqual(mock_request.call_count, 0)
 
         # good case
-        result = self.datary.get_commited_dataset_uuid(self.wdir_uuid, 'path', 'filename')
+        result = self.datary.get_commited_dataset_uuid(
+            self.wdir_uuid, 'path', 'filename')
         self.assertEqual(result, self.dataset_uuid)
         self.assertEqual(mock_request.call_count, 1)
 
@@ -127,6 +138,7 @@ class DataryDatasetsTestCase(DataryTestCase):
         mock_request.reset_mock()
         mock_request.return_value = None
 
-        no_response_result = self.datary.get_commited_dataset_uuid(self.wdir_uuid, 'path', 'filename')
+        no_response_result = self.datary.get_commited_dataset_uuid(
+            self.wdir_uuid, 'path', 'filename')
         self.assertEqual(no_response_result, {})
         self.assertEqual(mock_request.call_count, 1)

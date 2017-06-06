@@ -51,7 +51,8 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         self.assertEqual(
             get_element({'start': {'day': 1, }}, 'start.maria'), None)
         self.assertEqual(get_element(
-            {'start': {'day': {'name': "Monday", 'num': 1}, }}, 'start/day.num'), 1)
+            {'start': {'day': {'name': "Monday", 'num': 1}, }},
+            'start/day.num'), 1)
         self.assertEqual(get_element({'start': [0, 1, 2]}, 'start.1'), 1)
 
     def test_add_element(self):
@@ -65,7 +66,8 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         # a is not a dict...
         self.assertEqual(add_element(result, 'a.aa', 2), False)
 
-        # the separator keys not retrieve anything or empty path apply the separator expr.
+        # the separator keys not retrieve anything or empty path apply the
+        # separator expr.
         self.assertEqual(add_element(result, '', 2, r'-'), result)
 
         # TEST navigate and create a key - value
@@ -75,7 +77,8 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         self.assertEqual(result.get('a', {}).get('aa'), 2)
         self.assertEqual(len(result.get('a').keys()), 1)
 
-        self.assertEqual(add_element(result, 'a.ab', 3), {'a': {'aa': 2, 'ab': 3}})
+        self.assertEqual(add_element(result, 'a.ab', 3),
+                         {'a': {'aa': 2, 'ab': 3}})
         self.assertEqual(result.get('a', {}).get('aa'), 2)
         self.assertEqual(result.get('a', {}).get('ab'), 3)
         self.assertEqual(len(result.get('a').keys()), 2)
@@ -83,15 +86,19 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         # TEST Add to list
         result['a']['aa'] = []
 
-        self.assertEqual(add_element(result, 'a.aa', 2), {'a': {'aa': [2], 'ab': 3}})
-        self.assertEqual(add_element(result, 'a.aa', 4), {'a': {'aa': [2, 4], 'ab': 3}})
+        self.assertEqual(add_element(result, 'a.aa', 2),
+                         {'a': {'aa': [2], 'ab': 3}})
+        self.assertEqual(add_element(result, 'a.aa', 4),
+                         {'a': {'aa': [2, 4], 'ab': 3}})
         self.assertEqual(add_element({'a': [1, 3]}, 'a.1', 2), {'a': [1, 2]})
 
         # TEST Add to dict
         result['a']['aa'] = {}
 
-        self.assertEqual(add_element(result, 'a.aa', {'aaa': 2}), {'a': {'aa': {'aaa': 2}, 'ab': 3}})
-        self.assertEqual(add_element(result, 'a.aa', {'aab': 3}), {'a': {'aa': {'aaa': 2, 'aab': 3}, 'ab': 3}})
+        self.assertEqual(add_element(result, 'a.aa', {'aaa': 2}), {
+                         'a': {'aa': {'aaa': 2}, 'ab': 3}})
+        self.assertEqual(add_element(result, 'a.aa', {'aab': 3}), {
+                         'a': {'aa': {'aaa': 2, 'aab': 3}, 'ab': 3}})
 
     def test_find_value_in_nested_dict(self):
         assert list(find_value_in_object('g', self.obj)) == ['g1', 'ff3']
@@ -113,26 +120,46 @@ class UtilsCollectionsTestCase(unittest.TestCase):
 
     def test_flatten(self):
         test = OrderedDict(
-            {'a': 2, 'b': 2, 'c': {'ca': 3, 'cb': 'test1', 'cd': [1, 3, 4], 'cc': {'cca': 1}}})
+            {'a': 2,
+             'b': 2,
+             'c': {'ca': 3, 'cb': 'test1', 'cd': [1, 3, 4], 'cc': {'cca': 1}}})
         test_result_1 = collections.OrderedDict([
-           ('a', 2), ('b', 2), ('c/ca', 3), ('c/cb', test.get('c', {}).get('cb')), ('c/cc/cca', 1), ('c/cd/1', 3),
-           ('c/cd/0', 1), ('c/cd/2', 4)])
+            ('a', 2),
+            ('b', 2),
+            ('c/ca', 3),
+            ('c/cb', test.get('c', {}).get('cb')),
+            ('c/cc/cca', 1),
+            ('c/cd/1', 3),
+            ('c/cd/0', 1),
+            ('c/cd/2', 4)])
 
         test_result_2 = collections.OrderedDict([
-            ('test_a', 2), ('test_c_ca', 3), ('test_c_cd_1', 3), ('test_c_cd_2', 4), ('test_c_cd_0', 1),
-            ('test_c_cb', test.get('c', {}).get('cb')), ('test_c_cc_cca', 1), ('test_b', 2)])
+            ('test_a', 2),
+            ('test_c_ca', 3),
+            ('test_c_cd_1', 3),
+            ('test_c_cd_2', 4),
+            ('test_c_cd_0', 1),
+            ('test_c_cb', test.get('c', {}).get('cb')),
+            ('test_c_cc_cca', 1),
+            ('test_b', 2)])
 
         result = flatten(test, '', sep='/')
         result2 = flatten(test, 'test')
 
-        for retrieved_result, test_result in [(result, test_result_1), (result2, test_result_2)]:
+        for retrieved_result, test_result in [(result, test_result_1),
+                                              (result2, test_result_2)]:
             for k, v in test_result.items():
                 assert k in retrieved_result
                 self.assertEqual(retrieved_result[k], v)
 
     def test_nested_dict_to_list(self):
-        expected = [['', 'b', 'bv2'], ['', 'a', 'av1'], ['c', 'cc', 'ccv1'],
-                    ['c', 'ca', 'cav1'], ['c', 'cb', 'cbv1'], ['ccca', 'ccaa', 'ccaav1']]
+        expected = [
+            ['', 'b', 'bv2'],
+            ['', 'a', 'av1'],
+            ['c', 'cc', 'ccv1'],
+            ['c', 'ca', 'cav1'],
+            ['c', 'cb', 'cbv1'],
+            ['ccca', 'ccaa', 'ccaav1']]
 
         test = OrderedDict([
             ('b', 'bv2'),

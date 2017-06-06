@@ -7,7 +7,8 @@ from datary.commits import DataryCommits
 from datary.datasets import DataryDatasets
 from datary.filetrees import DataryFiletrees
 from datary.members import DataryMembers
-from datary.operations import DataryAddOperation, DataryModifyOperation, DataryRemoveOperation
+from datary.operations import (DataryAddOperation, DataryModifyOperation,
+                               DataryRemoveOperation)
 from datary.repos import DataryRepos
 
 from . import version
@@ -16,8 +17,9 @@ logger = structlog.getLogger(__name__)
 URL_BASE = "http://api.datary.io/"
 
 
-class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets, DataryFiletrees, DataryMembers,
-             DataryAddOperation, DataryModifyOperation, DataryRemoveOperation, DataryRepos):
+class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets,
+             DataryFiletrees, DataryMembers, DataryAddOperation, DataryRepos,
+             DataryModifyOperation, DataryRemoveOperation):
 
     __version__ = version.__version__
 

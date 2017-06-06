@@ -15,16 +15,16 @@ def version():
     return mod.__version__
 
 setup(
-  name='datary',
-  packages=['datary'],
-  version=version(),
-  description='Datary Python sdk lib',
-  author='Datary developers team',
-  author_email='support@datary.io',
-  url='https://github.com/Datary/python-sdk',
-  download_url='https://github.com/Datary/python-sdk',
-  keywords=['datary', 'sdk', 'api'],  # arbitrary keywords
-  classifiers=[
+    name='datary',
+    packages=['datary'],
+    version=version(),
+    description='Datary Python sdk lib',
+    author='Datary developers team',
+    author_email='support@datary.io',
+    url='https://github.com/Datary/python-sdk',
+    download_url='https://github.com/Datary/python-sdk',
+    keywords=['datary', 'sdk', 'api'],  # arbitrary keywords
+    classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -32,5 +32,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
     ],
-  install_requires=required,
+    install_requires=required,
 )

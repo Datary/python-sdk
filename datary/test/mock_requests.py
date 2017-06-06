@@ -2,27 +2,29 @@
 
 
 class MockRequestResponse:
-        """
-        Class to mock request responses, httpretty doesn't work with proxy..
-        """
-        def __init__(self, body, json={}, params={}, headers={}, path="", status_code=200, encoding='utf-8'):
+    """
+    Class to mock request responses, httpretty doesn't work with proxy..
+    """
 
-            self.status_code = status_code
-            self.headers = headers
+    def __init__(self, body, json={}, params={}, headers={}, path="",
+                 status_code=200, encoding='utf-8'):
 
-            self.text = body
-            self.params = params
+        self.status_code = status_code
+        self.headers = headers
 
-            self._path = path
-            self._encoding = encoding
+        self.text = body
+        self.params = params
 
-            self._json = json
+        self._path = path
+        self._encoding = encoding
 
-        def encoding(self):
-            return self._encoding
+        self._json = json
 
-        def path(self):
-            return self._path
+    def encoding(self):
+        return self._encoding
 
-        def json(self):
-            return self._json
+    def path(self):
+        return self._path
+
+    def json(self):
+        return self._json

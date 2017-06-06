@@ -24,9 +24,11 @@ class DataryFiletrees(DataryRequests):
             filetree of all commits done in a repo.
 
         """
-        url = urljoin(DataryRequests.URL_BASE, "commits/{}/filetree".format(commit_sha1))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "commits/{}/filetree".format(commit_sha1))
         params = {'namespace': repo_uuid}
-        response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+        response = self.request(
+            url, 'GET', **{'headers': self.headers, 'params': params})
 
         return response.json() if response else {}
 
@@ -42,7 +44,8 @@ class DataryFiletrees(DataryRequests):
             filetree of a repo workdir.
 
         """
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/filetree".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/filetree".format(wdir_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}
@@ -61,20 +64,22 @@ class DataryFiletrees(DataryRequests):
 
         # try to take wdir_uuid with kwargs
         if not wdir_uuid:
-            wdir_uuid = self.get_describerepo(**kwargs).get('workdir', {}).get('uuid')
+            wdir_uuid = self.get_describerepo(
+                **kwargs).get('workdir', {}).get('uuid')
 
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/changes".format(wdir_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}
 
     def format_wdir_changes_to_filetreeformat(self, wdir_changes_tree):
         """
-        ==================  =============   ====================================
+        ==================  =============   ==================================
         Parameter           Type            Description
-        ==================  =============   ====================================
+        ==================  =============   ==================================
         wdir_changes_tree   list            working changes tree
-        ==================  =============   ====================================
+        ==================  =============   ==================================
 
         Returns:
             (dict) changes in workdir formatting as filetree format.
@@ -85,8 +90,9 @@ class DataryFiletrees(DataryRequests):
             for item in force_list(sublist):
                 add_element(
                     result,
-                    os.path.join(item.get('dirname', ''), item.get('basename', '')),
+                    os.path.join(item.get('dirname', ''),
+                                 item.get('basename', '')),
                     item.get('inode', 'unkwown_dataset_uuid')
-                    )
+                )
 
         return result

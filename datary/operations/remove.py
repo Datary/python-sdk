@@ -33,7 +33,8 @@ class DataryRemoveOperation(DataryRequests):
             dirname=dirname,
             path=os.path.join(path, dirname))
 
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "delete",
                    "filemode": 40000,
@@ -68,7 +69,8 @@ class DataryRemoveOperation(DataryRequests):
             element=element,
             wdir_uuid=wdir_uuid)
 
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "remove",
                    "filemode": 100644,
@@ -94,7 +96,8 @@ class DataryRemoveOperation(DataryRequests):
         """
         logger.info("Delete by inode.", wdir_uuid=wdir_uuid, inode=inode)
 
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/changes".format(wdir_uuid))
         payload = {"action": "remove", "inode": inode}
 
         response = self.request(
@@ -114,7 +117,8 @@ class DataryRemoveOperation(DataryRequests):
         ================  =============   ====================================
         """
 
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/changes".format(wdir_uuid))
 
         response = self.request(url, 'DELETE', **{'headers': self.headers})
         if response:
@@ -153,13 +157,22 @@ class DataryRemoveOperation(DataryRequests):
                 'path': '',
                 'filename': 'foo_{}'.format(random.randint(0, 99)),
                 'data': {'meta': {}, 'kern': []}
-                }
+            }
 
             self.add_file(wdir_uuid, foo_element)
             self.commit(repo_uuid, 'Commit foo file to clean repo')
 
-            for path in [x for x in flatten_filetree.keys() if '__self' not in x]:
-                self.delete_file(wdir_uuid, {'path': "/".join(path.split('/')[:-1]), 'filename': path.split('/')[-1]})
+            filetree_keys = [
+                x for x in flatten_filetree.keys() if '__self' not in x]
+
+            for path in filetree_keys:
+
+                element_data = {
+                    'path': "/".join(path.split('/')[:-1]),
+                    'filename': path.split('/')[-1]
+                }
+
+                self.delete_file(wdir_uuid, element_data)
 
             self.commit(repo_uuid, 'Commit delete all files to clean repo')
 

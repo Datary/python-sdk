@@ -9,6 +9,7 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryDatasets(DataryRequests):
+
     def get_metadata(self, repo_uuid, dataset_uuid):
         """
         ================  =============   ====================================
@@ -57,9 +58,12 @@ class DataryDatasets(DataryRequests):
         if (repo_uuid or wdir_uuid) and dataset_uuid:
 
             # look in changes or namespace only if not wdir_uuid
-            url = urljoin(DataryRequests.URL_BASE, "datasets/{}/original".format(dataset_uuid))
-            params = exclude_empty_values({'namespace': repo_uuid, 'scope': wdir_uuid})
-            response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+            url = urljoin(DataryRequests.URL_BASE,
+                          "datasets/{}/original".format(dataset_uuid))
+            params = exclude_empty_values(
+                {'namespace': repo_uuid, 'scope': wdir_uuid})
+            response = self.request(
+                url, 'GET', **{'headers': self.headers, 'params': params})
             if not response or not response.json():
                 logger.error(
                     "Not original retrieved from wdir scope",
@@ -67,8 +71,10 @@ class DataryDatasets(DataryRequests):
                     scope=wdir_uuid,
                     dataset_uuid=dataset_uuid)
 
-                params = exclude_empty_values({'namespace': repo_uuid, 'scope': repo_uuid})
-                response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+                params = exclude_empty_values(
+                    {'namespace': repo_uuid, 'scope': repo_uuid})
+                response = self.request(
+                    url, 'GET', **{'headers': self.headers, 'params': params})
                 if not response:
                     logger.error(
                         "Not original retrieved from repo scope",
@@ -100,10 +106,13 @@ class DataryDatasets(DataryRequests):
             wdir_filetree = self.get_wdir_filetree(wdir_uuid)
 
             # retrieve last commit filetree
-            wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(self.get_wdir_changes(wdir_uuid).values())
+            wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(
+                self.get_wdir_changes(wdir_uuid).values())
 
             # retrieve dataset uuid
-            dataset_uuid = get_element(wdir_changes_filetree, filepath) or get_element(wdir_filetree, filepath) or None
+            dataset_uuid = (
+                get_element(wdir_changes_filetree, filepath)) or (
+                get_element(wdir_filetree, filepath)) or None
 
         return dataset_uuid
 
@@ -124,9 +133,11 @@ class DataryDatasets(DataryRequests):
         pathname = os.path.join(path, filename)
 
         if pathname:
-            url = urljoin(DataryRequests.URL_BASE, "/workdirs/{}/filetree".format(wdir_uuid))
+            url = urljoin(DataryRequests.URL_BASE,
+                          "/workdirs/{}/filetree".format(wdir_uuid))
             params = exclude_empty_values({'pathname': pathname})
-            response = self.request(url, 'GET', **{'headers': self.headers, 'params': params})
+            response = self.request(
+                url, 'GET', **{'headers': self.headers, 'params': params})
             if not response:
                 logger.error(
                     "Not response retrieved.")

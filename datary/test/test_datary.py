@@ -11,7 +11,8 @@ class DataryTestCase(unittest.TestCase):
     test_password = 'pass'
     test_token = '123'
 
-    params = {'username': test_username, 'password': test_password, 'token': test_token}
+    params = {'username': test_username,
+              'password': test_password, 'token': test_token}
     datary = Datary(**params)
 
     url = 'http://datary.io/test'  # not exist, it's false
@@ -30,47 +31,48 @@ class DataryTestCase(unittest.TestCase):
                     ['c/a', 'caa', 'data_caa', 'caa_sha1'],
                     ['d', 'dd', 'data_dd', 'dd2_sha1']]
 
-    element = {'path': 'a', 'filename': 'aa', 'data': {'kern': {'data_aa': [[4, 5, 6]]}, 'meta': {}}, 'sha1': 'aa_sha1'}
+    element = {'path': 'a', 'filename': 'aa', 'data': {
+        'kern': {'data_aa': [[4, 5, 6]]}, 'meta': {}}, 'sha1': 'aa_sha1'}
 
     original = {'__kern': {'data_aa': [[1, 2, 3]]}, '__meta': {}}
 
     inode = 'c46ac2d596ee898fd949c0bb0bb8f114482de450'
 
     json_repo = {
-            "owner":   "b22x2h1h-23wf-1j56-253h-21c3u5st3851",
-            "creator": "b22x2h1h-23wf-1j56-253h-21c3u5st3851",
-            "name": "test_repo",
-            "description": "test mocking repo",
-            "workdir": {
-              "uuid": "s2g5311h-2416-21h2-52u6-23asw22ha2134"
-            },
-            "apex": {'commit': '123'},
-            "visibility": "public",
-            "license": {
-              "name": "cc-sa"
-            },
-            "category": "test",
-            "status": "active",
-            "uuid": "47eq5s12-5el1-2hq2-2ss1-egx517b1w967"
-        }
+        "owner":   "b22x2h1h-23wf-1j56-253h-21c3u5st3851",
+        "creator": "b22x2h1h-23wf-1j56-253h-21c3u5st3851",
+        "name": "test_repo",
+        "description": "test mocking repo",
+        "workdir": {
+            "uuid": "s2g5311h-2416-21h2-52u6-23asw22ha2134"
+        },
+        "apex": {'commit': '123'},
+        "visibility": "public",
+        "license": {
+            "name": "cc-sa"
+        },
+        "category": "test",
+        "status": "active",
+        "uuid": "47eq5s12-5el1-2hq2-2ss1-egx517b1w967"
+    }
 
     json_repo2 = {
-            "owner":   "d1917c16-741c-11e6-8b77-86f30ca893d3",
-            "creator": "d1917c16-741c-11e6-8b77-86f30ca893d3",
-            "name": "test_repo2",
-            "description": "test mocking repo 2",
-            "workdir": {
-              "uuid": "d191806c-741c-11e6-8b77-86f30ca893d3"
-            },
-            "apex": {},
-            "visibility": "private",
-            "license": {
-              "name": "cc-test"
-            },
-            "category": "test",
-            "status": "active",
-            "uuid": "0dc6379e-741d-11e6-8b77-86f30ca893d3"
-        }
+        "owner":   "d1917c16-741c-11e6-8b77-86f30ca893d3",
+        "creator": "d1917c16-741c-11e6-8b77-86f30ca893d3",
+        "name": "test_repo2",
+        "description": "test mocking repo 2",
+        "workdir": {
+            "uuid": "d191806c-741c-11e6-8b77-86f30ca893d3"
+        },
+        "apex": {},
+        "visibility": "private",
+        "license": {
+            "name": "cc-test"
+        },
+        "category": "test",
+        "status": "active",
+        "uuid": "0dc6379e-741d-11e6-8b77-86f30ca893d3"
+    }
 
     wdir_json = {
         "tree": "e2d2bcb88032930aacae64dc5d051ed0b03b6bde",
@@ -83,9 +85,9 @@ class DataryTestCase(unittest.TestCase):
             "file_test1": "3a26a47b6e7f28c77380eccc8aec23sd6dc0201e",
             "folder_test1": {
                 "file_test2": "3a26a47b6e7f28c77380eccc8aec23sd6dc0201e"
-                }
             }
         }
+    }
 
     changes = {
         "removedElements": [
@@ -101,16 +103,16 @@ class DataryTestCase(unittest.TestCase):
             }],
         "renamedElements": [],
         "modifiedElements": [{
-                "dirname": "b",
-                "basename": "bb",
-                "inode": "inode1_changes"
-            }],
+            "dirname": "b",
+            "basename": "bb",
+            "inode": "inode1_changes"
+        }],
         "addedElements": [{
-                "dirname": "",
-                "basename": "d",
-                "inode": "inode3_changes"
-            }]
-        }
+            "dirname": "",
+            "basename": "d",
+            "inode": "inode3_changes"
+        }]
+    }
 
     filetree = {
         '__self': '__self_sha1',
@@ -119,7 +121,7 @@ class DataryTestCase(unittest.TestCase):
             '__self': '__self_sha1',
             'bb': 'bb_sha1'},
         'c': 'c_sha1'
-        }
+    }
 
     categories = [{
         "id": "business",
@@ -127,14 +129,14 @@ class DataryTestCase(unittest.TestCase):
         "href": "api.datary.io/search/categories/business",
         "icons": {"sm": None, "md": None, "lg": None},
         "locale": {"es-ES": "Negocios"}
-        },
+    },
         {
         "id": "sports",
         "name": "Sports",
         "href": "api.datary.io/search/categories/sports",
         "icons": {"sm": None, "md": None, "lg": None},
         "locale": {"es-ES": "Deportes"}
-        }]
+    }]
 
     members = [
         {
@@ -174,13 +176,15 @@ class Datary_SizeLimitExceptionTestCase(unittest.TestCase):
 
     def test_init(self):
 
-        test_ex = Datary_SizeLimitException(msg=self.test_msg, src_path=self.path, size=self.size)
+        test_ex = Datary_SizeLimitException(
+            msg=self.test_msg, src_path=self.path, size=self.size)
 
         self.assertEqual(test_ex.msg, self.test_msg)
         self.assertEqual(test_ex.src_path, self.path)
         self.assertEqual(test_ex.size, self.size)
 
-        self.assertEqual(str(test_ex), ";".join([self.test_msg, self.path, str(self.size)]))
+        self.assertEqual(str(test_ex), ";".join(
+            [self.test_msg, self.path, str(self.size)]))
 
 
 class MockRequestsTestCase(unittest.TestCase):

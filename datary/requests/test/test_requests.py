@@ -11,9 +11,12 @@ class DataryRequestsTestCase(DataryTestCase):
     @mock.patch('datary.requests.requests.requests')
     def test_request(self, mock_requests):
 
-        mock_requests.get.return_value = MockRequestResponse("ok", headers={'x-set-token': self.test_token})
-        mock_requests.post.return_value = MockRequestResponse("ok", headers={'x-set-token': self.test_token})
-        mock_requests.delete.return_value = MockRequestResponse("ok", headers={'x-set-token': self.test_token})
+        mock_requests.get.return_value = MockRequestResponse(
+            "ok", headers={'x-set-token': self.test_token})
+        mock_requests.post.return_value = MockRequestResponse(
+            "ok", headers={'x-set-token': self.test_token})
+        mock_requests.delete.return_value = MockRequestResponse(
+            "ok", headers={'x-set-token': self.test_token})
 
         # test GET
         result1 = self.datary.request(self.url, 'GET')
@@ -32,7 +35,8 @@ class DataryRequestsTestCase(DataryTestCase):
             self.datary.request(self.url, 'UNKWOWN')
 
         # test status code wrong
-        mock_requests.get.return_value = MockRequestResponse("err", status_code=500)
+        mock_requests.get.return_value = MockRequestResponse(
+            "err", status_code=500)
         result4 = self.datary.request(self.url, 'GET')
         self.assertEqual(result4, None)
 

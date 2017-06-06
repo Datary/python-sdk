@@ -23,7 +23,8 @@ class DataryCommitsTestCase(DataryTestCase):
     @mock.patch('datary.Datary.get_describerepo')
     @mock.patch('datary.Datary.get_commit_filetree')
     @mock.patch('datary.Datary.get_metadata')
-    def test_recollect_last_commit(self, mock_metadata, mock_filetree, mock_get_describerepo):
+    def test_recollect_last_commit(self, mock_metadata, mock_filetree,
+                                   mock_get_describerepo):
         mock_filetree.return_value = self.filetree
 
         mock_get_describerepo.return_value = self.json_repo
@@ -77,9 +78,10 @@ class DataryCommitsTestCase(DataryTestCase):
             'add': ['caa_sha1'],
             'delete': ['bb_sha1'],
             'update': ['dd2_sha1']
-            }
+        }
 
-        result = self.datary.compare_commits(self.commit_test1, self.commit_test2)
+        result = self.datary.compare_commits(
+            self.commit_test1, self.commit_test2)
 
         self.assertEqual(len(result.get('add')), 1)
         self.assertEqual(len(result.get('update')), 1)
@@ -92,7 +94,8 @@ class DataryCommitsTestCase(DataryTestCase):
 
         with patch('datary.Datary.make_index') as mock_makeindex:
             mock_makeindex.side_effect = Exception('Test Exception')
-            result2 = self.datary.compare_commits(self.commit_test1, self.commit_test2)
+            result2 = self.datary.compare_commits(
+                self.commit_test1, self.commit_test2)
 
             assert(isinstance(result2, dict))
             self.assertEqual(result2, {'update': [], 'delete': [], 'add': []})
@@ -131,9 +134,12 @@ class DataryCommitsTestCase(DataryTestCase):
         datetime_value = "12/03/1990-12:04"
         mock_datetime.now().strftime.return_value = datetime_value
 
-        test_diff = {'add': [{'path': 'path1', 'filename': 'filename1'}, {'path': 'path2', 'filename': 'filename2'}]}
+        test_diff = {'add': [{'path': 'path1', 'filename': 'filename1'}, {
+            'path': 'path2', 'filename': 'filename2'}]}
         test_diff_result = (
-            'Changes at {}\nADD\n*****************\n+  path1/filename1\n+  path2/filename2\nDELETE\n*****************\nUPDATE\n*****************\n'.format(datetime_value))
+            'Changes at {}\nADD\n*****************\n+  path1/filename1\n+  '
+            'path2/filename2\nDELETE\n*****************\nUPDATE\n***********'
+            '******\n'.format(datetime_value))
 
         # Empty diff
         result = self.datary.commit_diff_tostring([])
@@ -142,6 +148,7 @@ class DataryCommitsTestCase(DataryTestCase):
         result2 = self.datary.commit_diff_tostring(test_diff)
         self.assertEqual(result2, test_diff_result)
 
-        mock_datetime.now().strftime.side_effect = Exception('test exception in datetime')
+        ex = Exception('test exception in datetime')
+        mock_datetime.now().strftime.side_effect = ex
         result3 = self.datary.commit_diff_tostring(test_diff)
         self.assertEqual(result3, '')

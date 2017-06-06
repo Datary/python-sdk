@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" Datary Repos Module.
+"""
 import structlog
 
 from urllib.parse import urljoin
@@ -9,6 +11,9 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryRepos(DataryRequests):
+    """
+    Datary repos module class.
+    """
 
     DATARY_REPO_VISIBILITY = ['public', 'private', 'commercial']
 
@@ -24,11 +29,14 @@ class DataryRepos(DataryRequests):
         description     str             repo description info.
         visibility      str             public, private, commercial.
         licenseName     str             repo license.
-        amount          int             price of the repo in cents if commertial.
+        amount          int             price of the repo in cents if
+                                         commertial.
         currency        str             currency (by default "eur").
         modality        str             "one-time" | "recurring" (by default)
-        interval        str             "day" | "week" | "month" | "year" (by default).
-        period          int             number of interval between billing (by default 1).
+        interval        str             "day" | "week" | "month" | "year" (by
+                                         default).
+        period          int             number of interval between billing (by
+                                         default 1).
         ==============  =============   ======================================
 
         Returns:
@@ -40,11 +48,21 @@ class DataryRepos(DataryRequests):
             url = urljoin(DataryRequests.URL_BASE, "me/repos")
             visibility = kwargs.get('visibility', 'commercial')
 
+            cat_condition = repo_category in DataryCategories.DATARY_CATEGORIES
+            visibility_condition = visibility in self.DATARY_REPO_VISIBILITY
+
             payload = {
                 'name': repo_name,
-                'category': repo_category if repo_category in DataryCategories.DATARY_CATEGORIES else 'other',
-                'description': kwargs.get('description', '{} description'.format(repo_name)),
-                'visibility': visibility if visibility in self.DATARY_REPO_VISIBILITY else 'commercial',
+                'category':
+                    repo_category if cat_condition else 'other',
+
+                'description': kwargs.get(
+                    'description',
+                    '{} description'.format(repo_name)),
+
+                'visibility':
+                    visibility if visibility_condition else 'commercial',
+
                 'licenseName': kwargs.get('license', 'proprietary'),
                 'amount': kwargs.get('amount'),
                 'currency':  kwargs.get('currency', 'eur'),

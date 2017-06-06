@@ -16,7 +16,8 @@ def exclude_values(values, args):
     if isinstance(args, dict):
         return {
             key: value
-            for key, value in ((k, exclude_values(values, v)) for (k, v) in args.items())
+            for key, value in (
+                (k, exclude_values(values, v)) for (k, v) in args.items())
             if value not in values
         }
     elif isinstance(args, list):
@@ -48,7 +49,8 @@ def check_fields(fields, args):
 
 def get_element(source, path, separator=r'[/.]'):
     """
-    Given a dict and path '/' or '.' separated. Digs into de dict to retrieve the specified element.
+    Given a dict and path '/' or '.' separated. Digs into de dict to retrieve
+    the specified element.
 
     Args:
         source (dict): set of nested objects in which the data will be searched
@@ -59,7 +61,8 @@ def get_element(source, path, separator=r'[/.]'):
 
 def _get_element_by_names(source, names):
     """
-    Given a dict and path '/' or '.' separated. Digs into de dict to retrieve the specified element.
+    Given a dict and path '/' or '.' separated. Digs into de dict to retrieve
+    the specified element.
 
     Args:
         source (dict): set of nested objects in which the data will be searched
@@ -86,7 +89,11 @@ def _get_element_by_names(source, names):
 
 def add_element(source, path, value, separator=r'[/.]', override=False):
 
-    return _add_element_by_names(source, exclude_empty_values(re.split(separator, path)), value, override)
+    return _add_element_by_names(
+        source,
+        exclude_empty_values(re.split(separator, path)),
+        value,
+        override)
 
 
 def _add_element_by_names(source, names, value, override=False):
@@ -121,7 +128,10 @@ def _add_element_by_names(source, names, value, override=False):
                 if not override and isinstance(source[head], list):
                     source[head].append(value)
 
-                elif not override and isinstance(source[head], dict) and isinstance(value, dict):
+                elif (
+                    (not override and isinstance(source[head], dict)) and
+                    (isinstance(value, dict))
+                ):
                     source[head].update(value)
 
                 else:
@@ -132,8 +142,8 @@ def _add_element_by_names(source, names, value, override=False):
 
 def force_list(element):
     """
-    Given an element or a list, concatenates every element and clean it to create a
-    full text
+    Given an element or a list, concatenates every element and clean it to
+    create a full text
     """
     if element is None:
         return []
@@ -185,7 +195,10 @@ def nested_dict_to_list(path, dic):
 
 
 def find_value_in_object(attr, obj):
-    """Return values for any key coincidence with attr in obj or any other nested dict."""
+    """Return values for any key coincidence with attr in obj or any other
+    nested dict.
+    """
+
     # Carry on inspecting inside the list or tuple
     if isinstance(obj, (collections.Iterator, list)):
         for item in obj:
@@ -247,7 +260,8 @@ def dict2orderedlist(dic, order_list, default=''):
 
 def get_dimension(array):
     """
-    Get dimension of an array getting the number of rows and the max num of columns.
+    Get dimension of an array getting the number of rows and the max num of
+    columns.
     """
     result = [0, 0]
 

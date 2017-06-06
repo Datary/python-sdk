@@ -29,7 +29,8 @@ class DataryAddOperation(DataryRequests):
             "Add new directory to Datary.",
             path=os.path.join(path, dirname))
 
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
                    "filemode": 40000,
@@ -62,7 +63,8 @@ class DataryAddOperation(DataryRequests):
          """
         logger.info("Add new file to Datary.")
 
-        url = urljoin(DataryRequests.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
                    "filemode": 100644,

@@ -30,7 +30,8 @@ class DataryCommits(DataryRequests):
         """
         logger.info("Commiting changes...")
 
-        url = urljoin(DataryRequests.URL_BASE, "repos/{}/commits".format(repo_uuid))
+        url = urljoin(DataryRequests.URL_BASE,
+                      "repos/{}/commits".format(repo_uuid))
 
         response = self.request(
             url,
@@ -72,7 +73,8 @@ class DataryCommits(DataryRequests):
             for path, filename, dataset_uuid in filetree_matrix:
                 metadata = self.get_metadata(repo.get('uuid'), dataset_uuid)
                 # append format path | filename | data (not required) | sha1
-                last_commit.append((path, filename, None, metadata.get("sha1")))
+                last_commit.append(
+                    (path, filename, None, metadata.get("sha1")))
         except Exception:
             logger.warning(
                 "Fail recollecting last commit",
@@ -112,7 +114,8 @@ class DataryCommits(DataryRequests):
                     format(repo.get('uuid'), last_sha1))
 
         except Exception as ex:
-            logger.warning("Fail getting last commit - {}".format(ex), repo=repo)
+            logger.warning(
+                "Fail getting last commit - {}".format(ex), repo=repo)
 
         return ftree
 
@@ -136,7 +139,8 @@ class DataryCommits(DataryRequests):
                                                     'sha1': sha1}
         return result
 
-    def compare_commits(self, last_commit, actual_commit, changes=[], strict=True, **kwargs):
+    def compare_commits(self, last_commit, actual_commit, changes=[],
+                        strict=True, **kwargs):
         """
         Compare two commits and retrieve hot elements to change
         and the action to do.
@@ -241,7 +245,8 @@ class DataryCommits(DataryRequests):
 
         if difference:
             try:
-                result = "Changes at {}\n".format(datetime.now().strftime("%d/%m/%Y-%H:%M"))
+                result = "Changes at {}\n".format(
+                    datetime.now().strftime("%d/%m/%Y-%H:%M"))
                 for action in sorted(list(self.COMMIT_ACTIONS.keys())):
                     result += "{}\n*****************\n".format(action.upper())
                     for commit_data in difference.get(action, []):
@@ -250,7 +255,7 @@ class DataryCommits(DataryRequests):
                             commit_data.get('path'),
                             commit_data.get('filename'))
             except Exception as ex:
-                logger.error(
-                    'Fail translating commit differences to string - {}'.format(ex))
+                msg = 'Fail translating commit differences to string - {}'
+                logger.error(msg.format(ex))
 
         return result
