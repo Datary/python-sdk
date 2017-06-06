@@ -10,9 +10,4 @@ Datasets Class
 
 .. autoclass:: datary.DataryDatasets
     :members:
-
-Datary Datasets Auxiliary Class & Methods
------------------------------------------
-
-.. automodule:: datary.datasets
-    :members:
+    :inherited-members:

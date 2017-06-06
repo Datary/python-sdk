@@ -10,9 +10,4 @@ DataryRepos Class
 
 .. autoclass:: datary.DataryRepos
     :members:
-
-Datary Repos Auxiliary Class & Methods
---------------------------------------
-
-.. automodule:: datary.repos
-    :members:
+    :inherited-members:

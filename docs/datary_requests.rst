@@ -10,9 +10,4 @@ DataryRequests Class
 
 .. autoclass:: datary.requests.DataryRequests
     :members:
-
-Datary Requests Auxiliary Class & Methods
------------------------------------------
-
-.. automodule:: datary.requests
-    :members:
+    :inherited-members:

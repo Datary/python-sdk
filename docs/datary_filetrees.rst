@@ -10,9 +10,4 @@ DataryFiletrees Class
 
 .. autoclass:: datary.DataryFiletrees
     :members:
-
-Datary Filetrees Auxiliary Class & Methods
--------------------------------------------
-
-.. automodule:: datary.filetrees
-    :members:
+    :inherited-members:

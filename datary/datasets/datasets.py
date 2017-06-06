@@ -5,6 +5,7 @@ import structlog
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
 from datary.utils import exclude_empty_values, get_element
+
 logger = structlog.getLogger(__name__)
 
 

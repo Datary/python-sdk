@@ -10,13 +10,7 @@ DataryCategories Class
 
 .. autoclass:: datary.DataryCategories
     :members:
+    :inherited-members:
 
     .. autoattribute:: datary.DataryCategories.DATARY_CATEGORIES
 
-
-
-Datary Categories Auxiliary Class & Methods
--------------------------------------------
-
-.. automodule:: datary.categories
-    :members:

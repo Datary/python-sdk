@@ -10,9 +10,4 @@ DataryAuth Class
 
 .. autoclass:: datary.DataryAuth
     :members:
-
-Datary Auth Auxiliary Class & Methods
--------------------------------------
-
-.. automodule:: datary.auth
-    :members:
+    :inherited-members:

@@ -10,21 +10,18 @@ DataryAddOperation Class
 
 .. autoclass:: datary.DataryAddOperation
     :members:
+    :inherited-members:
 
 DataryModifyOperation Class
 ---------------------------
 
 .. autoclass:: datary.DataryModifyOperation
     :members:
+    :inherited-members:
 
 DataryRemoveOperation Class
 ---------------------------
 
 .. autoclass:: datary.DataryRemoveOperation
     :members:
-
-Datary Operations Auxiliary Class & Methods
--------------------------------------------
-
-.. automodule:: datary.operations
-    :members:
+    :inherited-members:

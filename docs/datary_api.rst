@@ -11,8 +11,9 @@ Datary Main Class
 
 .. autoclass:: datary.Datary
     :members:
+    :inherited-members:
 
-    .. autoattribute:: datary.Datary.ALLOWED_DATARY_META_FIELDS
+.. autoattribute:: datary.Datary.ALLOWED_DATARY_META_FIELDS
 
 
 Datary Auxiliary Class & Methods
