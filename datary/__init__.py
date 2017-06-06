@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import structlog
 
-from datary.auth import DataryAuth
-from datary.categories import DataryCategories
-from datary.commits import DataryCommits
-from datary.datasets import DataryDatasets
-from datary.filetrees import DataryFiletrees
-from datary.members import DataryMembers
-from datary.operations import (DataryAddOperation, DataryModifyOperation,
-                               DataryRemoveOperation)
-from datary.repos import DataryRepos
+from .auth import DataryAuth
+from .categories import DataryCategories
+from .commits import DataryCommits
+from .datasets import DataryDatasets
+from .filetrees import DataryFiletrees
+from .members import DataryMembers
+from .repos import DataryRepos
+from .operations import (
+    DataryAddOperation,
+    DataryModifyOperation,
+    DataryRemoveOperation)
 
 from . import version
 
