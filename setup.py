@@ -1,11 +1,13 @@
 import os
-from setuptools import setup
+import sys
+from setuptools import setup, find_packages
 from pip.req import parse_requirements
 
 install_reqs = parse_requirements('requirements.txt', session=False)
 required = [str(ir.req) for ir in install_reqs]
 
 _here = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, _here)
 
 
 def version():
@@ -16,7 +18,7 @@ def version():
 
 setup(
     name='datary',
-    packages=['datary'],
+    packages=find_packages(),
     version=version(),
     description='Datary Python sdk lib',
     author='Datary developers team',
