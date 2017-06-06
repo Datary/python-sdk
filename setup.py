@@ -25,8 +25,6 @@ setup(
     download_url='https://github.com/Datary/python-sdk',
     keywords=['datary', 'sdk', 'api'],  # arbitrary keywords
     classifiers=[
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
