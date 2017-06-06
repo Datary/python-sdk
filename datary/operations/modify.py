@@ -43,16 +43,16 @@ class DataryModifyOperation(DataryRequests):
         """
         Modifies an existing file in Datary.
 
-        ================  =============   ====================================
-        Parameter         Type            Description
-        ================  =============   ====================================
-        wdir_uuid         str             working directory uuid
-        element           list            [path, filename, data, sha1]
-        mod_style         str o callable  'override' by default,
-                                          'update-append' mod_style,
-                                          'update-row' mod_style,
-                                           <callable> function to use.
-        ================  =============   ====================================
+        ===============   ===============   ====================================
+        Parameter         Type              Description
+        ===============   ===============   ====================================
+        wdir_uuid         str               working directory uuid
+        element           list              [path, filename, data, sha1]
+        mod_style         str o callable    'override' by default,
+                                            'update-append' mod_style,
+                                            'update-row' mod_style,
+                                            <callable> function to use.
+        ===============   ===============   ====================================
         """
         # Override method
         if mod_style == 'override':

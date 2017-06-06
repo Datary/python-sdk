@@ -15,7 +15,7 @@ class DataryDatasets(DataryRequests):
         Parameter         Type            Description
         ================  =============   ====================================
         repo_uuid         int             repository id
-        dataset_uuid  str
+        dataset_uuid      str
         ================  =============   ====================================
 
         Returns:

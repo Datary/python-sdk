@@ -1,9 +1,10 @@
-Datary Api methods supported in SDK
-===================================
+Datary Api Class
+================
 
 Introduction
 ------------
-This section is going to show the methods implemented in the lib to use Datary Api.
+This section is show the main class implemented in the lib to use Datary Api. It
+inherits from the other class modules in this lib.
 
 Datary Main Class
 -----------------
@@ -11,8 +12,6 @@ Datary Main Class
 .. autoclass:: datary.Datary
     :members:
 
-    .. autoattribute:: datary.Datary.DATARY_VISIBILITY_OPTION
-    .. autoattribute:: datary.Datary.DATARY_CATEGORIES
     .. autoattribute:: datary.Datary.ALLOWED_DATARY_META_FIELDS
 
 

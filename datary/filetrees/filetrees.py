@@ -70,11 +70,11 @@ class DataryFiletrees(DataryRequests):
 
     def format_wdir_changes_to_filetreeformat(self, wdir_changes_tree):
         """
-        ================  =============   ====================================
-        Parameter         Type            Description
-        ================  =============   ====================================
-        wdir_changes_tree list            working changes tree
-        ================  =============   ====================================
+        ==================  =============   ====================================
+        Parameter           Type            Description
+        ==================  =============   ====================================
+        wdir_changes_tree   list            working changes tree
+        ==================  =============   ====================================
 
         Returns:
             (dict) changes in workdir formatting as filetree format.
