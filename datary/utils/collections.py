@@ -3,8 +3,8 @@
 Datary utils collections file.
 """
 import re
-import structlog
 import collections
+import structlog
 
 logger = structlog.getLogger(__name__)
 
@@ -195,23 +195,24 @@ def force_list(element):
     return [element]
 
 
-def flatten(d, parent_key='', sep='_'):
+def flatten(dictionary, parent_key='', sep='_'):
     """
     Transform dictionary multilevel values to one level dict, concatenating
     the keys with sep between them.
     """
     items = []
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            items.extend(flatten(v, new_key, sep=sep).items())
+    for key, value in dictionary.items():
+        new_key = parent_key + sep + key if parent_key else key
+        if isinstance(value, collections.MutableMapping):
+            items.extend(flatten(value, new_key, sep=sep).items())
         else:
-            if isinstance(v, list):
-                list_keys = [str(i) for i in range(0, len(v))]
+            if isinstance(value, list):
+                list_keys = [str(i) for i in range(0, len(value))]
                 items.extend(
-                    flatten(dict(zip(list_keys, v)), new_key, sep=sep).items())
+                    flatten(
+                        dict(zip(list_keys, value)), new_key, sep=sep).items())
             else:
-                items.append((new_key, v))
+                items.append((new_key, value))
     return collections.OrderedDict(items)
 
 
@@ -293,10 +294,10 @@ def dict2orderedlist(dic, order_list, default=''):
     """
     Return a list with dict values ordered by a list of key passed in args.
     """
-    d = []
+    result_list = []
     for key_order in order_list:
-        d.append(dic.get(key_order, default))
-    return d
+        result_list.append(dic.get(key_order, default))
+    return result_list
 
 
 def get_dimension(array):

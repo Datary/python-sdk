@@ -85,13 +85,11 @@ class DataryRepos(DataryRequests):
             response = self.request(
                 url, 'POST', **{'data': payload, 'headers': self.headers})
 
-        # TODO: Refactor in a future the creation process in API returns a repo
-        # description.
         describe_response = self.get_describerepo(
             repo_name=repo_name, **kwargs)
         return describe_response if describe_response else {}
 
-    def get_describerepo(self, repo_uuid=None, repo_name=None, **kwargs):
+    def get_describerepo(self, repo_uuid=None, repo_name=None):
         """
         ==============  =============   ====================================
         Parameter       Type            Description
@@ -114,7 +112,6 @@ class DataryRepos(DataryRequests):
         repos_data = response.json() if response else {}
         repo = {}
 
-        # TODO: refactor
         if isinstance(repos_data, list) and (repo_uuid or repo_name):
             for repo_data in repos_data:
                 if repo_uuid and repo_data.get('uuid') == repo_uuid:
@@ -129,7 +126,7 @@ class DataryRepos(DataryRequests):
 
         return repo
 
-    def delete_repo(self, repo_uuid=None, **kwargs):
+    def delete_repo(self, repo_uuid=None):
         """
         Deletes repo using Datary's Api
 

@@ -16,12 +16,6 @@ class DataryMembers(DataryRequests):
     Datary Members module class
     """
 
-    def __init__(self, **kwargs):
-        """
-        DataryMembers Init method
-        """
-        super(DataryMembers, self).__init__(**kwargs)
-
     def get_members(self, member_uuid='', member_name='', **kwargs):
         """
         ==============  =============   ====================================

@@ -164,22 +164,11 @@ class DataryRemoveOperation(DataryRequests):
             # flatten filetree to list
             flatten_filetree = flatten(filetree, sep='/')
 
-            # TODO: REMOVE THIS SHIT..
-            # add foo file, workingdir cant be empty..
-            foo_element = {
-                'path': '',
-                'filename': 'foo_{}'.format(random.randint(0, 99)),
-                'data': {'meta': {}, 'kern': []}
-            }
-
-            self.add_file(wdir_uuid, foo_element)
-            self.commit(repo_uuid, 'Commit foo file to clean repo')
-
             filetree_keys = [
                 x for x in flatten_filetree.keys() if '__self' not in x]
 
+            # Delete files
             for path in filetree_keys:
-
                 element_data = {
                     'path': "/".join(path.split('/')[:-1]),
                     'filename': path.split('/')[-1]
@@ -187,6 +176,7 @@ class DataryRemoveOperation(DataryRequests):
 
                 self.delete_file(wdir_uuid, element_data)
 
+            # commit clean repo
             self.commit(repo_uuid, 'Commit delete all files to clean repo')
 
         else:

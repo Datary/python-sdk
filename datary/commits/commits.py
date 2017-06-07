@@ -7,7 +7,8 @@ import os
 
 from datetime import datetime
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.operations import (
+    DataryAddOperation, DataryModifyOperation, DataryRemoveOperation)
 from datary.utils import nested_dict_to_list
 
 import structlog
@@ -15,20 +16,13 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryCommits(DataryRequests):
+class DataryCommits(DataryAddOperation, DataryModifyOperation,
+                    DataryRemoveOperation):
     """
     Datary Commits class.
     """
 
     COMMIT_ACTIONS = {'add': '+', 'update': 'm', 'delete': '-'}
-
-    headers = {}
-
-    def __init__(self, **kwargs):
-        """
-        DataryCommits Init method
-        """
-        super(DataryCommits, self).__init__(**kwargs)
 
     def commit(self, repo_uuid, commit_message):
         """
@@ -44,15 +38,13 @@ class DataryCommits(DataryRequests):
         """
         logger.info("Commiting changes...")
 
-        url = urljoin(DataryRequests.URL_BASE,
+        url = urljoin(DataryAddOperation.URL_BASE,
                       "repos/{}/commits".format(repo_uuid))
 
         response = self.request(
             url,
             'POST',
-            **{'data': {
-               'message': commit_message},
-               'headers': self.headers})
+            **{'data': {'message': commit_message}, 'headers': self.headers})
         if response:
             logger.info("Changes commited")
 

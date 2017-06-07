@@ -118,7 +118,7 @@ class DataryDatasets(DataryRequests):
             wdir_filetree = self.get_wdir_filetree(wdir_uuid)
 
             # retrieve last commit filetree
-            wdir_changes_filetree = self.format_wdir_changes_to_filetreeformat(
+            wdir_changes_filetree = self.format_wdir_changes(
                 self.get_wdir_changes(wdir_uuid).values())
 
             # retrieve dataset uuid

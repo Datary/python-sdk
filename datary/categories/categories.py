@@ -38,12 +38,6 @@ class DataryCategories(DataryRequests):
 
     headers = {}
 
-    def __init__(self, **kwargs):
-        """
-        DataryCategories Init method
-        """
-        super(DataryCategories, self).__init__(**kwargs)
-
     def get_categories(self):
         """
         Returns:

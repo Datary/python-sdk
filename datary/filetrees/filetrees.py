@@ -3,24 +3,21 @@
 Datary sdk Filetrees File
 """
 import os
-import structlog
 
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.repos import DataryRepos
 from datary.utils import force_list, add_element
+
+import structlog
+
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryFiletrees(DataryRequests):
-
-    headers = {}
-
-    def __init__(self, **kwargs):
-        """
-        DataryFiletrees Init method
-        """
-        super(DataryFiletrees, self).__init__(**kwargs)
+class DataryFiletrees(DataryRepos):
+    """
+      Datary Filetrees module class
+    """
 
     def get_commit_filetree(self, repo_uuid, commit_sha1):
         """
@@ -35,7 +32,7 @@ class DataryFiletrees(DataryRequests):
             filetree of all commits done in a repo.
 
         """
-        url = urljoin(DataryRequests.URL_BASE,
+        url = urljoin(DataryRepos.URL_BASE,
                       "commits/{}/filetree".format(commit_sha1))
         params = {'namespace': repo_uuid}
         response = self.request(
@@ -55,7 +52,7 @@ class DataryFiletrees(DataryRequests):
             filetree of a repo workdir.
 
         """
-        url = urljoin(DataryRequests.URL_BASE,
+        url = urljoin(DataryRepos.URL_BASE,
                       "workdirs/{}/filetree".format(wdir_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
@@ -78,13 +75,13 @@ class DataryFiletrees(DataryRequests):
             wdir_uuid = self.get_describerepo(
                 **kwargs).get('workdir', {}).get('uuid')
 
-        url = urljoin(DataryRequests.URL_BASE,
+        url = urljoin(DataryRepos.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}
 
-    def format_wdir_changes_to_filetreeformat(self, wdir_changes_tree):
+    def format_wdir_changes(self, wdir_changes_tree):
         """
         ==================  =============   ==================================
         Parameter           Type            Description
