@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-""" Datary Repos Module.
+"""
+Datary Repos File.
 """
 import structlog
 
@@ -16,6 +17,15 @@ class DataryRepos(DataryRequests):
     """
 
     DATARY_REPO_VISIBILITY = ['public', 'private', 'commercial']
+
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryRepos Init method
+        """
+        super(DataryRepos, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def create_repo(self, repo_name=None, repo_category='other', **kwargs):
         """

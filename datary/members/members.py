@@ -1,14 +1,27 @@
 
 # -*- coding: utf-8 -*-
-import structlog
-
+"""
+Datary sdk Members File
+"""
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
+
+import structlog
 
 logger = structlog.getLogger(__name__)
 
 
 class DataryMembers(DataryRequests):
+    """
+    Datary Members module class
+    """
+
+    def __init__(self, **kwargs):
+        """
+        DataryMembers Init method
+        """
+        super(DataryMembers, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def get_members(self, member_uuid='', member_name='', **kwargs):
         """

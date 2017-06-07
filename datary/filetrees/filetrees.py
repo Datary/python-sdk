@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Filetrees File
+"""
 import os
 import structlog
 
@@ -10,6 +13,15 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryFiletrees(DataryRequests):
+
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryFiletrees Init method
+        """
+        super(DataryFiletrees, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def get_commit_filetree(self, repo_uuid, commit_sha1):
         """

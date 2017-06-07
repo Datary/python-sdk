@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Add Operations File
+"""
 import os
 import json
 import structlog
@@ -10,6 +13,16 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryAddOperation(DataryRequests):
+    """
+    Datary AddOperation module class
+    """
+
+    def __init__(self, **kwargs):
+        """
+        DataryAddOperation Init method
+        """
+        super(DataryAddOperation, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def add_dir(self, wdir_uuid, path, dirname):
         """

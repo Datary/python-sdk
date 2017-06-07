@@ -1,0 +1,6 @@
+[BASIC]
+good-names=logger, ex
+
+[DESIGN]
+max-parents=15
+max-args=15

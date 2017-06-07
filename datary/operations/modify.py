@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Modify Operations File
+"""
 import os
 import re
 import json
@@ -10,13 +13,24 @@ from datary.utils import (add_element, force_list, get_element, get_dimension,
                           remove_list_duplicates, flatten, dict2orderedlist,
                           exclude_empty_values)
 
-
 logger = structlog.getLogger(__name__)
 
 
 class DataryModifyOperation(DataryRequests):
+    """
+    Datary ModifyOperation module class
+    """
 
     _ROWZERO_HEADER_CONFIDENCE_VALUE = 0.5
+
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryModifyOperation Init method
+        """
+        super(DataryModifyOperation, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def modify_request(self, wdir_uuid, element):
 

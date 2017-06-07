@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Test auth file
+"""
 import mock
 
 from datary import Datary

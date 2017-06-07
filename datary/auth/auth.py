@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Auth File
+"""
 import structlog
 
 from urllib.parse import urljoin
@@ -8,6 +11,15 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryAuth(DataryRequests):
+
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryAuth Init method
+        """
+        super(DataryAuth, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def get_user_token(self, user=None, password=None):
         """

@@ -1,5 +1,8 @@
 
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Commits File
+"""
 import os
 import structlog
 
@@ -13,8 +16,20 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryCommits(DataryRequests):
+    """
+    Datary Commits class.
+    """
 
     COMMIT_ACTIONS = {'add': '+', 'update': 'm', 'delete': '-'}
+
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryCommits Init method
+        """
+        super(DataryCommits, self).__init__(**kwargs)
+        self.headers = kwargs.get('headers', {})
 
     def commit(self, repo_uuid, commit_message):
         """

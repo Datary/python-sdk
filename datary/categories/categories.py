@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
-import structlog
-
+"""
+Datary sdk Categories File
+"""
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
+
+import structlog
+
 
 logger = structlog.getLogger(__name__)
 
 
 class DataryCategories(DataryRequests):
+    """
+    Datary Categories class.
+    """
 
     DATARY_CATEGORIES = [
         "business",
@@ -28,6 +35,15 @@ class DataryCategories(DataryRequests):
         "transportation",
         "other"
     ]
+
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryCategories Init method
+        """
+        super(DataryCategories, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def get_categories(self):
         """

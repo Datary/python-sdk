@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-""" Reusable utily functions."""
+""" Reusable utils module."""
 from .collections import *

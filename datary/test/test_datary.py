@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
+"""
+Datary Module Test
+"""
+
 import unittest
-from datary import Datary, Datary_SizeLimitException
+from datary import Datary, DatarySizeLimitException
 from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryTestCase(unittest.TestCase):
+    """
+    Datary Test Case
+
+    Contains DataryTestCase with all test variables who inherits and use all
+    the modules.
+    """
 
     # default params to test Datary class
     test_username = 'pepe'
@@ -22,17 +32,23 @@ class DataryTestCase(unittest.TestCase):
     dataset_uuid = "9132-3323-15-xs2-627"
 
     # old_ commit
-    commit_test1 = [['a', 'aa', 'data_aa', 'aa_sha1'],
-                    ['b', 'bb', 'data_bb', 'bb_sha1'],
-                    ['d', 'dd', 'data_dd', 'dd_sha1']]
+    commit_test1 = [
+        ['a', 'aa', 'data_aa', 'aa_sha1'],
+        ['b', 'bb', 'data_bb', 'bb_sha1'],
+        ['d', 'dd', 'data_dd', 'dd_sha1']]
 
     # new_ commit
-    commit_test2 = [['a', 'aa', 'data_aa', 'aa_sha1'],
-                    ['c/a', 'caa', 'data_caa', 'caa_sha1'],
-                    ['d', 'dd', 'data_dd', 'dd2_sha1']]
+    commit_test2 = [
+        ['a', 'aa', 'data_aa', 'aa_sha1'],
+        ['c/a', 'caa', 'data_caa', 'caa_sha1'],
+        ['d', 'dd', 'data_dd', 'dd2_sha1']]
 
-    element = {'path': 'a', 'filename': 'aa', 'data': {
-        'kern': {'data_aa': [[4, 5, 6]]}, 'meta': {}}, 'sha1': 'aa_sha1'}
+    element = {
+        'path': 'a', 'filename': 'aa',
+        'sha1': 'aa_sha1',
+        'data': {
+            'kern': {'data_aa': [[4, 5, 6]]},
+            'meta': {}}}
 
     original = {'__kern': {'data_aa': [[1, 2, 3]]}, '__meta': {}}
 
@@ -129,8 +145,7 @@ class DataryTestCase(unittest.TestCase):
         "href": "api.datary.io/search/categories/business",
         "icons": {"sm": None, "md": None, "lg": None},
         "locale": {"es-ES": "Negocios"}
-    },
-        {
+    }, {
         "id": "sports",
         "name": "Sports",
         "href": "api.datary.io/search/categories/sports",
@@ -168,15 +183,21 @@ class DataryTestCase(unittest.TestCase):
     metadata = {"sha1": "d1917c11-745c-44e6-5h71-23f30ca527d3"}
 
 
-class Datary_SizeLimitExceptionTestCase(unittest.TestCase):
+class DatarySizeLimitExceptionTestCase(unittest.TestCase):
+    """
+    DatarySizeLimitException Test Case
+    """
 
     test_msg = 'test_msg'
     path = 'test_path/folder/example'
     size = 9999
 
     def test_init(self):
+        """
+        Test init DatarySizeLimitException
+        """
 
-        test_ex = Datary_SizeLimitException(
+        test_ex = DatarySizeLimitException(
             msg=self.test_msg, src_path=self.path, size=self.size)
 
         self.assertEqual(test_ex.msg, self.test_msg)
@@ -187,9 +208,15 @@ class Datary_SizeLimitExceptionTestCase(unittest.TestCase):
             [self.test_msg, self.path, str(self.size)]))
 
 
-class MockRequestsTestCase(unittest.TestCase):
+class MockRequestsResponseTestCase(unittest.TestCase):
+    """
+    MockRequestsResponse Test Case
+    """
 
     def test(self):
+        """
+        Test MockRequestsResponse
+        """
         test = MockRequestResponse('aaaa', path='test_path')
         self.assertEqual(test.text, 'aaaa')
         self.assertEqual(test.path(), 'test_path')

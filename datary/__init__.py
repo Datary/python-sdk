@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Main datary sdk module
+"""
 import structlog
 
 from .auth import DataryAuth
@@ -22,6 +25,20 @@ URL_BASE = "http://api.datary.io/"
 class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets,
              DataryFiletrees, DataryMembers, DataryAddOperation, DataryRepos,
              DataryModifyOperation, DataryRemoveOperation):
+    """
+    Datary main api class.
+    Inherits from the rest of Datary modules its api functionality :
+        - DataryAuth
+        - DataryCategories
+        - DataryCommits
+        - DataryDatasets
+        - DataryFiletrees
+        - DataryMembers
+        - DataryAddOperation
+        - DataryRepos
+        - DataryModifyOperation
+        - DataryRemoveOperation
+    """
 
     __version__ = version.__version__
 
@@ -47,10 +64,11 @@ class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets,
         "bigdata",
         "dimension"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         Init Datary class
         """
+        super(Datary, self).__init__(**kwargs)
 
         self.username = kwargs.get('username')
         self.password = kwargs.get('password')
@@ -68,12 +86,13 @@ class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets,
         })
 
 
-class Datary_SizeLimitException(Exception):
+class DatarySizeLimitException(Exception):
     """
     Datary exception for size limit exceed
     """
 
     def __init__(self, msg='', src_path='', size=-1):
+        super(DatarySizeLimitException, self).__init__(self, msg)
         self.msg = msg
         self.src_path = src_path
         self.size = size

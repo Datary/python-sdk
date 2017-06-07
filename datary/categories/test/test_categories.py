@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Test categories file
+"""
 import mock
 
 from datary.test.test_datary import DataryTestCase
@@ -6,9 +9,21 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryCategoriesTestCase(DataryTestCase):
+    """
+    DataryCategories Test case
+    """
 
     @mock.patch('datary.Datary.request')
     def test_get_categories(self, mock_request):
+        """
+        Test get_categories
+        =============   =============   ===================================
+        Parameter       Type            Description
+        =============   =============   ===================================
+        mock_request    mock            Mock datary.Datary.request function
+        =============   =============   ===================================
+        """
+
         mock_request.return_value = MockRequestResponse(
             "", json=self.categories,)
         categories = self.datary.get_categories()

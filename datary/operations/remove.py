@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Remove Operations File
+"""
 import os
 import random
 import structlog
@@ -11,6 +14,17 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryRemoveOperation(DataryRequests):
+    """
+    Datary RemoveOperation module class
+    """
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryRemoveOperation Init method
+        """
+        super(DataryRemoveOperation, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def delete_dir(self, wdir_uuid, path, dirname):
         """

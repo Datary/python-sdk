@@ -128,10 +128,8 @@ def _add_element_by_names(source, names, value, override=False):
                 if not override and isinstance(source[head], list):
                     source[head].append(value)
 
-                elif (
-                    (not override and isinstance(source[head], dict)) and
-                    (isinstance(value, dict))
-                ):
+                elif ((not override and isinstance(source[head], dict)) and
+                      (isinstance(value, dict))):
                     source[head].update(value)
 
                 else:

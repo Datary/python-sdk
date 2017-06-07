@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Datasets File
+"""
 import os
 import structlog
 
@@ -10,6 +13,15 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryDatasets(DataryRequests):
+
+    headers = {}
+
+    def __init__(self, **kwargs):
+        """
+        DataryDatasets Init method
+        """
+        super(DataryDatasets, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def get_metadata(self, repo_uuid, dataset_uuid):
         """
@@ -111,8 +123,7 @@ class DataryDatasets(DataryRequests):
                 self.get_wdir_changes(wdir_uuid).values())
 
             # retrieve dataset uuid
-            dataset_uuid = (
-                get_element(wdir_changes_filetree, filepath)) or (
+            dataset_uuid = (get_element(wdir_changes_filetree, filepath)) or (
                 get_element(wdir_filetree, filepath)) or None
 
         return dataset_uuid

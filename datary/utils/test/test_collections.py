@@ -6,14 +6,16 @@ from datary.utils import *
 
 class UtilsCollectionsTestCase(unittest.TestCase):
 
-    obj = {'a': 'a1',
-           'aa': None,
-           'b': ['b1', 'b2'],
-           'c': ['c1', 'c2', 'c3'],
-           'd': 'd1',
-           'e': 'e1',
-           'f': [{'f1': 'ff1', 'f2': 'ff2', 'g': 'ff3'}],
-           'g': 'g1'}
+    obj = {
+        'a': 'a1',
+        'aa': None,
+        'b': ['b1', 'b2'],
+        'c': ['c1', 'c2', 'c3'],
+        'd': 'd1',
+        'e': 'e1',
+        'f': [{'f1': 'ff1', 'f2': 'ff2', 'g': 'ff3'}],
+        'g': 'g1'
+        }
 
     # ###### Manipulate collections functions ############################
 
@@ -25,7 +27,9 @@ class UtilsCollectionsTestCase(unittest.TestCase):
             'c': '',
             'd': False,
             'e': 0,
-            'f': [{}, {'fa': 1, 'fb': []}],
+            'f': [
+                {},
+                {'fa': 1, 'fb': []}],
         }
 
         empty_values_filter = exclude_values([], original)

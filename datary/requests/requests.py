@@ -1,14 +1,27 @@
 # -*- coding: utf-8 -*-
+"""
+Datary sdk Requests File
+"""
+from requests import RequestException
 import requests
 import structlog
-from requests import RequestException
+
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryRequests():
+class DataryRequests(object):
+    """
+    Datary Requests module class
+    """
 
     URL_BASE = "http://api.datary.io/"
+
+    def __init__(self):
+        """
+        DataryRequests Init method
+        """
+        super(DataryRequests, self).__init__()
 
     def request(self, url, http_method, **kwargs):
         """
@@ -61,9 +74,9 @@ class DataryRequests():
                     kwargs=kwargs)
 
         # Request Exception
-        except RequestException as e:
+        except RequestException as ex:
             logger.error(
-                "Fail request to Datary - {}".format(e),
+                "Fail request to Datary - {}".format(ex),
                 url=url,
                 http_method=http_method,
                 requests_args=kwargs)
