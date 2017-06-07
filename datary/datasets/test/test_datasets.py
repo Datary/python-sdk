@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary python sdk Datasets test file
+"""
 import mock
 
 from datary.test.test_datary import DataryTestCase
@@ -6,6 +9,9 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryDatasetsTestCase(DataryTestCase):
+    """
+    DataryDatasets Test case
+    """
 
     @mock.patch('datary.Datary.request')
     def test_get_metadata(self, mock_request):

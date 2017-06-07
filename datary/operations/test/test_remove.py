@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary python sdk Remove Operation test file
+"""
 import mock
 
 from datary.test.test_datary import DataryTestCase
@@ -6,10 +9,12 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryRemoveOperationTestCase(DataryTestCase):
+    """
+    RemoveOperation Test case
+    """
 
     @mock.patch('datary.Datary.request')
     def test_delete_dir(self, mock_request):
-        # TODO: Unkwnown api method changes??
         mock_request.return_value = MockRequestResponse("")
         self.datary.delete_dir(self.json_repo.get(
             'workdir', {}).get('uuid'), "path", "dirname")
@@ -20,7 +25,6 @@ class DataryRemoveOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_delete_file(self, mock_request):
-        # TODO: Unkwnown api method changes??
         mock_request.return_value = MockRequestResponse("")
         self.datary.delete_file(self.json_repo.get(
             'workdir', {}).get('uuid'), self.element)

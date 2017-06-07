@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Datary python sdk Members test files
+Datary python sdk Members test file
 """
 import mock
 

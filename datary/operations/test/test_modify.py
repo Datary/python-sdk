@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary python sdk Mofify Operation test file
+"""
 import mock
 
 from datary.utils import get_dimension
@@ -7,6 +10,9 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryModifyOperationTestCase(DataryTestCase):
+    """
+    ModifyOperation Test case
+    """
 
     @mock.patch('datary.Datary.request')
     def test_modify_request(self, mock_request):

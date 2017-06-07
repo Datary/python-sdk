@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary python sdk Commits test file
+"""
 import mock
 
 from unittest.mock import patch
@@ -7,11 +10,13 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryCommitsTestCase(DataryTestCase):
+    """
+    Test DataryCommits Test Case
+    """
 
     @mock.patch('datary.Datary.request')
     def test_commit(self, mock_request):
 
-        # TODO: Review commit api method  return
         mock_request.return_value = MockRequestResponse("a")
         self.datary.commit(self.repo_uuid, "test commit msg")
 

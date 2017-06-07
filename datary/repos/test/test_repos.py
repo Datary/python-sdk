@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary python sdk Repos test file
+"""
 import mock
 
 from datary.test.test_datary import DataryTestCase
@@ -6,6 +9,9 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryReposTestCase(DataryTestCase):
+    """
+    DataryRepos Test case
+    """
 
     @mock.patch('datary.Datary.request')
     @mock.patch('datary.Datary.get_describerepo')

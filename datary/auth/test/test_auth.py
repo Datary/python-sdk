@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Test auth file
+Datary python sdk Auth test file
 """
 import mock
 
@@ -9,7 +9,10 @@ from datary.test.test_datary import DataryTestCase
 from datary.test.mock_requests import MockRequestResponse
 
 
-class DataryTestCase(DataryTestCase):
+class DataryAuthTestCase(DataryTestCase):
+    """
+    DataryAuth Test case
+    """
 
     @mock.patch('datary.Datary.request')
     def test_get_user_token(self, mock_request):

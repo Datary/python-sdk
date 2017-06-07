@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary python sdk Filetrees test file
+"""
 import mock
 
 from datary.test.test_datary import DataryTestCase
@@ -6,6 +9,9 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryFiletreesTestCase(DataryTestCase):
+    """
+    Datary Filetrees Test Case
+    """
 
     @mock.patch('datary.Datary.request')
     def test_get_commit_filetree(self, mock_request):

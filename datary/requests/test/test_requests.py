@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary python sdk Requests test file
+"""
 import mock
 import requests
 
@@ -7,6 +10,9 @@ from datary.test.mock_requests import MockRequestResponse
 
 
 class DataryRequestsTestCase(DataryTestCase):
+    """
+    DataryRequests Test case
+    """
 
     @mock.patch('datary.requests.requests.requests')
     def test_request(self, mock_requests):
