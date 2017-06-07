@@ -4,3 +4,6 @@ good-names=logger, ex
 [DESIGN]
 max-parents=15
 max-args=15
+
+[MESSAGES CONTROL]
+disable=W0614

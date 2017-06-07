@@ -12,14 +12,19 @@ logger = structlog.getLogger(__name__)
 
 class DataryAuth(DataryRequests):
 
-    headers = {}
+    username = ''
+    password = ''
+    token = ''
 
     def __init__(self, **kwargs):
         """
         DataryAuth Init method
         """
-        super(DataryAuth, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryAuth, self).__init__(**kwargs)
+        self.username = kwargs.get('username')
+        self.password = kwargs.get('password')
+        self.token = kwargs.get('token')
+        self.commit_limit = int(kwargs.get('commit_limit', 30))
 
     def get_user_token(self, user=None, password=None):
         """

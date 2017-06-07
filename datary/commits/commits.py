@@ -4,13 +4,13 @@
 Datary sdk Commits File
 """
 import os
-import structlog
 
 from datetime import datetime
 from urllib.parse import urljoin
-
 from datary.requests import DataryRequests
 from datary.utils import nested_dict_to_list
+
+import structlog
 
 logger = structlog.getLogger(__name__)
 
@@ -29,7 +29,6 @@ class DataryCommits(DataryRequests):
         DataryCommits Init method
         """
         super(DataryCommits, self).__init__(**kwargs)
-        self.headers = kwargs.get('headers', {})
 
     def commit(self, repo_uuid, commit_message):
         """
@@ -52,8 +51,8 @@ class DataryCommits(DataryRequests):
             url,
             'POST',
             **{'data': {
-                'message': commit_message},
-                'headers': self.headers})
+               'message': commit_message},
+               'headers': self.headers})
         if response:
             logger.info("Changes commited")
 

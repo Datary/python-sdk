@@ -16,23 +16,25 @@ class DataryRequests(object):
     """
 
     URL_BASE = "http://api.datary.io/"
+    headers = {}
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         DataryRequests Init method
         """
         super(DataryRequests, self).__init__()
+        self.headers = kwargs.get('headers', {})
 
     def request(self, url, http_method, **kwargs):
         """
         Sends request to Datary passing config through arguments.
 
-        ===========   =============   ================================
+        ===========   =============   =======================================
         Parameter     Type            Description
-        ===========   =============   ================================
+        ===========   =============   =======================================
         url           str             destination url
-        http_method   str
-        ===========   =============   ================================
+        http_method   str             http method request [GET, POST, DELETE]
+        ===========   =============   =======================================
 
         Returns:
             content(): if HTTP response between the 200 range

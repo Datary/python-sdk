@@ -4,11 +4,12 @@ Datary sdk Remove Operations File
 """
 import os
 import random
-import structlog
 
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
 from datary.utils import flatten
+
+import structlog
 
 logger = structlog.getLogger(__name__)
 
@@ -23,8 +24,7 @@ class DataryRemoveOperation(DataryRequests):
         """
         DataryRemoveOperation Init method
         """
-        super(DataryRemoveOperation, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryRemoveOperation, self).__init__(**kwargs)
 
     def delete_dir(self, wdir_uuid, path, dirname):
         """

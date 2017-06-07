@@ -70,10 +70,10 @@ class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets,
         """
         super(Datary, self).__init__(**kwargs)
 
-        self.username = kwargs.get('username')
-        self.password = kwargs.get('password')
-        self.token = kwargs.get('token')
-        self.commit_limit = int(kwargs.get('commit_limit', 30))
+        # self.username = kwargs.get('username')
+        # self.password = kwargs.get('password')
+        # self.token = kwargs.get('token')
+        # self.commit_limit = int(kwargs.get('commit_limit', 30))
 
         # If a token is not in the params, we retrieve it with the username and
         # password

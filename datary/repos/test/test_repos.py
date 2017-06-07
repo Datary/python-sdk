@@ -16,6 +16,9 @@ class DataryReposTestCase(DataryTestCase):
     @mock.patch('datary.Datary.request')
     @mock.patch('datary.Datary.get_describerepo')
     def test_create_repo(self, mock_describerepo, mock_request):
+        """
+        Test create_repo
+        """
         mock_describerepo.return_value = MockRequestResponse(
             "", json=self.json_repo)
         repo = self.datary.create_repo('repo_name', 'category_test', amount=1)
@@ -37,8 +40,9 @@ class DataryReposTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_describerepo(self, mock_request):
-
-        # TODO: Review return of request and check test
+        """
+        Test describerepo
+        """
         mock_request.return_value = MockRequestResponse(
             "aaa", json=self.json_repo)
         repo = self.datary.get_describerepo(self.repo_uuid)
@@ -74,6 +78,9 @@ class DataryReposTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_deleterepo(self, mock_request):
+        """
+        Test deleterepo
+        """
 
         mock_request.return_value = MockRequestResponse(
             "Repo {} deleted".format('123'))

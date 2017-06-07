@@ -29,11 +29,19 @@ class DataryModifyOperation(DataryRequests):
         """
         DataryModifyOperation Init method
         """
-        super(DataryModifyOperation, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryModifyOperation, self).__init__(**kwargs)
 
     def modify_request(self, wdir_uuid, element):
-
+        """
+        Make Modify requests
+        ===============   ===============   ==================================
+        Parameter         Type              Description
+        ===============   ===============   ==================================
+        wdir_uuid         str               working directory uuid
+        element           dict              element dictionay with Datary
+                                            model data fields.
+        ===============   ===============   ==================================
+        """
         url = urljoin(DataryRequests.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 

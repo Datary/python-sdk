@@ -20,8 +20,7 @@ class DataryFiletrees(DataryRequests):
         """
         DataryFiletrees Init method
         """
-        super(DataryFiletrees, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryFiletrees, self).__init__(**kwargs)
 
     def get_commit_filetree(self, repo_uuid, commit_sha1):
         """

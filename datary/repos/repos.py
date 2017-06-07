@@ -24,8 +24,7 @@ class DataryRepos(DataryRequests):
         """
         DataryRepos Init method
         """
-        super(DataryRepos, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryRepos, self).__init__(**kwargs)
 
     def create_repo(self, repo_name=None, repo_category='other', **kwargs):
         """

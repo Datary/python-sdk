@@ -20,8 +20,7 @@ class DataryDatasets(DataryRequests):
         """
         DataryDatasets Init method
         """
-        super(DataryDatasets, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryDatasets, self).__init__(**kwargs)
 
     def get_metadata(self, repo_uuid, dataset_uuid):
         """

@@ -21,8 +21,7 @@ class DataryAddOperation(DataryRequests):
         """
         DataryAddOperation Init method
         """
-        super(DataryAddOperation, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryAddOperation, self).__init__(**kwargs)
 
     def add_dir(self, wdir_uuid, path, dirname):
         """

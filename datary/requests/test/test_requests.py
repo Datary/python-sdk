@@ -16,6 +16,15 @@ class DataryRequestsTestCase(DataryTestCase):
 
     @mock.patch('datary.requests.requests.requests')
     def test_request(self, mock_requests):
+        """
+        Test get_request
+        =============   =============   =======================================
+        Parameter       Type            Description
+        =============   =============   =======================================
+        mock_request    mock            Mock datary.requests.requests.request
+                                        function
+        =============   =============   =======================================
+        """
 
         mock_requests.get.return_value = MockRequestResponse(
             "ok", headers={'x-set-token': self.test_token})

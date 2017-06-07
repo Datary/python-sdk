@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Datary utils collections file.
+"""
 import re
 import structlog
 import collections
@@ -7,10 +10,15 @@ logger = structlog.getLogger(__name__)
 
 
 def exclude_values(values, args):
-    """Exclude data with specific value.
-
-    - value (list): values to filter
-    - args (dict): dictionary which will be filtered
+    """
+    Exclude data with specific value.
+    =============   =============   =======================================
+    Parameter       Type            Description
+    =============   =============   =======================================
+    values          list            values where exclude elements
+    args            list or dict    elements to exclude
+    =============   =============   =======================================
+    Returns: vakues without excluded elements
     """
 
     if isinstance(args, dict):
@@ -26,13 +34,23 @@ def exclude_values(values, args):
             for item in [exclude_values(values, i) for i in args]
             if item not in values
         ]
-    else:
-        return args
+
+    return args
 
 
 def exclude_empty_values(args):
-    """Exclude None, empty strings and empty lists using exclude_values."""
-    return exclude_values(['', 'None', None, [], {}], args)
+    """
+    Exclude None, empty strings and empty lists using exclude_values.
+    =============   =============   =======================================
+    Parameter       Type            Description
+    =============   =============   =======================================
+    args            list or dict    elements to exclude
+    =============   =============   =======================================
+    Returns: values without excluded values introduces and without defined
+    empty values.
+    """
+    empty_values = ['', 'None', None, [], {}]
+    return exclude_values(empty_values, args)
 
 
 def check_fields(fields, args):
@@ -83,11 +101,23 @@ def _get_element_by_names(source, names):
                 pass
             else:
                 source = None
-
         return source
 
 
 def add_element(source, path, value, separator=r'[/.]', override=False):
+    """
+    Add element into a list or dict easily using a path.
+    =============   =============   =======================================
+    Parameter       Type            Description
+    =============   =============   =======================================
+    source          list or dict    element where add the value.
+    path            string          path to add the value in element.
+    value           ¿all?           value to add in source.
+    separator       regex string    Regexp to divide the path.
+    override        boolean         Override the value in path source.
+    =============   =============   =======================================
+    Returns: source with added value
+    """
 
     return _add_element_by_names(
         source,
@@ -97,6 +127,19 @@ def add_element(source, path, value, separator=r'[/.]', override=False):
 
 
 def _add_element_by_names(source, names, value, override=False):
+    """
+    Internal method recursive to Add element into a list or dict easily using
+    a path.
+    =============   =============   =======================================
+    Parameter       Type            Description
+    =============   =============   =======================================
+    source          list or dict    element where add the value.
+    names           list            list with names to navigate in source.
+    value           ¿all?           value to add in source.
+    override        boolean         Override the value in path source.
+    =============   =============   =======================================
+    Returns: source with added value
+    """
 
     if source is None:
         return False
@@ -148,8 +191,8 @@ def force_list(element):
 
     if isinstance(element, (collections.Iterator, list)):
         return element
-    else:
-        return [element]
+
+    return [element]
 
 
 def flatten(d, parent_key='', sep='_'):

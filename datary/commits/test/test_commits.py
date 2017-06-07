@@ -2,11 +2,11 @@
 """
 Datary python sdk Commits test file
 """
-import mock
-
 from unittest.mock import patch
 from datary.test.test_datary import DataryTestCase
 from datary.test.mock_requests import MockRequestResponse
+
+import mock
 
 
 class DataryCommitsTestCase(DataryTestCase):

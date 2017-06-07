@@ -42,8 +42,7 @@ class DataryCategories(DataryRequests):
         """
         DataryCategories Init method
         """
-        super(DataryCategories, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryCategories, self).__init__(**kwargs)
 
     def get_categories(self):
         """

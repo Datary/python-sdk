@@ -165,13 +165,18 @@ class DataryModifyOperationTestCase(DataryTestCase):
         mock_get_dimension.side_effect = get_dimension
 
         # kern test data
-        kern_with_header = [['H1', 'H2', 'H3'],
-                            [1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        kern_with_header = [
+            ['H1', 'H2', 'H3'],
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9]]
+
         kern_without_header = kern_with_header[1:]
         kern_dict_with_header = {
             'a': kern_with_header, 'b': kern_with_header[:-1]}
         kern_dict_without_header = {
-            'a': kern_with_header[1:], 'b': kern_with_header[1:-1]}
+            'a': kern_with_header[1:],
+            'b': kern_with_header[1:-1]}
         kern_array = ['a', 'b', 'c']
         meta_array_init = {'axisHeaders': {
             '': [], '*': []}, 'dimension': {"": [23, 21]}}
@@ -233,8 +238,10 @@ class DataryModifyOperationTestCase(DataryTestCase):
 
         # kern dict without header
         meta_dict_without_header = self.datary._reload_meta(
-            kern_dict_without_header, {},
-            path_key='a', is_rowzero_header=False)
+            kern_dict_without_header,
+            {},
+            path_key='a',
+            is_rowzero_header=False)
 
         assert(isinstance(meta_dict_without_header, dict))
         self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get(
@@ -248,8 +255,10 @@ class DataryModifyOperationTestCase(DataryTestCase):
 
         # kern dict update meta without other meta
         meta_dict_without_header = self.datary._reload_meta(
-            kern_dict_without_header, meta_dict_without_header,
-            path_key='b', is_rowzero_header=False)
+            kern_dict_without_header,
+            meta_dict_without_header,
+            path_key='b',
+            is_rowzero_header=False)
 
         assert(isinstance(meta_dict_without_header, dict))
         self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get(
@@ -332,8 +341,8 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(isinstance(result_kern_with_headers, list), True)
         self.assertEqual(all([isinstance(x, list)
                               for x in result_kern_with_headers]), True)
-        self.assertEqual(result_kern_with_headers[0], [
-                         'h1', 'h2', 'h3', 'h5', 'h7'])
+        self.assertEqual(
+            result_kern_with_headers[0], ['h1', 'h2', 'h3', 'h5', 'h7'])
         self.assertEqual(result_kern_with_headers[-1], [0, '', '', 13, 14])
 
         self.assertEqual(isinstance(result_kern_without_headers, list), True)

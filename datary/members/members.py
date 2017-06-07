@@ -20,8 +20,7 @@ class DataryMembers(DataryRequests):
         """
         DataryMembers Init method
         """
-        super(DataryMembers, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        super(DataryMembers, self).__init__(**kwargs)
 
     def get_members(self, member_uuid='', member_name='', **kwargs):
         """
