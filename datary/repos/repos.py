@@ -2,11 +2,11 @@
 """
 Datary Repos File.
 """
-import structlog
-
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
 from datary.categories import DataryCategories
+
+import structlog
 
 logger = structlog.getLogger(__name__)
 
@@ -17,14 +17,6 @@ class DataryRepos(DataryRequests):
     """
 
     DATARY_REPO_VISIBILITY = ['public', 'private', 'commercial']
-
-    headers = {}
-
-    def __init__(self, **kwargs):
-        """
-        DataryRepos Init method
-        """
-        super(DataryRepos, self).__init__(**kwargs)
 
     def create_repo(self, repo_name=None, repo_category='other', **kwargs):
         """
@@ -82,7 +74,7 @@ class DataryRepos(DataryRequests):
             }
 
             # Create repo request.
-            response = self.request(
+            _response = self.request(
                 url, 'POST', **{'data': payload, 'headers': self.headers})
 
         describe_response = self.get_describerepo(

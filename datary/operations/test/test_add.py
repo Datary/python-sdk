@@ -15,7 +15,9 @@ class DataryAddOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_add_dir(self, mock_request):
-        # TODO: Unkwnown api method changes?
+        """
+        Test add_dir
+        """
         mock_request.return_value = MockRequestResponse("")
         self.datary.add_dir(self.json_repo.get(
             'workdir', {}).get('uuid'), 'path', 'dirname')
@@ -26,7 +28,9 @@ class DataryAddOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_add_file(self, mock_request):
-        # TODO: Unkwnown api method changes??
+        """
+        Test add_file
+        """
         mock_request.return_value = MockRequestResponse("")
         self.datary.add_file(self.json_repo.get(
             'workdir', {}).get('uuid'), self.element)

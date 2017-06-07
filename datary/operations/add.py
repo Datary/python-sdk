@@ -17,12 +17,6 @@ class DataryAddOperation(DataryRequests):
     Datary AddOperation module class
     """
 
-    def __init__(self, **kwargs):
-        """
-        DataryAddOperation Init method
-        """
-        super(DataryAddOperation, self).__init__(**kwargs)
-
     def add_dir(self, wdir_uuid, path, dirname):
         """
         (DEPRECATED)

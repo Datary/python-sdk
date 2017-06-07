@@ -3,7 +3,6 @@
 Datary sdk Remove Operations File
 """
 import os
-import random
 
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
@@ -18,13 +17,6 @@ class DataryRemoveOperation(DataryRequests):
     """
     Datary RemoveOperation module class
     """
-    headers = {}
-
-    def __init__(self, **kwargs):
-        """
-        DataryRemoveOperation Init method
-        """
-        super(DataryRemoveOperation, self).__init__(**kwargs)
 
     def delete_dir(self, wdir_uuid, path, dirname):
         """
@@ -57,7 +49,6 @@ class DataryRemoveOperation(DataryRequests):
         response = self.request(
             url, 'GET', **{'data': payload, 'headers': self.headers})
 
-        # TODO: No delete folder permitted yet.
         if response:
             logger.info(
                 "Directory has been deleted in workdir",
@@ -85,11 +76,12 @@ class DataryRemoveOperation(DataryRequests):
         url = urljoin(DataryRequests.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
-        payload = {"action": "remove",
-                   "filemode": 100644,
-                   "dirname": element.get('path'),
-                   "basename": element.get('filename')
-                   }
+        payload = {
+            "action": "remove",
+            "filemode": 100644,
+            "dirname": element.get('path'),
+            "basename": element.get('filename')
+        }
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})

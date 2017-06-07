@@ -57,8 +57,8 @@ class DataryCommitsTestCase(DataryTestCase):
         assert isinstance(result, list)
         self.assertEqual(len(result), 3)
 
-        for x in result:
-            self.assertEqual(len(x), 4)
+        for partial_result in result:
+            self.assertEqual(len(partial_result), 4)
 
         assert isinstance(result2, list)
         assert isinstance(result3, list)

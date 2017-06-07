@@ -7,6 +7,7 @@ import os
 
 from datetime import datetime
 from urllib.parse import urljoin
+from datary.datasets import DataryDatasets
 from datary.operations import (
     DataryAddOperation, DataryModifyOperation, DataryRemoveOperation)
 from datary.utils import nested_dict_to_list
@@ -16,7 +17,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryCommits(DataryAddOperation, DataryModifyOperation,
+class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
                     DataryRemoveOperation):
     """
     Datary Commits class.

@@ -23,14 +23,6 @@ class DataryModifyOperation(DataryRequests):
 
     _ROWZERO_HEADER_CONFIDENCE_VALUE = 0.5
 
-    headers = {}
-
-    def __init__(self, **kwargs):
-        """
-        DataryModifyOperation Init method
-        """
-        super(DataryModifyOperation, self).__init__(**kwargs)
-
     def modify_request(self, wdir_uuid, element):
         """
         Make Modify requests
