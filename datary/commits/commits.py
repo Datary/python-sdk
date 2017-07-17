@@ -47,7 +47,7 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
             'POST',
             **{'data': {'message': commit_message}, 'headers': self.headers})
         if response:
-            logger.info("Changes commited")
+            logger.info("Changes commited", commit_message=commit_message)
 
     def recollect_last_commit(self, repo={}):
         """

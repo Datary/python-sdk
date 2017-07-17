@@ -4,6 +4,7 @@ Datary utils collections file.
 """
 import re
 import collections
+from functools import reduce
 import structlog
 
 logger = structlog.getLogger(__name__)
@@ -216,15 +217,16 @@ def flatten(dictionary, parent_key='', sep='_'):
     return collections.OrderedDict(items)
 
 
-def nested_dict_to_list(path, dic):
+def nested_dict_to_list(path, dic, exclusion=None):
     """
     Transform nested dict to list
     """
     result = []
+    exclusion = ['__self'] if exclusion is None else exclusion
 
     for key, value in dic.items():
-        # omit __self value key..
-        if key != '__self':
+
+        if not any([exclude in key for exclude in exclusion]):
             if isinstance(value, dict):
                 aux = path + key + "/"
                 result.extend(nested_dict_to_list(aux, value))
@@ -233,6 +235,7 @@ def nested_dict_to_list(path, dic):
                     path = path[:-1]
 
                 result.append([path, key, value])
+
     return result
 
 
@@ -290,14 +293,15 @@ def remove_list_duplicates(lista, unique=False):
     return result
 
 
-def dict2orderedlist(dic, order_list, default=''):
+def dict2orderedlist(dic, order_list, default='', **kwargs):
     """
     Return a list with dict values ordered by a list of key passed in args.
     """
-    result_list = []
+    result = []
     for key_order in order_list:
-        result_list.append(dic.get(key_order, default))
-    return result_list
+        value = get_element(dic, key_order, **kwargs)
+        result.append(value if value is not None else default)
+    return result
 
 
 def get_dimension(array):

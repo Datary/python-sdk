@@ -4,7 +4,21 @@ Test Datary utils collection file
 """
 import unittest
 from collections import OrderedDict
-from datary.utils import *
+from datary.utils.collections import (
+
+    exclude_values,
+    exclude_empty_values,
+    check_fields,
+    get_element,
+    add_element,
+    find_value_in_object,
+    force_list,
+    flatten,
+    nested_dict_to_list,
+    remove_list_duplicates,
+    dict2orderedlist,
+    get_dimension,
+    )
 
 
 class UtilsCollectionsTestCase(unittest.TestCase):
@@ -21,7 +35,7 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         'e': 'e1',
         'f': [{'f1': 'ff1', 'f2': 'ff2', 'g': 'ff3'}],
         'g': 'g1'
-        }
+    }
 
     # ###### Manipulate collections functions ############################
 
@@ -46,9 +60,9 @@ class UtilsCollectionsTestCase(unittest.TestCase):
 
         filtered = exclude_values(values, original)
         filtered2 = exclude_empty_values(original)
-        assert len(filtered) == 3
+        self.assertEqual(len(filtered), 3)
         self.assertEqual(len(filtered), len(filtered2))
-        assert filtered.get('f', {}) != filtered2.get('f', {})
+        self.assertNotEqual(filtered.get('f', {}), filtered2.get('f', {}))
         self.assertEqual(len(filtered.get('f', {})), 2)
         self.assertEqual(len(filtered2.get('f', {})), 1)
 
@@ -57,8 +71,11 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         Test check_fields
         """
         fields = ('year', 'month', 'day')
-        assert check_fields(fields, {'day': 1, 'year': 2014, 'month': 1})
-        assert not check_fields(fields, {'day': 1, 'month': 1})
+        self.assertTrue(check_fields(
+            fields, {'day': 1, 'year': 2014, 'month': 1}))
+
+        self.assertFalse(check_fields(
+            fields, {'day': 1, 'month': 1}))
 
     def test_get_element(self):
         """
@@ -67,6 +84,8 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         self.assertEqual(get_element(None, ''), None)
         self.assertEqual(get_element({'start': {'day': 1, }}, 'start/day'), 1)
         self.assertEqual(get_element({'start': {'day': 1, }}, 'start.day'), 1)
+        self.assertEqual(get_element(
+            {'start': {'day': 1, }}, 'start.'), {'day': 1, })
         self.assertEqual(
             get_element({'start': {'day': 1, }}, 'start.maria'), None)
         self.assertEqual(get_element(
@@ -129,8 +148,10 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         """
         Test find_value_in_nested_dict
         """
-        assert list(find_value_in_object('g', self.obj)) == ['g1', 'ff3']
-        assert list(find_value_in_object('c', self.obj)) == ['c1', 'c2', 'c3']
+        self.assertEqual(
+            list(find_value_in_object('g', self.obj)), ['g1', 'ff3'])
+        self.assertEqual(
+            list(find_value_in_object('c', self.obj)), ['c1', 'c2', 'c3'])
 
     def test_force_list(self):
         """
@@ -156,7 +177,7 @@ class UtilsCollectionsTestCase(unittest.TestCase):
             {'a': 2,
              'b': 2,
              'c': {'ca': 3, 'cb': 'test1', 'cd': [1, 3, 4], 'cc': {'cca': 1}}})
-        test_result_1 = collections.OrderedDict([
+        test_result_1 = OrderedDict([
             ('a', 2),
             ('b', 2),
             ('c/ca', 3),
@@ -166,7 +187,7 @@ class UtilsCollectionsTestCase(unittest.TestCase):
             ('c/cd/0', 1),
             ('c/cd/2', 4)])
 
-        test_result_2 = collections.OrderedDict([
+        test_result_2 = OrderedDict([
             ('test_a', 2),
             ('test_c_ca', 3),
             ('test_c_cd_1', 3),
@@ -183,7 +204,7 @@ class UtilsCollectionsTestCase(unittest.TestCase):
                                               (result2, test_result_2)]:
 
             for key, value in test_result.items():
-                assert key in retrieved_result
+                self.assertIn(key, retrieved_result)
                 self.assertEqual(retrieved_result[key], value)
 
     def test_nested_dict_to_list(self):
@@ -210,8 +231,17 @@ class UtilsCollectionsTestCase(unittest.TestCase):
             ]))])
 
         result = nested_dict_to_list("", test)
-        for row_result in result:
-            assert row_result in expected
+        result_exclusion = nested_dict_to_list("", test, exclusion=['c'])
+
+        self.assertEqual(
+            all(row_result in expected for row_result in result), True)
+        self.assertEqual(len(result), len(expected))
+
+        check = (row_result in expected[:2] for row_result in result_exclusion)
+
+        self.assertEqual(all(check), True)
+
+        self.assertEqual(len(result_exclusion), len(expected[:2]))
 
     def test_remove_duplicates(self):
         """
@@ -234,14 +264,18 @@ class UtilsCollectionsTestCase(unittest.TestCase):
         """
 
         test_dict = {'a': 1, 'b': 2, 'c': 3}
+        test_flatten = {'a': 1, 'b': {'ba': 2}, 'c': 3}
 
         result1 = dict2orderedlist(test_dict, ['a', 'b', 'c'])
         result2 = dict2orderedlist(test_dict, ['a', 'c'])
         result3 = dict2orderedlist(test_dict, ['c', 'b', 'a'])
+        result4 = dict2orderedlist(
+            test_flatten, ['c', 'b.ba', 'a', 'x'], default='test')
 
         self.assertEqual(result1, [1, 2, 3])
         self.assertEqual(result2, [1, 3])
         self.assertEqual(result3, [3, 2, 1])
+        self.assertEqual(result4, [3, 2, 1, 'test'])
 
     def test_get_dimension(self):
         """
