@@ -25,7 +25,8 @@ class DataryRequests(object):
         super(DataryRequests, self).__init__()
         self.headers = kwargs.get('headers', {})
 
-    def request(self, url, http_method, **kwargs):
+    @classmethod
+    def request(cls, url, http_method, **kwargs):
         """
         Sends request to Datary passing config through arguments.
 

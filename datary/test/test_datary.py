@@ -48,7 +48,7 @@ class DataryTestCase(unittest.TestCase):
         'sha1': 'aa_sha1',
         'data': {
             'kern': {'data_aa': [[4, 5, 6]]},
-            'meta': {}}}
+            'meta': {"sha1": "d1917c11-745c-44e6-5h71-23f30ca527d3"}}}
 
     original = {'__kern': {'data_aa': [[1, 2, 3]]}, '__meta': {}}
 
@@ -179,8 +179,6 @@ class DataryTestCase(unittest.TestCase):
             }
         },
     ]
-
-    metadata = {"sha1": "d1917c11-745c-44e6-5h71-23f30ca527d3"}
 
 
 class DatarySizeLimitExceptionTestCase(unittest.TestCase):

@@ -33,10 +33,11 @@ class DataryCommitsTestCase(DataryTestCase):
         mock_filetree.return_value = self.filetree
 
         mock_get_describerepo.return_value = self.json_repo
-        mock_metadata.return_value.json.return_value = self.metadata
+        mock_metadata.return_value.json.return_value = \
+            self.element.get('data', {}).get('meta')
         result = self.datary.recollect_last_commit({'uuid': self.repo_uuid})
-        assert mock_filetree.called
-        assert mock_get_describerepo.called
+        self.assertTrue(mock_filetree.called)
+        self.assertTrue(mock_get_describerepo.called)
 
         mock_get_describerepo.return_value = None
         result2 = self.datary.recollect_last_commit({'uuid': self.repo_uuid})
@@ -54,17 +55,17 @@ class DataryCommitsTestCase(DataryTestCase):
         mock_get_describerepo.return_value = {'apex': {}}
         result6 = self.datary.recollect_last_commit({'apex': {}})
 
-        assert isinstance(result, list)
+        self.assertTrue(isinstance(result, list))
         self.assertEqual(len(result), 3)
 
         for partial_result in result:
             self.assertEqual(len(partial_result), 4)
 
-        assert isinstance(result2, list)
-        assert isinstance(result3, list)
-        assert isinstance(result4, list)
-        assert isinstance(result5, list)
-        assert isinstance(result6, list)
+        self.assertTrue(isinstance(result2, list))
+        self.assertTrue(isinstance(result3, list))
+        self.assertTrue(isinstance(result4, list))
+        self.assertTrue(isinstance(result5, list))
+        self.assertTrue(isinstance(result6, list))
         self.assertEqual(result4, [])
         self.assertEqual(result5, [])
         self.assertEqual(result6, [])
@@ -74,9 +75,9 @@ class DataryCommitsTestCase(DataryTestCase):
         result = self.datary.make_index(lista)
         expected_values = ['aa_sha1', 'caa_sha1', 'bb_sha1', 'dd_sha1']
 
-        assert isinstance(result, dict)
+        self.assertTrue(isinstance(result, dict))
         for element in result.values():
-            assert element.get('sha1') in expected_values
+            self.assertTrue(element.get('sha1') in expected_values)
 
     def test_compare_commits(self):
         expected = {
@@ -92,9 +93,10 @@ class DataryCommitsTestCase(DataryTestCase):
         self.assertEqual(len(result.get('update')), 1)
         self.assertEqual(len(result.get('delete')), 1)
 
-        for k, v in expected.items():
-            elements_sha1 = [element.get('sha1') for element in result.get(k)]
-            for sha1 in v:
+        for key, value in expected.items():
+            elements_sha1 = [
+                element.get('sha1') for element in result.get(key)]
+            for sha1 in value:
                 sha1 in elements_sha1
 
         with patch('datary.Datary.make_index') as mock_makeindex:
@@ -102,7 +104,7 @@ class DataryCommitsTestCase(DataryTestCase):
             result2 = self.datary.compare_commits(
                 self.commit_test1, self.commit_test2)
 
-            assert(isinstance(result2, dict))
+            self.assertTrue(isinstance(result2, dict))
             self.assertEqual(result2, {'update': [], 'delete': [], 'add': []})
 
     @mock.patch('datary.Datary.delete_file')

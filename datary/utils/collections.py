@@ -4,7 +4,6 @@ Datary utils collections file.
 """
 import re
 import collections
-from functools import reduce
 import structlog
 
 logger = structlog.getLogger(__name__)

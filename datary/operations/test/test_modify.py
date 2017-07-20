@@ -197,8 +197,8 @@ class DataryModifyOperationTestCase(DataryTestCase):
         assert(isinstance(meta_without_header, dict))
         self.assertEqual(meta_without_header.get('axisHeaders', {}).get(
             '*'), [
-            'Header{}'.format(x) for x in range(
-                1, len(kern_with_header[0]) + 1)])
+                'Header{}'.format(x) for x in range(
+                    1, len(kern_with_header[0]) + 1)])
         self.assertEqual(meta_without_header.get(
             'axisHeaders', {}).get(''), [1, 4, 7])
         self.assertEqual(meta_without_header.get(
@@ -246,8 +246,8 @@ class DataryModifyOperationTestCase(DataryTestCase):
         assert(isinstance(meta_dict_without_header, dict))
         self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get(
             'a/*'), [
-            'Header{}'.format(x) for x in range(
-                1, len(kern_dict_without_header.get('a')[0]) + 1)])
+                'Header{}'.format(x) for x in range(
+                    1, len(kern_dict_without_header.get('a')[0]) + 1)])
         self.assertEqual(meta_dict_without_header.get(
             'axisHeaders', {}).get('a'), [1, 4, 7])
         self.assertEqual(meta_dict_without_header.get(

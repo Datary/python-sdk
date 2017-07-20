@@ -81,7 +81,8 @@ class DataryFiletrees(DataryRepos):
 
         return response.json() if response else {}
 
-    def format_wdir_changes(self, wdir_changes_tree):
+    @classmethod
+    def format_wdir_changes(cls, wdir_changes_tree):
         """
         ==================  =============   ==================================
         Parameter           Type            Description

@@ -5,13 +5,13 @@ Datary sdk Modify Operations File
 import os
 import re
 import json
-import structlog
 
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
 from datary.utils import (add_element, force_list, get_element, get_dimension,
                           remove_list_duplicates, flatten, dict2orderedlist,
                           exclude_empty_values)
+import structlog
 
 logger = structlog.getLogger(__name__)
 
@@ -168,8 +168,8 @@ class DataryModifyOperation(DataryRequests):
 
         # LIST stored element
         if (
-            (isinstance(stored_element.get('__kern'), list)) and
-            (isinstance(update_element.get('data', {}).get('kern'), list))
+                (isinstance(stored_element.get('__kern'), list)) and
+                (isinstance(update_element.get('data', {}).get('kern'), list))
         ):
 
             # Check if rowzero is header..
@@ -196,8 +196,8 @@ class DataryModifyOperation(DataryRequests):
 
         # DICT stored element
         elif (
-            (isinstance(stored_element.get('__kern'), dict)) and
-            (isinstance(update_element.get('data', {}).get('kern'), dict))
+                (isinstance(stored_element.get('__kern'), dict)) and
+                (isinstance(update_element.get('data', {}).get('kern'), dict))
         ):
             flatten_element_keys = list(flatten(
                 update_element.get('data', {}).get('kern'), sep='/').keys())
@@ -252,7 +252,8 @@ class DataryModifyOperation(DataryRequests):
                 type(stored_element.get('__kern')).__name__,
                 type(update_element.get('data', {}).get('kern')).__name__,))
 
-    def _reload_meta(self,
+    @classmethod
+    def _reload_meta(cls,
                      kern,
                      original_meta,
                      path_key='',
@@ -316,8 +317,9 @@ class DataryModifyOperation(DataryRequests):
 
         return updated_meta
 
+    @classmethod
     def _calculate_rowzero_header_confindence(
-            self,
+            cls,
             axisheaders,
             row_zero,
             confidence_err=_ROWZERO_HEADER_CONFIDENCE_VALUE):
@@ -343,7 +345,8 @@ class DataryModifyOperation(DataryRequests):
 
         return row_zero_header_confidence >= confidence_err
 
-    def _merge_headers(self, header1, header2):
+    @classmethod
+    def _merge_headers(cls, header1, header2):
         """
         Merge 2 headers without losing the header 1 order and removing repeated
         elements from header2 in header1.

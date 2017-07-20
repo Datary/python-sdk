@@ -4,10 +4,9 @@ Datary sdk Add Operations File
 """
 import os
 import json
-import structlog
-
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
+import structlog
 
 logger = structlog.getLogger(__name__)
 
@@ -72,12 +71,13 @@ class DataryAddOperation(DataryRequests):
         url = urljoin(DataryRequests.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
-        payload = {"action": "add",
-                   "filemode": 100644,
-                   "dirname": element.get('path'),
-                   "basename": element.get('filename'),
-                   "kern": json.dumps(element.get('data', {}).get('kern')),
-                   "meta": json.dumps(element.get('data', {}).get('meta'))}
+        payload = {
+            "action": "add",
+            "filemode": 100644,
+            "dirname": element.get('path'),
+            "basename": element.get('filename'),
+            "kern": json.dumps(element.get('data', {}).get('kern')),
+            "meta": json.dumps(element.get('data', {}).get('meta'))}
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})

@@ -14,16 +14,31 @@ class DataryDatasetsTestCase(DataryTestCase):
     """
 
     @mock.patch('datary.Datary.request')
-    def test_get_metadata(self, mock_request):
-        mock_request.return_value = MockRequestResponse("", json=self.metadata)
-        metadata = self.datary.get_metadata(self.repo_uuid, self.dataset_uuid)
+    def test_get_kern(self, mock_request):
+        mock_request.return_value = MockRequestResponse(
+            "", json=self.element.get('data', {}).get('kern'))
+        kern = self.datary.get_kern(self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 1)
-        assert(isinstance(metadata, dict))
-        self.assertEqual(metadata, self.metadata)
+        self.assertTrue(isinstance(kern, dict))
+        self.assertEqual(kern, self.element.get('data', {}).get('kern'))
 
         mock_request.return_value = None
-        metadata2 = self.datary.get_metadata(self.repo_uuid, self.dataset_uuid)
-        assert(isinstance(metadata2, dict))
+        kern2 = self.datary.get_kern(self.dataset_uuid, self.repo_uuid)
+        self.assertTrue(isinstance(kern2, dict))
+        self.assertEqual(kern2, {})
+
+    @mock.patch('datary.Datary.request')
+    def test_get_metadata(self, mock_request):
+        mock_request.return_value = MockRequestResponse(
+            "", json=self.element.get('data', {}).get('meta'))
+        metadata = self.datary.get_metadata(self.dataset_uuid, self.repo_uuid)
+        self.assertEqual(mock_request.call_count, 1)
+        self.assertTrue(isinstance(metadata, dict))
+        self.assertEqual(metadata, self.element.get('data', {}).get('meta'))
+
+        mock_request.return_value = None
+        metadata2 = self.datary.get_metadata(self.dataset_uuid, self.repo_uuid)
+        self.assertTrue(isinstance(metadata2, dict))
         self.assertEqual(metadata2, {})
 
     @mock.patch('datary.Datary.request')
@@ -32,16 +47,15 @@ class DataryDatasetsTestCase(DataryTestCase):
         mock_request.return_value = MockRequestResponse("", json=self.original)
         original = self.datary.get_original(self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 1)
-        assert(isinstance(original, dict))
+        self.assertTrue(isinstance(original, dict))
         self.assertEqual(original, self.original)
-
         mock_request.reset_mock()
 
         # not dataset_uuid, introduced
         original2 = self.datary.get_original(
             self.dataset_uuid, self.repo_uuid, self.wdir_uuid)
         self.assertEqual(mock_request.call_count, 1)
-        assert(isinstance(original2, dict))
+        self.assertTrue(isinstance(original2, dict))
         self.assertEqual(original2, self.original)
 
         mock_request.reset_mock()
@@ -50,7 +64,7 @@ class DataryDatasetsTestCase(DataryTestCase):
         original3 = self.datary.get_original(
             self.dataset_uuid, wdir_uuid=self.wdir_uuid)
         self.assertEqual(mock_request.call_count, 1)
-        assert(isinstance(original3, dict))
+        self.assertTrue(isinstance(original3, dict))
         self.assertEqual(original3, self.original)
 
         mock_request.reset_mock()
@@ -58,7 +72,7 @@ class DataryDatasetsTestCase(DataryTestCase):
             [None, MockRequestResponse("", json=self.original)])
         original4 = self.datary.get_original(self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 2)
-        assert(isinstance(original4, dict))
+        self.assertTrue(isinstance(original4, dict))
         self.assertEqual(original4, self.original)
 
         mock_request.reset_mock()
@@ -66,15 +80,26 @@ class DataryDatasetsTestCase(DataryTestCase):
         original4b = self.datary.get_original(
             self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 2)
-        assert(isinstance(original4b, dict))
+        self.assertTrue(isinstance(original4b, dict))
         self.assertEqual(original4b, {})
 
         mock_request.reset_mock()
         # not dataset_uuid, introduced
         original5 = self.datary.get_original(None)
         self.assertEqual(mock_request.call_count, 0)
-        assert(isinstance(original5, dict))
+        self.assertTrue(isinstance(original5, dict))
         self.assertEqual(original5, {})
+        mock_request.reset_mock()
+
+        # scope
+        mock_request.side_effect = iter(
+            [MockRequestResponse("", json=self.original),
+             MockRequestResponse("", json=self.original)])
+        original6 = self.datary.get_original(
+            self.dataset_uuid, self.repo_uuid, scope='repo')
+        self.assertEqual(mock_request.call_count, 1)
+        self.assertTrue(isinstance(original6, dict))
+        self.assertEqual(original6, self.original)
 
     @mock.patch('datary.Datary.get_wdir_filetree')
     @mock.patch('datary.Datary.get_wdir_changes')

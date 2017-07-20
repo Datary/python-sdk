@@ -78,7 +78,10 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
 
             # Take metadata to retrieve sha-1 and compare with
             for path, filename, dataset_uuid in filetree_matrix:
-                metadata = self.get_metadata(repo.get('uuid'), dataset_uuid)
+                metadata = self.get_metadata(
+                    repo_uuid=repo.get('uuid'),
+                    dataset_uuid=dataset_uuid)
+
                 # append format path | filename | data (not required) | sha1
                 last_commit.append(
                     (path, filename, None, metadata.get("sha1")))

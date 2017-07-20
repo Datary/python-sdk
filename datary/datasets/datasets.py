@@ -22,7 +22,23 @@ class DataryDatasets(DataryRequests):
         """
         super(DataryDatasets, self).__init__(**kwargs)
 
-    def get_metadata(self, repo_uuid, dataset_uuid):
+    def get_kern(self, dataset_uuid, repo_uuid='', wdir_uuid='', scope=''):
+        """
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        repo_uuid         int             repository id
+        dataset_uuid      str
+        ================  =============   ====================================
+
+        Returns:
+            (dict) dataset kern
+
+        """
+        return self.get_original(
+            dataset_uuid, repo_uuid, wdir_uuid, 'kern', scope)
+
+    def get_metadata(self, dataset_uuid, repo_uuid='', wdir_uuid='', scope=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -35,24 +51,11 @@ class DataryDatasets(DataryRequests):
             (dict) dataset metadata
 
         """
+        return self.get_original(
+            dataset_uuid, repo_uuid, wdir_uuid, 'meta', scope)
 
-        url = urljoin(
-            DataryRequests.URL_BASE,
-            "datasets/{}/metadata".format(dataset_uuid))
-
-        params = {'namespace': repo_uuid}
-
-        response = self.request(
-            url, 'GET', **{'headers': self.headers, 'params': params})
-        if not response:
-            logger.error(
-                "Not metadata retrieved.",
-                repo_uuid=repo_uuid,
-                dataset_uuid=dataset_uuid)
-
-        return response.json() if response else {}
-
-    def get_original(self, dataset_uuid, repo_uuid='', wdir_uuid=''):
+    def get_original(self, dataset_uuid, repo_uuid='', wdir_uuid='',
+                     section_edge='', scope=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -68,14 +71,17 @@ class DataryDatasets(DataryRequests):
         response = None
 
         if (repo_uuid or wdir_uuid) and dataset_uuid:
+            url = urljoin(
+                DataryRequests.URL_BASE,
+                "datasets/{}/{}".format(dataset_uuid, section_edge))
 
             # look in changes or namespace only if not wdir_uuid
-            url = urljoin(DataryRequests.URL_BASE,
-                          "datasets/{}/original".format(dataset_uuid))
-            params = exclude_empty_values(
-                {'namespace': repo_uuid, 'scope': wdir_uuid})
-            response = self.request(
-                url, 'GET', **{'headers': self.headers, 'params': params})
+            if scope != 'repo':
+                params = exclude_empty_values(
+                    {'namespace': repo_uuid, 'scope': wdir_uuid})
+                response = self.request(
+                    url, 'GET', **{'headers': self.headers, 'params': params})
+
             if not response or not response.json():
                 logger.error(
                     "Not original retrieved from wdir scope",

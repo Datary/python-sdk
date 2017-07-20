@@ -11,6 +11,9 @@ logger = structlog.getLogger(__name__)
 
 
 class DataryAuth(DataryRequests):
+    """
+    Class DataryAuth
+    """
 
     username = ''
     password = ''
