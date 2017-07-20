@@ -95,6 +95,9 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
         return last_commit
 
     def get_last_commit_filetree(self, repo={}):
+        """
+        Datary get_last_commit_filetree
+        """
 
         ftree = {}
 
@@ -149,7 +152,7 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
                                                     'sha1': sha1}
         return result
 
-    def compare_commits(self, last_commit, actual_commit, changes=[],
+    def compare_commits(self, last_commit, actual_commit,
                         strict=True, **kwargs):
         """
         Compare two commits and retrieve hot elements to change
@@ -160,6 +163,7 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
         ================  =============   ====================================
         last_commit       list            [path|filename|sha1]
         actual_commit     list            [path|filename|sha1]
+        strict            Boolean         Default is True
         ================  =============   ====================================
 
         Returns:

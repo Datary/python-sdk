@@ -25,6 +25,9 @@ class DataryRemoveOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_delete_file(self, mock_request):
+        """
+        Test operation remove delete_file
+        """
         mock_request.return_value = MockRequestResponse("")
         self.datary.delete_file(self.json_repo.get(
             'workdir', {}).get('uuid'), self.element)
@@ -35,6 +38,9 @@ class DataryRemoveOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_delete_inode(self, mock_request):
+        """
+        Test operation remove delete_inode
+        """
         mock_request.return_value = MockRequestResponse("")
         self.datary.delete_inode(self.json_repo.get(
             'workdir', {}).get('uuid'), self.inode)
@@ -50,6 +56,9 @@ class DataryRemoveOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.request')
     def test_clear_index(self, mock_request):
+        """
+        Test operation remove clear_index
+        """
         mock_request.return_value = MockRequestResponse("", json={})
         original = self.datary.clear_index(self.wdir_uuid)
         self.assertEqual(mock_request.call_count, 1)
@@ -68,6 +77,9 @@ class DataryRemoveOperationTestCase(DataryTestCase):
     @mock.patch('datary.Datary.get_describerepo')
     def test_clean_repo(self, mock_get_describerepo, mock_clear_index,
                         mock_commit, mock_get_wdir_filetree, mock_delete_file):
+        """
+        Test operation remove clean_repo
+        """
 
         mock_get_describerepo.return_value = self.json_repo
         mock_get_wdir_filetree.return_value = self.filetree
