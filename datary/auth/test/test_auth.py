@@ -13,9 +13,11 @@ class DataryAuthTestCase(DataryTestCase):
     """
     DataryAuth Test case
     """
-
-    @mock.patch('datary.Datary.request')
+    @mock.patch('datary.requests.requests.requests.post')
     def test_get_user_token(self, mock_request):
+        """
+        Test datary auth get_user_token
+        """
 
         # Assert init class data & token introduced by args
         self.assertEqual(self.datary.username, self.test_username)
@@ -47,23 +49,27 @@ class DataryAuthTestCase(DataryTestCase):
 
         self.assertEqual(mock_request.call_count, 4)
 
-    @mock.patch('datary.requests.requests.requests')
+    @mock.patch('datary.requests.requests.requests.get')
     def test_sign_out(self, mock_request):
+        """
+        Test datary auth sign_out
+        """
 
         # Fail sign out
-        mock_request.get.return_value = MockRequestResponse(
+        mock_request.return_value = MockRequestResponse(
             "Err", status_code=500)
         self.datary.sign_out()
         self.assertEqual(self.datary.token, self.test_token)
-        self.assertEqual(mock_request.get.call_count, 1)
+        self.assertEqual(mock_request.call_count, 1)
 
         # reset mock
-        mock_request.get.reset_mock()
+        mock_request.reset_mock()
 
         # Succes sign out
-        mock_request.get.return_value = MockRequestResponse(
+        mock_request.return_value = MockRequestResponse(
             "OK", status_code=200)
+
         self.assertEqual(self.datary.token, self.test_token)
         self.datary.sign_out()
         self.assertEqual(self.datary.token, None)
-        self.assertEqual(mock_request.get.call_count, 1)
+        self.assertEqual(mock_request.call_count, 1)

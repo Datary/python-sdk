@@ -3,26 +3,26 @@
 Datary sdk Datasets File
 """
 import os
-import structlog
 
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.auth import DataryAuth
+from datary.filetrees import DataryFiletrees
 from datary.utils import exclude_empty_values, get_element
+
+import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryDatasets(DataryRequests):
+class DataryDatasets(DataryAuth):
+    """
+    Datary Datasets module
+    """
 
     headers = {}
 
-    def __init__(self, **kwargs):
-        """
-        DataryDatasets Init method
-        """
-        super(DataryDatasets, self).__init__(**kwargs)
-
-    def get_kern(self, dataset_uuid, repo_uuid='', wdir_uuid='', scope=''):
+    @classmethod
+    def get_kern(cls, dataset_uuid, repo_uuid='', wdir_uuid='', scope=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -35,10 +35,11 @@ class DataryDatasets(DataryRequests):
             (dict) dataset kern
 
         """
-        return self.get_original(
+        return cls.get_original(
             dataset_uuid, repo_uuid, wdir_uuid, 'kern', scope)
 
-    def get_metadata(self, dataset_uuid, repo_uuid='', wdir_uuid='', scope=''):
+    @classmethod
+    def get_metadata(cls, dataset_uuid, repo_uuid='', wdir_uuid='', scope=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -51,10 +52,11 @@ class DataryDatasets(DataryRequests):
             (dict) dataset metadata
 
         """
-        return self.get_original(
+        return cls.get_original(
             dataset_uuid, repo_uuid, wdir_uuid, 'meta', scope)
 
-    def get_original(self, dataset_uuid, repo_uuid='', wdir_uuid='',
+    @classmethod
+    def get_original(cls, dataset_uuid, repo_uuid='', wdir_uuid='',
                      section_edge='', scope=''):
         """
         ================  =============   ====================================
@@ -72,15 +74,15 @@ class DataryDatasets(DataryRequests):
 
         if (repo_uuid or wdir_uuid) and dataset_uuid:
             url = urljoin(
-                DataryRequests.URL_BASE,
+                cls.URL_BASE,
                 "datasets/{}/{}".format(dataset_uuid, section_edge))
 
             # look in changes or namespace only if not wdir_uuid
             if scope != 'repo':
                 params = exclude_empty_values(
                     {'namespace': repo_uuid, 'scope': wdir_uuid})
-                response = self.request(
-                    url, 'GET', **{'headers': self.headers, 'params': params})
+                response = cls.request(
+                    url, 'GET', **{'headers': cls.headers, 'params': params})
 
             if not response or not response.json():
                 logger.error(
@@ -91,8 +93,8 @@ class DataryDatasets(DataryRequests):
 
                 params = exclude_empty_values(
                     {'namespace': repo_uuid, 'scope': repo_uuid})
-                response = self.request(
-                    url, 'GET', **{'headers': self.headers, 'params': params})
+                response = cls.request(
+                    url, 'GET', **{'headers': cls.headers, 'params': params})
                 if not response:
                     logger.error(
                         "Not original retrieved from repo scope",
@@ -102,7 +104,8 @@ class DataryDatasets(DataryRequests):
 
         return response.json() if response else {}
 
-    def get_dataset_uuid(self, wdir_uuid, path='', filename=''):
+    @classmethod
+    def get_dataset_uuid(cls, wdir_uuid, path='', filename=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -121,11 +124,11 @@ class DataryDatasets(DataryRequests):
         if filepath:
 
             # retrieve wdir filetree
-            wdir_filetree = self.get_wdir_filetree(wdir_uuid)
+            wdir_filetree = DataryFiletrees.get_wdir_filetree(wdir_uuid)
 
             # retrieve last commit filetree
-            wdir_changes_filetree = self.format_wdir_changes(
-                self.get_wdir_changes(wdir_uuid).values())
+            wdir_changes_filetree = DataryFiletrees.format_wdir_changes(
+                DataryFiletrees.get_wdir_changes(wdir_uuid).values())
 
             # retrieve dataset uuid
             dataset_uuid = (get_element(wdir_changes_filetree, filepath)) or (
@@ -150,7 +153,7 @@ class DataryDatasets(DataryRequests):
         pathname = os.path.join(path, filename)
 
         if pathname:
-            url = urljoin(DataryRequests.URL_BASE,
+            url = urljoin(self.URL_BASE,
                           "/workdirs/{}/filetree".format(wdir_uuid))
             params = exclude_empty_values({'pathname': pathname})
             response = self.request(

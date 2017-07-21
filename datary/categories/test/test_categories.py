@@ -13,7 +13,7 @@ class DataryCategoriesTestCase(DataryTestCase):
     DataryCategories Test case
     """
 
-    @mock.patch('datary.Datary.request')
+    @mock.patch('datary.requests.requests.requests.get')
     def test_get_categories(self, mock_request):
         """
         Test get_categories
@@ -25,14 +25,15 @@ class DataryCategoriesTestCase(DataryTestCase):
         """
 
         mock_request.return_value = MockRequestResponse(
-            "", json=self.categories,)
+            "", json=self.categories)
         categories = self.datary.get_categories()
         self.assertEqual(mock_request.call_count, 1)
         self.assertEqual(len(categories), len(self.categories))
         self.assertEqual(categories, self.categories)
 
         mock_request.reset_mock()
-        mock_request.return_value = None
+        mock_request.return_value = MockRequestResponse(
+            "", status_code=500)
         categories = self.datary.get_categories()
         self.assertEqual(mock_request.call_count, 1)
         self.assertEqual(len(categories), len(self.datary.DATARY_CATEGORIES))

@@ -4,7 +4,6 @@ Main datary sdk module
 """
 import structlog
 
-from .auth import DataryAuth
 from .categories import DataryCategories
 from .commits import DataryCommits
 from .datasets import DataryDatasets
@@ -22,7 +21,7 @@ logger = structlog.getLogger(__name__)
 URL_BASE = "http://api.datary.io/"
 
 
-class Datary(DataryAuth, DataryCategories, DataryCommits, DataryDatasets,
+class Datary(DataryCategories, DataryCommits, DataryDatasets,
              DataryFiletrees, DataryMembers, DataryAddOperation, DataryRepos,
              DataryModifyOperation, DataryRemoveOperation):
     """

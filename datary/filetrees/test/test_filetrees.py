@@ -37,7 +37,7 @@ class DataryFiletreesTestCase(DataryTestCase):
         assert isinstance(changes, dict)
 
     @mock.patch('datary.Datary.request')
-    @mock.patch('datary.Datary.get_describerepo')
+    @mock.patch('datary.repos.DataryRepos.get_describerepo')
     def test_get_wdir_changes(self, mock_describerepo, mock_request):
         """
         Test get_wdir_changes

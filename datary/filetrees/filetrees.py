@@ -6,6 +6,7 @@ import os
 
 from urllib.parse import urljoin
 from datary.repos import DataryRepos
+from datary.auth import DataryAuth
 from datary.utils import force_list, add_element
 
 import structlog
@@ -14,12 +15,12 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryFiletrees(DataryRepos):
+class DataryFiletrees(DataryAuth):
     """
       Datary Filetrees module class
     """
-
-    def get_commit_filetree(self, repo_uuid, commit_sha1):
+    @classmethod
+    def get_commit_filetree(cls, repo_uuid, commit_sha1):
         """
         ==============  =============   ====================================
         Parameter       Type            Description
@@ -32,15 +33,16 @@ class DataryFiletrees(DataryRepos):
             filetree of all commits done in a repo.
 
         """
-        url = urljoin(DataryRepos.URL_BASE,
+        url = urljoin(cls.URL_BASE,
                       "commits/{}/filetree".format(commit_sha1))
         params = {'namespace': repo_uuid}
-        response = self.request(
-            url, 'GET', **{'headers': self.headers, 'params': params})
+        response = cls.request(
+            url, 'GET', **{'headers': cls.headers, 'params': params})
 
         return response.json() if response else {}
 
-    def get_wdir_filetree(self, wdir_uuid):
+    @classmethod
+    def get_wdir_filetree(cls, wdir_uuid):
         """
         ==============  =============   ====================================
         Parameter       Type            Description
@@ -52,13 +54,14 @@ class DataryFiletrees(DataryRepos):
             filetree of a repo workdir.
 
         """
-        url = urljoin(DataryRepos.URL_BASE,
+        url = urljoin(cls.URL_BASE,
                       "workdirs/{}/filetree".format(wdir_uuid))
-        response = self.request(url, 'GET', **{'headers': self.headers})
+        response = cls.request(url, 'GET', **{'headers': cls.headers})
 
         return response.json() if response else {}
 
-    def get_wdir_changes(self, wdir_uuid=None, **kwargs):
+    @classmethod
+    def get_wdir_changes(cls, wdir_uuid=None, **kwargs):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -72,12 +75,12 @@ class DataryFiletrees(DataryRepos):
 
         # try to take wdir_uuid with kwargs
         if not wdir_uuid:
-            wdir_uuid = self.get_describerepo(
+            wdir_uuid = DataryRepos.get_describerepo(
                 **kwargs).get('workdir', {}).get('uuid')
 
-        url = urljoin(DataryRepos.URL_BASE,
+        url = urljoin(cls.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
-        response = self.request(url, 'GET', **{'headers': self.headers})
+        response = cls.request(url, 'GET', **{'headers': cls.headers})
 
         return response.json() if response else {}
 

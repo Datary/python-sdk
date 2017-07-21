@@ -3,7 +3,7 @@
 Datary Repos File.
 """
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.auth import DataryAuth
 from datary.categories import DataryCategories
 
 import structlog
@@ -11,7 +11,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryRepos(DataryRequests):
+class DataryRepos(DataryAuth):
     """
     Datary repos module class.
     """
@@ -46,7 +46,7 @@ class DataryRepos(DataryRequests):
         """
 
         if not kwargs.get('repo_uuid'):
-            url = urljoin(DataryRequests.URL_BASE, "me/repos")
+            url = urljoin(self.URL_BASE, "me/repos")
             visibility = kwargs.get('visibility', 'commercial')
 
             cat_condition = repo_category in DataryCategories.DATARY_CATEGORIES
@@ -96,7 +96,7 @@ class DataryRepos(DataryRequests):
         """
         logger.info("Getting Datary user repo and wdir uuids")
         url = urljoin(
-            DataryRequests.URL_BASE,
+            self.URL_BASE,
             "repos/{}".format(repo_uuid) if repo_uuid else "me/repos")
 
         response = self.request(url, 'GET', **{'headers': self.headers})
@@ -138,7 +138,7 @@ class DataryRepos(DataryRequests):
         if not repo_uuid:
             raise ValueError('Must pass the repo uuid to delete the repo.')
 
-        url = urljoin(DataryRequests.URL_BASE, "repos/{}".format(repo_uuid))
+        url = urljoin(self.URL_BASE, "repos/{}".format(repo_uuid))
         response = self.request(url, 'DELETE', **{'headers': self.headers})
 
         return response.text if response else None

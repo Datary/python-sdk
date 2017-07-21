@@ -4,14 +4,14 @@
 Datary sdk Members File
 """
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.auth import DataryAuth
 
 import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryMembers(DataryRequests):
+class DataryMembers(DataryAuth):
     """
     Datary Members module class
     """
@@ -33,7 +33,7 @@ class DataryMembers(DataryRequests):
         logger.info("Getting Datary members")
 
         url = urljoin(
-            DataryRequests.URL_BASE,
+            self.URL_BASE,
             "search/members")
 
         params = {'limit': kwargs.get('limit', 20)}

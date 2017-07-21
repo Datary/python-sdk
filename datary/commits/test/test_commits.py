@@ -14,22 +14,29 @@ class DataryCommitsTestCase(DataryTestCase):
     Test DataryCommits Test Case
     """
 
-    @mock.patch('datary.Datary.request')
+    @mock.patch('datary.requests.requests.requests.post')
     def test_commit(self, mock_request):
+        """
+        Test Datary commit
+        """
 
         mock_request.return_value = MockRequestResponse("a")
         self.datary.commit(self.repo_uuid, "test commit msg")
 
-        mock_request.return_value = None
+        mock_request.return_value = MockRequestResponse("ERR", status_code=500)
         self.datary.commit(self.repo_uuid, "test commit msg")
 
         self.assertEqual(mock_request.call_count, 2)
 
-    @mock.patch('datary.Datary.get_describerepo')
-    @mock.patch('datary.Datary.get_commit_filetree')
-    @mock.patch('datary.Datary.get_metadata')
+    @mock.patch('datary.repos.DataryRepos.get_describerepo')
+    @mock.patch('datary.filetrees.DataryFiletrees.get_commit_filetree')
+    @mock.patch('datary.datasets.DataryDatasets.get_metadata')
     def test_recollect_last_commit(self, mock_metadata, mock_filetree,
                                    mock_get_describerepo):
+        """
+        Test datary commits recollect_last_commit
+        """
+
         mock_filetree.return_value = self.filetree
 
         mock_get_describerepo.return_value = self.json_repo
@@ -71,6 +78,9 @@ class DataryCommitsTestCase(DataryTestCase):
         self.assertEqual(result6, [])
 
     def test_make_index(self):
+        """
+        Test Datary make_index
+        """
         lista = self.commit_test1
         result = self.datary.make_index(lista)
         expected_values = ['aa_sha1', 'caa_sha1', 'bb_sha1', 'dd_sha1']
@@ -80,6 +90,9 @@ class DataryCommitsTestCase(DataryTestCase):
             self.assertTrue(element.get('sha1') in expected_values)
 
     def test_compare_commits(self):
+        """
+        Test Datary compare_commits
+        """
         expected = {
             'add': ['caa_sha1'],
             'delete': ['bb_sha1'],
@@ -97,7 +110,7 @@ class DataryCommitsTestCase(DataryTestCase):
             elements_sha1 = [
                 element.get('sha1') for element in result.get(key)]
             for sha1 in value:
-                sha1 in elements_sha1
+                self.assertTrue(sha1 in elements_sha1)
 
         with patch('datary.Datary.make_index') as mock_makeindex:
             mock_makeindex.side_effect = Exception('Test Exception')
@@ -107,10 +120,13 @@ class DataryCommitsTestCase(DataryTestCase):
             self.assertTrue(isinstance(result2, dict))
             self.assertEqual(result2, {'update': [], 'delete': [], 'add': []})
 
-    @mock.patch('datary.Datary.delete_file')
-    @mock.patch('datary.Datary.add_file')
-    @mock.patch('datary.Datary.modify_file')
+    @mock.patch('datary.operations.DataryRemoveOperation.delete_file')
+    @mock.patch('datary.operations.DataryAddOperation.add_file')
+    @mock.patch('datary.operations.DataryModifyOperation.modify_file')
     def test_add_commit(self, mock_modify, mock_add, mock_delete):
+        """
+        Test datary  add_commit
+        """
         self.datary.add_commit(
             wdir_uuid=self.json_repo.get('workdir').get('uuid'),
             last_commit=self.commit_test1,
@@ -137,7 +153,9 @@ class DataryCommitsTestCase(DataryTestCase):
 
     @mock.patch('datary.commits.commits.datetime')
     def test_commit_diff_tostring(self, mock_datetime):
-
+        """
+        Test Datary commits commit_diff_tostring
+        """
         datetime_value = "12/03/1990-12:04"
         mock_datetime.now().strftime.return_value = datetime_value
 

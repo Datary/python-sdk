@@ -2,10 +2,9 @@
 """
 Datary sdk Auth File
 """
-import structlog
-
 from urllib.parse import urljoin
 from datary.requests import DataryRequests
+import structlog
 
 logger = structlog.getLogger(__name__)
 
@@ -14,7 +13,6 @@ class DataryAuth(DataryRequests):
     """
     Class DataryAuth
     """
-
     username = ''
     password = ''
     token = ''
@@ -47,7 +45,7 @@ class DataryAuth(DataryRequests):
             "password": password or self.password,
         }
 
-        url = urljoin(DataryRequests.URL_BASE, "/connection/signIn")
+        url = urljoin(self.URL_BASE, "/connection/signIn")
         self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         response = self.request(
@@ -72,8 +70,7 @@ class DataryAuth(DataryRequests):
         Sign-out and invalidate the actual token.
 
         """
-
-        url = urljoin(DataryRequests.URL_BASE, "connection/signOut")
+        url = urljoin(self.URL_BASE, "connection/signOut")
 
         # Make sign_out request.
         response = self.request(url, 'GET')

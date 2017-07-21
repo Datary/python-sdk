@@ -7,7 +7,10 @@ import os
 
 from datetime import datetime
 from urllib.parse import urljoin
+from datary.repos import DataryRepos
 from datary.datasets import DataryDatasets
+from datary.filetrees import DataryFiletrees
+from datary.auth import DataryAuth
 from datary.operations import (
     DataryAddOperation, DataryModifyOperation, DataryRemoveOperation)
 from datary.utils import nested_dict_to_list
@@ -17,12 +20,10 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
-                    DataryRemoveOperation):
+class DataryCommits(DataryAuth):
     """
     Datary Commits class.
     """
-
     COMMIT_ACTIONS = {'add': '+', 'update': 'm', 'delete': '-'}
 
     def commit(self, repo_uuid, commit_message):
@@ -49,7 +50,7 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
         if response:
             logger.info("Changes commited", commit_message=commit_message)
 
-    def recollect_last_commit(self, repo={}):
+    def recollect_last_commit(self, repo=None):
         """
         Parameter:
             (dict) repo
@@ -64,6 +65,9 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
             Last commit in list with the path, filename, sha1.
 
         """
+        if repo is None:
+            repo = {}
+
         ftree = {}
         last_commit = []
         filetree_matrix = []
@@ -78,7 +82,7 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
 
             # Take metadata to retrieve sha-1 and compare with
             for path, filename, dataset_uuid in filetree_matrix:
-                metadata = self.get_metadata(
+                metadata = DataryDatasets.get_metadata(
                     repo_uuid=repo.get('uuid'),
                     dataset_uuid=dataset_uuid)
 
@@ -94,17 +98,19 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
 
         return last_commit
 
-    def get_last_commit_filetree(self, repo={}):
+    @classmethod
+    def get_last_commit_filetree(cls, repo=None):
         """
         Datary get_last_commit_filetree
         """
-
+        if repo is None:
+            repo = {}
         ftree = {}
 
         try:
             # check if have the repo.
             if 'apex' not in repo:
-                repo.update(self.get_describerepo(repo.get('uuid')))
+                repo.update(DataryRepos.get_describerepo(repo.get('uuid')))
 
             if not repo:
                 logger.info('No repo found with this uuid', repo=repo)
@@ -118,7 +124,9 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
                 raise Exception(
                     'Repo hasnt any sha1 in apex {}'.format(repo))
 
-            ftree = self.get_commit_filetree(repo.get('uuid'), last_sha1)
+            ftree = DataryFiletrees.get_commit_filetree(
+                repo.get('uuid'), last_sha1)
+
             if not ftree:
                 logger.info('No ftree found with repo_uuid',
                             repo=repo, sha1=last_sha1)
@@ -132,7 +140,8 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
 
         return ftree
 
-    def make_index(self, lista):
+    @classmethod
+    def make_index(cls, lista):
         """
         Transforms commit list into an index using path + filename as key
         and sha1 as value.
@@ -236,13 +245,13 @@ class DataryCommits(DataryDatasets, DataryAddOperation, DataryModifyOperation,
                 len(hot_elements.get('delete'))))
 
         for element in hot_elements.get('add', []):
-            self.add_file(wdir_uuid, element)
+            DataryAddOperation.add_file(wdir_uuid, element)
 
         for element in hot_elements.get('update', []):
-            self.modify_file(wdir_uuid, element, **kwargs)
+            DataryModifyOperation.modify_file(wdir_uuid, element, **kwargs)
 
         for element in hot_elements.get('delete', []):
-            self.delete_file(wdir_uuid, element)
+            DataryRemoveOperation.delete_file(wdir_uuid, element)
 
     def commit_diff_tostring(self, difference):
         """

@@ -13,9 +13,11 @@ class DataryModifyOperationTestCase(DataryTestCase):
     """
     ModifyOperation Test case
     """
-
     @mock.patch('datary.Datary.request')
     def test_modify_request(self, mock_request):
+        """
+        Test datary operation modify modify_request
+        """
         mock_request.return_value = MockRequestResponse("")
         self.datary.modify_request(self.json_repo.get(
             'workdir', {}).get('uuid'), self.element)
@@ -27,6 +29,9 @@ class DataryModifyOperationTestCase(DataryTestCase):
     @mock.patch('datary.Datary.override_file')
     @mock.patch('datary.Datary.update_append_file')
     def test_modify_file(self, mock_update_append, mock_override_file):
+        """
+        Test datary operation modify modify_file
+        """
 
         mock_mod_style = mock.MagicMock()
 
@@ -56,6 +61,9 @@ class DataryModifyOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.modify_request')
     def test_override_file(self, mock_modify_requests):
+        """
+        Test datary operation modify override_file
+        """
 
         mock_modify_requests.return_value = MockRequestResponse("")
         self.datary.override_file(self.json_repo.get(
@@ -64,10 +72,13 @@ class DataryModifyOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.Datary.modify_request')
     @mock.patch('datary.Datary.update_elements')
-    @mock.patch('datary.Datary.get_original')
-    @mock.patch('datary.Datary.get_dataset_uuid')
+    @mock.patch('datary.datasets.DataryDatasets.get_original')
+    @mock.patch('datary.datasets.DataryDatasets.get_dataset_uuid')
     def test_update_append_file(self, mock_get_dataset_uuid, mock_get_original,
                                 mock_update_elements, mock_modify_request):
+        """
+        Test datary operation modify update_append_file
+        """
 
         # all good.
         mock_get_dataset_uuid.return_value = self.dataset_uuid
@@ -101,11 +112,14 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(mock_update_elements.call_count, 0)
         self.assertEqual(mock_update_elements.call_count, 0)
 
-    @mock.patch('datary.Datary._reload_meta')
-    @mock.patch('datary.Datary._update_arrays_elements')
-    @mock.patch('datary.Datary._calculate_rowzero_header_confindence')
+    @mock.patch('datary.Datary.reload_meta')
+    @mock.patch('datary.Datary.update_arrays_elements')
+    @mock.patch('datary.Datary.calculate_rowzero_header_confindence')
     def test_update_elements(self, mock_calculate_rowzero_header_confindence,
                              mock_update_arrays_elements, mock_reload_meta):
+        """
+        Test datary operation modify update_elements
+        """
 
         original_dict = {'__kern': {'data_aa': [
             [1, 2, 3]], 'data_b': [[7, 8, 9]]}, '__meta': {}}
@@ -160,6 +174,9 @@ class DataryModifyOperationTestCase(DataryTestCase):
 
     @mock.patch('datary.operations.modify.get_dimension')
     def test_reload_meta(self, mock_get_dimension):
+        """
+        Test datary operation modify reload_meta
+        """
 
         # false mock
         mock_get_dimension.side_effect = get_dimension
@@ -182,9 +199,9 @@ class DataryModifyOperationTestCase(DataryTestCase):
             '': [], '*': []}, 'dimension': {"": [23, 21]}}
 
         # kern list with header
-        meta_with_header = self.datary._reload_meta(
+        meta_with_header = self.datary.reload_meta(
             kern_with_header, {}, path_key='', is_rowzero_header=True)
-        assert(isinstance(meta_with_header, dict))
+        self.assertTrue(isinstance(meta_with_header, dict))
         self.assertEqual(meta_with_header.get(
             'axisHeaders', {}).get('*'), ['H1', 'H2', 'H3'])
         self.assertEqual(meta_with_header.get(
@@ -192,9 +209,9 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(meta_with_header.get('dimension', {}).get(''), [4, 3])
 
         # kern list without header
-        meta_without_header = self.datary._reload_meta(
+        meta_without_header = self.datary.reload_meta(
             kern_without_header, {}, path_key='', is_rowzero_header=False)
-        assert(isinstance(meta_without_header, dict))
+        self.assertTrue(isinstance(meta_without_header, dict))
         self.assertEqual(meta_without_header.get('axisHeaders', {}).get(
             '*'), [
                 'Header{}'.format(x) for x in range(
@@ -205,10 +222,10 @@ class DataryModifyOperationTestCase(DataryTestCase):
             'dimension', {}).get(''), [3, 3])
 
         # kern dict with header
-        meta_dict_with_header = self.datary._reload_meta(
+        meta_dict_with_header = self.datary.reload_meta(
             kern_dict_with_header, {}, path_key='a', is_rowzero_header=True)
 
-        assert(isinstance(meta_dict_with_header, dict))
+        self.assertTrue(isinstance(meta_dict_with_header, dict))
         self.assertEqual(meta_dict_with_header.get(
             'axisHeaders', {}).get('a/*'), ['H1', 'H2', 'H3'])
         self.assertEqual(meta_dict_with_header.get(
@@ -217,12 +234,12 @@ class DataryModifyOperationTestCase(DataryTestCase):
             'dimension', {}).get('a'), [4, 3])
 
         # kern dict update meta with other meta
-        meta_dict_with_header = self.datary._reload_meta(
+        meta_dict_with_header = self.datary.reload_meta(
             kern_dict_with_header,
             meta_dict_with_header,
             path_key='b', is_rowzero_header=True)
 
-        assert(isinstance(meta_dict_with_header, dict))
+        self.assertTrue(isinstance(meta_dict_with_header, dict))
         self.assertEqual(meta_dict_with_header.get(
             'axisHeaders', {}).get('a/*'), ['H1', 'H2', 'H3'])
         self.assertEqual(meta_dict_with_header.get(
@@ -237,13 +254,13 @@ class DataryModifyOperationTestCase(DataryTestCase):
             'dimension', {}).get('b'), [3, 3])
 
         # kern dict without header
-        meta_dict_without_header = self.datary._reload_meta(
+        meta_dict_without_header = self.datary.reload_meta(
             kern_dict_without_header,
             {},
             path_key='a',
             is_rowzero_header=False)
 
-        assert(isinstance(meta_dict_without_header, dict))
+        self.assertTrue(isinstance(meta_dict_without_header, dict))
         self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get(
             'a/*'), [
                 'Header{}'.format(x) for x in range(
@@ -254,13 +271,13 @@ class DataryModifyOperationTestCase(DataryTestCase):
             'dimension', {}).get('a'), [3, 3])
 
         # kern dict update meta without other meta
-        meta_dict_without_header = self.datary._reload_meta(
+        meta_dict_without_header = self.datary.reload_meta(
             kern_dict_without_header,
             meta_dict_without_header,
             path_key='b',
             is_rowzero_header=False)
 
-        assert(isinstance(meta_dict_without_header, dict))
+        self.assertTrue(isinstance(meta_dict_without_header, dict))
         self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get(
             'a/*'), [
             'Header{}'.format(x) for x in range(
@@ -279,9 +296,9 @@ class DataryModifyOperationTestCase(DataryTestCase):
             'dimension', {}).get('b'), [2, 3])
 
         # case array and override meta
-        meta_array = self.datary._reload_meta(
+        meta_array = self.datary.reload_meta(
             kern_array, meta_array_init, path_key='', is_rowzero_header=False)
-        assert(isinstance(meta_array, dict))
+        self.assertTrue(isinstance(meta_array, dict))
         self.assertEqual(meta_array.get(
             'axisHeaders', {}).get(''), ['a', 'b', 'c'])
         self.assertEqual(meta_array.get(
@@ -289,53 +306,62 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(meta_array.get('dimension', {}).get(''), [3, 1])
 
         # test empty rows
-        meta_array_empty_rows = self.datary._reload_meta(
+        meta_array_empty_rows = self.datary.reload_meta(
             [], meta_array_init, path_key='', is_rowzero_header=False)
         self.assertEqual(isinstance(meta_array_empty_rows, dict), True)
         self.assertEqual(meta_array_empty_rows, meta_array_init)
 
         # test capture exception
         mock_get_dimension.side_effect = Exception("Test exception")
-        meta_array_after_ex = self.datary._reload_meta(
+        meta_array_after_ex = self.datary.reload_meta(
             kern_array, meta_array_init, path_key='', is_rowzero_header=False)
         self.assertEqual(isinstance(meta_array_after_ex, dict), True)
         self.assertEqual(meta_array_after_ex, meta_array_init)
 
     def test_calculate_rowzero_header_confindence(self):
+        """
+        Test datary operation modify calculate_rowzero_header_confindence
+        """
 
         axisheaders = ['b', 'c', 'a']
         axisheaders2 = ['bb', 'cc', 'a']
 
-        self.assertEqual(self.datary._calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
             [], axisheaders), False)
-        self.assertEqual(self.datary._calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
             axisheaders, axisheaders), True)
-        self.assertEqual(self.datary._calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
             axisheaders, sorted(axisheaders)), True)
-        self.assertEqual(self.datary._calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
             axisheaders, axisheaders2), False)
-        self.assertEqual(self.datary._calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
             axisheaders, axisheaders2, float(1)/3), True)
 
     def test_merge_headers(self):
+        """
+        Test datary operation modify merge_headers
+        """
 
         header1 = ['H1', 'H2', 'H3']
         header2 = ['H4', 'H2', 'H1']
 
-        result = self.datary._merge_headers(header1, header2)
+        result = self.datary.merge_headers(header1, header2)
         self.assertEqual(result, ['H1', 'H2', 'H3', 'H4'])
 
-        result2 = self.datary._merge_headers(result, ['H5', 'pepe'])
+        result2 = self.datary.merge_headers(result, ['H5', 'pepe'])
         self.assertEqual(result2, ['H1', 'H2', 'H3', 'H4', 'H5', 'pepe'])
 
     def test_update_arrays_elements(self):
+        """
+        Test datary operation modify update_arrays_elements
+        """
 
         kern1 = [['h1', 'h2', 'h3'], [1, 2, 3], [4, 5, 6]]
         kern2 = [['h1', 'h5', 'h7'], [7, 8, 9], [10, 11, 12], [0, 13, 14]]
 
-        result_kern_with_headers = self.datary._update_arrays_elements(
+        result_kern_with_headers = self.datary.update_arrays_elements(
             kern1, kern2, True)
-        result_kern_without_headers = self.datary._update_arrays_elements(
+        result_kern_without_headers = self.datary.update_arrays_elements(
             kern1[1:], kern2[1:], False)
 
         self.assertEqual(isinstance(result_kern_with_headers, list), True)

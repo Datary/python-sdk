@@ -7,7 +7,8 @@ import re
 import json
 
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.auth import DataryAuth
+from datary.datasets import DataryDatasets
 from datary.utils import (add_element, force_list, get_element, get_dimension,
                           remove_list_duplicates, flatten, dict2orderedlist,
                           exclude_empty_values)
@@ -16,14 +17,14 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryModifyOperation(DataryRequests):
+class DataryModifyOperation(DataryAuth):
     """
     Datary ModifyOperation module class
     """
 
-    _ROWZERO_HEADER_CONFIDENCE_VALUE = 0.5
+    _ROWZEROHEADER_CONFIDENCE_VALUE = 0.5
 
-    def modify_request(self, wdir_uuid, element):
+    def modify_request(self, wdir_uuid, element, **kwargs):
         """
         Make Modify requests
         ===============   ===============   ==================================
@@ -34,9 +35,9 @@ class DataryModifyOperation(DataryRequests):
                                             model data fields.
         ===============   ===============   ==================================
         """
-        url = urljoin(DataryRequests.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
-
+        headers = kwargs.get('headers', self.headers)
         payload = {
             "action": "modify",
             "filemode": 100644,
@@ -46,7 +47,7 @@ class DataryModifyOperation(DataryRequests):
             "meta": json.dumps(element.get('data', {}).get('meta'))}
 
         response = self.request(
-            url, 'POST', **{'data': payload, 'headers': self.headers})
+            url, 'POST', **{'data': payload, 'headers': headers})
 
         if response:
             logger.info(
@@ -72,7 +73,7 @@ class DataryModifyOperation(DataryRequests):
         """
         # Override method
         if mod_style == 'override':
-            self.override_file(wdir_uuid, element)
+            self.override_file(wdir_uuid, element, **kwargs)
 
         # Update Append method
         elif mod_style == 'update-append':
@@ -88,7 +89,7 @@ class DataryModifyOperation(DataryRequests):
         else:
             logger.error('NOT VALID modify style passed.')
 
-    def override_file(self, wdir_uuid, element):
+    def override_file(self, wdir_uuid, element, **kwargs):
         """
         Override an existing file in Datary.
 
@@ -101,7 +102,7 @@ class DataryModifyOperation(DataryRequests):
         """
         logger.info("Override an existing file in Datary.")
 
-        self.modify_request(wdir_uuid, element)
+        self.modify_request(wdir_uuid, element, **kwargs)
 
     def update_append_file(self, wdir_uuid, element, **kwargs):
         """
@@ -119,13 +120,13 @@ class DataryModifyOperation(DataryRequests):
         try:
 
             # retrieve original dataset_uuid from datary
-            stored_dataset_uuid = self.get_dataset_uuid(
+            stored_dataset_uuid = DataryDatasets.get_dataset_uuid(
                 wdir_uuid=wdir_uuid,
                 path=element.get('path', ''),
                 filename=element.get('filename', ''))
 
             # retrieve original dataset from datary
-            stored_element = self.get_original(
+            stored_element = DataryDatasets.get_original(
                 dataset_uuid=stored_dataset_uuid,
                 repo_uuid=kwargs.get('repo_uuid'),
                 wdir_uuid=wdir_uuid)
@@ -148,7 +149,7 @@ class DataryModifyOperation(DataryRequests):
             self.modify_request(wdir_uuid, element={
                 "path": element.get('path', ''),
                 "filename": element.get('filename', ''),
-                "data": element.get('data')})
+                "data": element.get('data')}, **kwargs)
 
         except Exception as ex:
             logger.error('Update append failed - {}'.format(ex))
@@ -173,7 +174,7 @@ class DataryModifyOperation(DataryRequests):
         ):
 
             # Check if rowzero is header..
-            is_rowzero_header = self._calculate_rowzero_header_confindence(
+            is_rowzero_header = self.calculate_rowzero_header_confindence(
                 stored_element.get('__meta', {}).get('axisHeaders', {}).get(
                     '*'),  # stored element axisheader
                 # stored element first row
@@ -181,14 +182,14 @@ class DataryModifyOperation(DataryRequests):
             )
 
             # update kern
-            stored_element['__kern'] = self._update_arrays_elements(
+            stored_element['__kern'] = self.update_arrays_elements(
                 original_array=stored_element.get('__kern', {}),
                 update_array=update_element.get('data', {}).get('kern', {}),
                 is_rowzero_header=is_rowzero_header
             )
 
             # update meta
-            stored_element['__meta'] = self._reload_meta(
+            stored_element['__meta'] = self.reload_meta(
                 kern=stored_element.get('__kern', {}),
                 original_meta=stored_element.get('__meta', {}),
                 path_key='',
@@ -213,13 +214,13 @@ class DataryModifyOperation(DataryRequests):
                 stored_first_row = get_element(stored_element.get(
                     '__kern', {}), element_keypath+"/0") or []
 
-                is_rowzero_header = self._calculate_rowzero_header_confindence(
+                is_rowzero_header = self.calculate_rowzero_header_confindence(
                     stored_axisheader,
                     stored_first_row
                 )
 
                 # update kern
-                updated_keypath_array = self._update_arrays_elements(
+                updated_keypath_array = self.update_arrays_elements(
                     original_array=get_element(stored_element.get(
                         '__kern', {}), element_keypath) or [],
                     update_array=get_element(update_element.get(
@@ -228,7 +229,7 @@ class DataryModifyOperation(DataryRequests):
                 )
 
                 # Update meta
-                updated_keypath_meta = self._reload_meta(
+                updated_keypath_meta = self.reload_meta(
                     kern=updated_keypath_array,
                     original_meta=stored_element.get('__meta', {}),
                     path_key=element_keypath,
@@ -253,11 +254,8 @@ class DataryModifyOperation(DataryRequests):
                 type(update_element.get('data', {}).get('kern')).__name__,))
 
     @classmethod
-    def _reload_meta(cls,
-                     kern,
-                     original_meta,
-                     path_key='',
-                     is_rowzero_header=False):
+    def reload_meta(
+            cls, kern, original_meta, path_key='', is_rowzero_header=False):
         """
         Reload element meta by default, updating axisheaders and dimension.
 
@@ -290,11 +288,12 @@ class DataryModifyOperation(DataryRequests):
                         os.path.join(path_key, "*"): row_zero
                     }
                 else:
-                    list_range = range(
-                        1,
-                        (len(row_zero) if (
-                            (rows) and (isinstance(rows[0], list)))
-                            else 1) + 1)
+                    top = 1
+
+                    if rows and isinstance(rows[0], list):
+                        top = len(row_zero)
+
+                    list_range = range(1, top + 1)
 
                     header = ['Header{}'.format(x) for x in list_range]
 
@@ -318,11 +317,11 @@ class DataryModifyOperation(DataryRequests):
         return updated_meta
 
     @classmethod
-    def _calculate_rowzero_header_confindence(
+    def calculate_rowzero_header_confindence(
             cls,
             axisheaders,
             row_zero,
-            confidence_err=_ROWZERO_HEADER_CONFIDENCE_VALUE):
+            confidence_err=_ROWZEROHEADER_CONFIDENCE_VALUE):
         """
         Calculate the cofidence index if the first row contains headers
         comparing this headers with the axisheaders. If this index is lower
@@ -346,7 +345,7 @@ class DataryModifyOperation(DataryRequests):
         return row_zero_header_confidence >= confidence_err
 
     @classmethod
-    def _merge_headers(cls, header1, header2):
+    def merge_headers(cls, header1, header2):
         """
         Merge 2 headers without losing the header 1 order and removing repeated
         elements from header2 in header1.
@@ -364,13 +363,13 @@ class DataryModifyOperation(DataryRequests):
 
         return remove_list_duplicates(header1 + header2)
 
-    def _update_arrays_elements(self, original_array, update_array,
-                                is_rowzero_header):
+    def update_arrays_elements(self, original_array, update_array,
+                               is_rowzero_header):
         result = []
 
         # row zero contains data headers
         if is_rowzero_header:
-            merged_headers = self._merge_headers(
+            merged_headers = self.merge_headers(
                 original_array[0], update_array[0])
             result.append(merged_headers)
 
