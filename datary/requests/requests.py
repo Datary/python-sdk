@@ -23,7 +23,8 @@ class DataryRequests(object):
         DataryRequests Init method
         """
         super(DataryRequests, self).__init__()
-        self.headers = kwargs.get('headers', {})
+        self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        self.headers.update(kwargs.get('headers', {}))
 
     @classmethod
     def request(cls, url, http_method, **kwargs):

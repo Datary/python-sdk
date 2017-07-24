@@ -27,6 +27,16 @@ class DataryAuth(DataryRequests):
         self.token = kwargs.get('token')
         self.commit_limit = int(kwargs.get('commit_limit', 30))
 
+        # call to sign-in
+        self.sign_in()
+
+    def attach_token_header(self):
+        """
+        Class method to attach datary token to requests headers.
+        """
+        if self.token:
+            self.headers['Authorization'] = 'Bearer {}'.format(self.token)
+
     def get_user_token(self, user=None, password=None):
         """
         ===========   =============   ================================
@@ -54,19 +64,28 @@ class DataryAuth(DataryRequests):
         # Devuelve el token del usuario.
         user_token = str(response.headers.get("x-set-token", ''))
 
-        if user_token:
-            self.headers['Authorization'] = 'Bearer {}'.format(user_token)
-
         return user_token
+
+    def sign_in(self):
+        """
+        Sign-in and assert has a token in requests headers.
+        """
+
+        if self.token:
+            self.attach_token_header()
+
+        elif self.username and self.password:
+            self.token = self.get_user_token()
+            self.attach_token_header()
+
+        else:
+            logger.error(
+                'Can`t sign-in, useraname or password incorrect',
+                username=self.username,
+                password=self.password)
 
     def sign_out(self):
         """
-        ===========   =============   ================================
-        Parameter     Type            Description
-        ===========   =============   ================================
-        ...           ...             ...
-        ===========   =============   ================================
-
         Sign-out and invalidate the actual token.
 
         """
