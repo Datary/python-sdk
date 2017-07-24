@@ -93,11 +93,13 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(mock_get_original.call_count, 1)
         self.assertEqual(mock_update_elements.call_count, 1)
         self.assertEqual(mock_update_elements.call_count, 1)
+        self.assertEqual(mock_modify_request.call_count, 1)
 
         mock_get_dataset_uuid.reset_mock()
         mock_get_original.reset_mock()
         mock_update_elements.reset_mock()
         mock_update_elements.reset_mock()
+        mock_modify_request.reset_mock()
 
         # Not retrieve orignal case..
         mock_get_original.return_value = None
@@ -111,11 +113,12 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(mock_get_original.call_count, 1)
         self.assertEqual(mock_update_elements.call_count, 0)
         self.assertEqual(mock_update_elements.call_count, 0)
+        self.assertEqual(mock_modify_request.call_count, 0)
 
     @mock.patch('datary.Datary.reload_meta')
     @mock.patch('datary.Datary.update_arrays_elements')
-    @mock.patch('datary.Datary.calculate_rowzero_header_confindence')
-    def test_update_elements(self, mock_calculate_rowzero_header_confindence,
+    @mock.patch('datary.Datary.calculate_rowzeroheader_confidence')
+    def test_update_elements(self, mock_calculate_rowzeroheader_confidence,
                              mock_update_arrays_elements, mock_reload_meta):
         """
         Test datary operation modify update_elements
@@ -132,21 +135,21 @@ class DataryModifyOperationTestCase(DataryTestCase):
         element_list = {'path': 'a', 'filename': 'aa', 'data': {
             'kern': [[4, 5, 6]], 'meta': {}}, 'sha1': 'aa_sha1'}
 
-        mock_calculate_rowzero_header_confindence.return_value = True
+        mock_calculate_rowzeroheader_confidence.return_value = True
         mock_update_arrays_elements.return_value = 'kern_updated'
         mock_reload_meta.side_effect = iter([{}, 'meta_reloaded'])
 
         # case kern dict vs dict
         self.datary.update_elements(original_dict, element_dict)
         self.assertEqual(
-            mock_calculate_rowzero_header_confindence.call_count, 2)
+            mock_calculate_rowzeroheader_confidence.call_count, 2)
         self.assertEqual(mock_update_arrays_elements.call_count, 2)
         self.assertEqual(mock_reload_meta.call_count, 2)
         self.assertEqual(original_dict.get(
             '__kern').get('data_aa'), 'kern_updated')
         self.assertEqual(original_dict.get('__meta'), 'meta_reloaded')
 
-        mock_calculate_rowzero_header_confindence.reset_mock()
+        mock_calculate_rowzeroheader_confidence.reset_mock()
         mock_update_arrays_elements.reset_mock()
         mock_reload_meta.reset_mock()
 
@@ -155,20 +158,20 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.datary.update_elements(original_list, element_list)
 
         self.assertEqual(
-            mock_calculate_rowzero_header_confindence.call_count, 1)
+            mock_calculate_rowzeroheader_confidence.call_count, 1)
         self.assertEqual(mock_update_arrays_elements.call_count, 1)
         self.assertEqual(mock_reload_meta.call_count, 1)
         self.assertEqual(original_list.get('__kern'), 'kern_updated')
         self.assertEqual(original_list.get('__meta'), 'meta_reloaded')
 
-        mock_calculate_rowzero_header_confindence.reset_mock()
+        mock_calculate_rowzeroheader_confidence.reset_mock()
         mock_update_arrays_elements.reset_mock()
         mock_reload_meta.reset_mock()
 
         # case not permitted log warning
         self.datary.update_elements(self.original, element_list)
         self.assertEqual(
-            mock_calculate_rowzero_header_confindence.call_count, 0)
+            mock_calculate_rowzeroheader_confidence.call_count, 0)
         self.assertEqual(mock_update_arrays_elements.call_count, 0)
         self.assertEqual(mock_reload_meta.call_count, 0)
 
@@ -278,15 +281,19 @@ class DataryModifyOperationTestCase(DataryTestCase):
             is_rowzero_header=False)
 
         self.assertTrue(isinstance(meta_dict_without_header, dict))
-        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get(
-            'a/*'), [
-            'Header{}'.format(x) for x in range(
+
+        axisheaders = meta_dict_without_header.get('axisHeaders', {})
+
+        self.assertEqual(
+            axisheaders.get('a/*'),
+            ['Header{}'.format(x) for x in range(
                 1, len(kern_dict_without_header.get('a')[0]) + 1)])
+
         self.assertEqual(meta_dict_without_header.get(
             'axisHeaders', {}).get('a'), [1, 4, 7])
-        self.assertEqual(meta_dict_without_header.get('axisHeaders', {}).get(
-            'b/*'), [
-            'Header{}'.format(x) for x in range(
+        self.assertEqual(
+            axisheaders.get('b/*'),
+            ['Header{}'.format(x) for x in range(
                 1, len(kern_dict_without_header.get('b')[0]) + 1)])
         self.assertEqual(meta_dict_without_header.get(
             'axisHeaders', {}).get('b'), [1, 4])
@@ -318,23 +325,23 @@ class DataryModifyOperationTestCase(DataryTestCase):
         self.assertEqual(isinstance(meta_array_after_ex, dict), True)
         self.assertEqual(meta_array_after_ex, meta_array_init)
 
-    def test_calculate_rowzero_header_confindence(self):
+    def test_calculate_rowzeroheader_confidence(self):
         """
-        Test datary operation modify calculate_rowzero_header_confindence
+        Test datary operation modify calculate_rowzeroheader_confidence
         """
 
         axisheaders = ['b', 'c', 'a']
         axisheaders2 = ['bb', 'cc', 'a']
 
-        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzeroheader_confidence(
             [], axisheaders), False)
-        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzeroheader_confidence(
             axisheaders, axisheaders), True)
-        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzeroheader_confidence(
             axisheaders, sorted(axisheaders)), True)
-        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzeroheader_confidence(
             axisheaders, axisheaders2), False)
-        self.assertEqual(self.datary.calculate_rowzero_header_confindence(
+        self.assertEqual(self.datary.calculate_rowzeroheader_confidence(
             axisheaders, axisheaders2, float(1)/3), True)
 
     def test_merge_headers(self):

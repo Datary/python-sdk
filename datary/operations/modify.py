@@ -56,7 +56,8 @@ class DataryModifyOperation(DataryAuth):
                 payload=payload,
                 element=element)
 
-    def modify_file(self, wdir_uuid, element, mod_style='override', **kwargs):
+    @classmethod
+    def modify_file(cls, wdir_uuid, element, mod_style='override', **kwargs):
         """
         Modifies an existing file in Datary.
 
@@ -73,17 +74,17 @@ class DataryModifyOperation(DataryAuth):
         """
         # Override method
         if mod_style == 'override':
-            self.override_file(wdir_uuid, element, **kwargs)
+            cls.override_file(wdir_uuid, element, **kwargs)
 
         # Update Append method
         elif mod_style == 'update-append':
-            self.update_append_file(wdir_uuid, element, **kwargs)
+            cls.update_append_file(wdir_uuid, element, **kwargs)
 
         # TODO: ADD update-row method
 
         # Inject own modify solution method
         elif callable(mod_style):
-            mod_style(wdir_uuid, element, callback_request=self.modify_request)
+            mod_style(wdir_uuid, element, callback_request=cls.modify_request)
 
         # Default..
         else:
@@ -174,7 +175,7 @@ class DataryModifyOperation(DataryAuth):
         ):
 
             # Check if rowzero is header..
-            is_rowzero_header = self.calculate_rowzero_header_confindence(
+            is_rowzero_header = self.calculate_rowzeroheader_confidence(
                 stored_element.get('__meta', {}).get('axisHeaders', {}).get(
                     '*'),  # stored element axisheader
                 # stored element first row
@@ -214,7 +215,7 @@ class DataryModifyOperation(DataryAuth):
                 stored_first_row = get_element(stored_element.get(
                     '__kern', {}), element_keypath+"/0") or []
 
-                is_rowzero_header = self.calculate_rowzero_header_confindence(
+                is_rowzero_header = self.calculate_rowzeroheader_confidence(
                     stored_axisheader,
                     stored_first_row
                 )
@@ -317,7 +318,7 @@ class DataryModifyOperation(DataryAuth):
         return updated_meta
 
     @classmethod
-    def calculate_rowzero_header_confindence(
+    def calculate_rowzeroheader_confidence(
             cls,
             axisheaders,
             row_zero,
@@ -365,6 +366,9 @@ class DataryModifyOperation(DataryAuth):
 
     def update_arrays_elements(self, original_array, update_array,
                                is_rowzero_header):
+        """
+        Update arrays elements
+        """
         result = []
 
         # row zero contains data headers

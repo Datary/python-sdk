@@ -49,6 +49,48 @@ class DataryAuthTestCase(DataryTestCase):
 
         self.assertEqual(mock_request.call_count, 4)
 
+    @mock.patch('datary.requests.requests.requests.post')
+    def test_properties(self, mock_request):
+        """
+        Test Datary auth getter/setter properties
+        """
+
+        test_token = '123'
+        test_username = 'pepe'
+        test_password = 'pass'
+        test_commit_limit = 30
+
+        test_token2 = '456'
+        test_username2 = 'manolo'
+        test_password2 = 'ssap'
+        test_commit_limit2 = 30
+
+        mock_request.return_value = MockRequestResponse(
+            "", headers={'x-set-token': test_token})
+        self.datary = Datary(**{
+            'username': test_username,
+            'password': test_password})
+        self.assertEqual(mock_request.call_count, 1)
+
+        self.assertEqual(self.datary.username, test_username)
+        self.assertEqual(self.datary.password, test_password)
+        self.assertEqual(self.datary.token, test_token)
+        self.assertEqual(self.datary.commit_limit, test_commit_limit)
+        self.assertIn(
+            self.datary.token, self.datary.headers.get('Authorization'))
+
+        self.datary.username = test_username2
+        self.datary.password = test_password2
+        self.datary.token = test_token2
+        self.datary.commit_limit = test_commit_limit2
+
+        self.assertEqual(self.datary.username, test_username2)
+        self.assertEqual(self.datary.password, test_password2)
+        self.assertEqual(self.datary.token, test_token2)
+        self.assertEqual(self.datary.commit_limit, test_commit_limit2)
+        self.assertIn(
+            self.datary.token, self.datary.headers.get('Authorization'))
+
     @mock.patch('datary.requests.requests.requests.get')
     def test_sign_out(self, mock_request):
         """

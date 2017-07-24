@@ -5,15 +5,17 @@ Main datary sdk module
 import structlog
 
 from .categories import DataryCategories
+from .operations import (
+    DataryAddOperation,
+    DataryModifyOperation,
+    DataryRemoveOperation,
+    DataryCleanOperation)
+
 from .commits import DataryCommits
 from .datasets import DataryDatasets
 from .filetrees import DataryFiletrees
 from .members import DataryMembers
 from .repos import DataryRepos
-from .operations import (
-    DataryAddOperation,
-    DataryModifyOperation,
-    DataryRemoveOperation)
 
 from . import version
 
@@ -21,9 +23,9 @@ logger = structlog.getLogger(__name__)
 URL_BASE = "http://api.datary.io/"
 
 
-class Datary(DataryCategories, DataryCommits, DataryDatasets,
-             DataryFiletrees, DataryMembers, DataryAddOperation, DataryRepos,
-             DataryModifyOperation, DataryRemoveOperation):
+class Datary(DataryCategories, DataryCommits, DataryDatasets, DataryMembers,
+             DataryFiletrees, DataryCleanOperation, DataryAddOperation,
+             DataryModifyOperation, DataryRemoveOperation, DataryRepos):
     """
     Datary main api class.
     Inherits from the rest of Datary modules its api functionality :

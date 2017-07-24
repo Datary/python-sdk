@@ -36,9 +36,13 @@ class DataryCommitsTestCase(DataryTestCase):
         """
         Test datary commits recollect_last_commit
         """
+        result_zero = self.datary.recollect_last_commit()
+        self.assertEqual(result_zero, [])
+
+        result_zero2 = self.datary.get_last_commit_filetree()
+        self.assertEqual(result_zero2, {})
 
         mock_filetree.return_value = self.filetree
-
         mock_get_describerepo.return_value = self.json_repo
         mock_metadata.return_value.json.return_value = \
             self.element.get('data', {}).get('meta')

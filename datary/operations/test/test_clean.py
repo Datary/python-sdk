@@ -21,9 +21,6 @@ class DataryCleanOperationTestCase(DataryTestCase):
         """
         Test operation remove clean_repo
         """
-        # TODO: FIX THIS TEST AND CLEAN DEPENDENCIES
-        return
-
         mock_get_describerepo.return_value = self.json_repo
         mock_get_wdir_filetree.return_value = self.filetree
 

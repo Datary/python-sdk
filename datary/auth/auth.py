@@ -13,22 +13,76 @@ class DataryAuth(DataryRequests):
     """
     Class DataryAuth
     """
-    username = ''
-    password = ''
-    token = ''
 
     def __init__(self, **kwargs):
         """
         DataryAuth Init method
         """
         super(DataryAuth, self).__init__(**kwargs)
-        self.username = kwargs.get('username')
-        self.password = kwargs.get('password')
-        self.token = kwargs.get('token')
-        self.commit_limit = int(kwargs.get('commit_limit', 30))
+        self._username = kwargs.get('username', '')
+        self._password = kwargs.get('password', '')
+        self._token = kwargs.get('token', '')
+        self._commit_limit = int(kwargs.get('commit_limit', 30))
 
         # call to sign-in
         self.sign_in()
+
+    @property
+    def username(self):
+        """
+        Username getter
+        """
+        return self._username
+
+    @username.setter
+    def username(self, username):
+        """
+        Username setter
+        """
+        self._username = username
+
+    @property
+    def password(self):
+        """
+        Password getter
+        """
+        return self._password
+
+    @password.setter
+    def password(self, password):
+        """
+        Password setter
+        """
+        self._password = password
+
+    @property
+    def token(self):
+        """
+        Token getter
+        """
+        return self._token
+
+    @token.setter
+    def token(self, token):
+        """
+        Token setter
+        """
+        self._token = token
+        self.attach_token_header()
+
+    @property
+    def commit_limit(self):
+        """
+        Commit_limit getter
+        """
+        return self._commit_limit
+
+    @commit_limit.setter
+    def commit_limit(self, commit_limit):
+        """
+        Commit_limit setter
+        """
+        self._commit_limit = commit_limit
 
     def attach_token_header(self):
         """
