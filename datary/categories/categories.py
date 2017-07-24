@@ -3,7 +3,7 @@
 Datary sdk Categories File
 """
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.auth import DataryAuth
 
 import structlog
 
@@ -11,7 +11,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryCategories(DataryRequests):
+class DataryCategories(DataryAuth):
     """
     Datary Categories class.
     """
@@ -43,7 +43,7 @@ class DataryCategories(DataryRequests):
         Returns:
             List with the predefined categories in the system.
         """
-        url = urljoin(DataryRequests.URL_BASE, "search/categories")
+        url = urljoin(self.URL_BASE, "search/categories")
 
         response = self.request(url, 'GET', **{'headers': self.headers})
         return response.json() if response else self.DATARY_CATEGORIES

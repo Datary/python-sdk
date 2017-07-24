@@ -5,18 +5,18 @@ Datary sdk Add Operations File
 import os
 import json
 from urllib.parse import urljoin
-from datary.requests import DataryRequests
+from datary.auth import DataryAuth
 import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryAddOperation(DataryRequests):
+class DataryAddOperation(DataryAuth):
     """
     Datary AddOperation module class
     """
-
-    def add_dir(self, wdir_uuid, path, dirname):
+    @classmethod
+    def add_dir(cls, wdir_uuid, path, dirname):
         """
         (DEPRECATED)
         Creates a new directory.
@@ -34,7 +34,7 @@ class DataryAddOperation(DataryRequests):
             "Add new directory to Datary.",
             path=os.path.join(path, dirname))
 
-        url = urljoin(DataryRequests.URL_BASE,
+        url = urljoin(cls.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
@@ -42,8 +42,8 @@ class DataryAddOperation(DataryRequests):
                    "dirname": path,
                    "basename": dirname}
 
-        response = self.request(
-            url, 'POST', **{'data': payload, 'headers': self.headers})
+        response = cls.request(
+            url, 'POST', **{'data': payload, 'headers': cls.headers})
         if response:
             logger.info(
                 "Directory has been created in workdir.",
@@ -51,7 +51,8 @@ class DataryAddOperation(DataryRequests):
                 wdir_uuid=wdir_uuid,
                 dirname=dirname)
 
-    def add_file(self, wdir_uuid, element):
+    @classmethod
+    def add_file(cls, wdir_uuid, element):
         """
         Adds a new file.
         If the file is to be created within a new path
@@ -68,7 +69,7 @@ class DataryAddOperation(DataryRequests):
          """
         logger.info("Add new file to Datary.")
 
-        url = urljoin(DataryRequests.URL_BASE,
+        url = urljoin(cls.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {
@@ -79,8 +80,8 @@ class DataryAddOperation(DataryRequests):
             "kern": json.dumps(element.get('data', {}).get('kern')),
             "meta": json.dumps(element.get('data', {}).get('meta'))}
 
-        response = self.request(
-            url, 'POST', **{'data': payload, 'headers': self.headers})
+        response = cls.request(
+            url, 'POST', **{'data': payload, 'headers': cls.headers})
         if response:
             logger.info(
                 "File has been Added to workdir.",

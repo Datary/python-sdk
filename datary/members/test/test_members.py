@@ -13,7 +13,7 @@ class DataryMembersTestCase(DataryTestCase):
     Datary Members Test Case
     """
 
-    @mock.patch('datary.Datary.request')
+    @mock.patch('datary.requests.requests.requests.get')
     def test_get_members(self, mock_request):
         """
         Test get_members
