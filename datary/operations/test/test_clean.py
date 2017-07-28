@@ -13,11 +13,10 @@ class DataryCleanOperationTestCase(DataryTestCase):
     """
     @mock.patch('datary.operations.DataryRemoveOperation.delete_file')
     @mock.patch('datary.filetrees.DataryFiletrees.get_wdir_filetree')
-    @mock.patch('datary.commits.DataryCommits.commit')
     @mock.patch('datary.operations.DataryRemoveOperation.clear_index')
     @mock.patch('datary.repos.DataryRepos.get_describerepo')
     def test_clean_repo(self, mock_get_describerepo, mockclear_index,
-                        mock_commit, mock_get_wdir_filetree, mock_delete_file):
+                        mock_get_wdir_filetree, mock_delete_file):
         """
         Test operation remove clean_repo
         """
@@ -26,7 +25,6 @@ class DataryCleanOperationTestCase(DataryTestCase):
 
         self.datary.clean_repo(self.repo_uuid)
 
-        self.assertEqual(mock_commit.call_count, 1)
         self.assertEqual(mock_delete_file.call_count, 3)
         self.assertEqual(mockclear_index.call_count, 1)
         self.assertEqual(mock_get_describerepo.call_count, 1)
@@ -35,7 +33,6 @@ class DataryCleanOperationTestCase(DataryTestCase):
         # reset mocks
         mock_get_describerepo.reset_mock()
         mockclear_index.reset_mock()
-        mock_commit.reset_mock()
         mock_get_wdir_filetree.reset_mock()
         mock_delete_file.reset_mock()
 
@@ -45,7 +42,6 @@ class DataryCleanOperationTestCase(DataryTestCase):
 
         self.datary.clean_repo(self.repo_uuid)
 
-        self.assertEqual(mock_commit.call_count, 0)
         self.assertEqual(mock_delete_file.call_count, 0)
         self.assertEqual(mockclear_index.call_count, 0)
         self.assertEqual(mock_get_describerepo.call_count, 1)

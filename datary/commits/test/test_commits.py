@@ -127,11 +127,11 @@ class DataryCommitsTestCase(DataryTestCase):
     @mock.patch('datary.operations.DataryRemoveOperation.delete_file')
     @mock.patch('datary.operations.DataryAddOperation.add_file')
     @mock.patch('datary.operations.DataryModifyOperation.modify_file')
-    def test_add_commit(self, mock_modify, mock_add, mock_delete):
+    def test_operation_commit(self, mock_modify, mock_add, mock_delete):
         """
-        Test datary  add_commit
+        Test datary  operation_commit
         """
-        self.datary.add_commit(
+        self.datary.operation_commit(
             wdir_uuid=self.json_repo.get('workdir').get('uuid'),
             last_commit=self.commit_test1,
             actual_commit=self.commit_test2,
@@ -145,7 +145,7 @@ class DataryCommitsTestCase(DataryTestCase):
         mock_modify.reset_mock()
         mock_delete.reset_mock()
 
-        self.datary.add_commit(
+        self.datary.operation_commit(
             wdir_uuid=self.json_repo.get('workdir').get('uuid'),
             last_commit=self.commit_test1,
             actual_commit=self.commit_test2,

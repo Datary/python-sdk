@@ -10,9 +10,7 @@ from urllib.parse import urljoin
 from datary.repos import DataryRepos
 from datary.datasets import DataryDatasets
 from datary.filetrees import DataryFiletrees
-from datary.auth import DataryAuth
-from datary.operations import (
-    DataryAddOperation, DataryModifyOperation, DataryRemoveOperation)
+from datary.operations import DataryOperations
 from datary.utils import nested_dict_to_list
 
 import structlog
@@ -20,7 +18,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryCommits(DataryAuth):
+class DataryCommits(DataryOperations):
     """
     Datary Commits class.
     """
@@ -40,7 +38,7 @@ class DataryCommits(DataryAuth):
         """
         logger.info("Commiting changes...")
 
-        url = urljoin(DataryAddOperation.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "repos/{}/commits".format(repo_uuid))
 
         response = self.request(
@@ -219,7 +217,8 @@ class DataryCommits(DataryAuth):
 
         return difference
 
-    def add_commit(self, wdir_uuid, last_commit, actual_commit, **kwargs):
+    def operation_commit(
+            self, wdir_uuid, last_commit, actual_commit, **kwargs):
         """
         Given the last commit and actual commit,
         takes hot elements to ADD, UPDATE or DELETE.
@@ -245,13 +244,16 @@ class DataryCommits(DataryAuth):
                 len(hot_elements.get('delete'))))
 
         for element in hot_elements.get('add', []):
-            DataryAddOperation.add_file(wdir_uuid, element)
+            super(DataryCommits, self).add_file(
+                wdir_uuid, element)
 
         for element in hot_elements.get('update', []):
-            DataryModifyOperation.modify_file(wdir_uuid, element, **kwargs)
+            super(DataryCommits, self).modify_file(
+                wdir_uuid, element, **kwargs)
 
         for element in hot_elements.get('delete', []):
-            DataryRemoveOperation.delete_file(wdir_uuid, element)
+            super(DataryCommits, self).delete_file(
+                wdir_uuid, element)
 
     def commit_diff_tostring(self, difference):
         """

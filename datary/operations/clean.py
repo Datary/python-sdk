@@ -7,7 +7,6 @@ Datary sdk clean Operations File
 from datary.auth import DataryAuth
 from datary.repos import DataryRepos
 from datary.filetrees import DataryFiletrees
-from datary.commits import DataryCommits
 from datary.operations.remove import DataryRemoveOperation
 from datary.utils import flatten
 
@@ -56,11 +55,6 @@ class DataryCleanOperation(DataryAuth):
                 }
 
                 DataryRemoveOperation.delete_file(wdir_uuid, element_data)
-
-            # commit clean repo
-            DataryCommits().commit(
-                repo_uuid=repo_uuid,
-                commit_message='Commit delete all files to clean repo')
 
         else:
             logger.error('Fail to clean_repo, repo not found in datary.')
