@@ -19,8 +19,7 @@ class DataryFiletrees(DataryAuth):
     """
       Datary Filetrees module class
     """
-    @classmethod
-    def get_commit_filetree(cls, repo_uuid, commit_sha1):
+    def get_commit_filetree(self, repo_uuid, commit_sha1):
         """
         ==============  =============   ====================================
         Parameter       Type            Description
@@ -33,16 +32,15 @@ class DataryFiletrees(DataryAuth):
             filetree of all commits done in a repo.
 
         """
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "commits/{}/filetree".format(commit_sha1))
         params = {'namespace': repo_uuid}
-        response = cls.request(
-            url, 'GET', **{'headers': cls.headers, 'params': params})
+        response = self.request(
+            url, 'GET', **{'headers': self.headers, 'params': params})
 
         return response.json() if response else {}
 
-    @classmethod
-    def get_wdir_filetree(cls, wdir_uuid):
+    def get_wdir_filetree(self, wdir_uuid):
         """
         ==============  =============   ====================================
         Parameter       Type            Description
@@ -54,14 +52,13 @@ class DataryFiletrees(DataryAuth):
             filetree of a repo workdir.
 
         """
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/filetree".format(wdir_uuid))
-        response = cls.request(url, 'GET', **{'headers': cls.headers})
+        response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}
 
-    @classmethod
-    def get_wdir_changes(cls, wdir_uuid=None, **kwargs):
+    def get_wdir_changes(self, wdir_uuid=None, **kwargs):
         """
         ================  =============   ====================================
         Parameter         Type            Description
@@ -78,14 +75,13 @@ class DataryFiletrees(DataryAuth):
             wdir_uuid = DataryRepos.get_describerepo(
                 **kwargs).get('workdir', {}).get('uuid')
 
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
-        response = cls.request(url, 'GET', **{'headers': cls.headers})
+        response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}
 
-    @classmethod
-    def format_wdir_changes(cls, wdir_changes_tree):
+    def format_wdir_changes(self, wdir_changes_tree):
         """
         ==================  =============   ==================================
         Parameter           Type            Description

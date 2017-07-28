@@ -56,8 +56,7 @@ class DataryModifyOperation(DataryAuth):
                 payload=payload,
                 element=element)
 
-    @classmethod
-    def modify_file(cls, wdir_uuid, element, mod_style='override', **kwargs):
+    def modify_file(self, wdir_uuid, element, mod_style='override', **kwargs):
         """
         Modifies an existing file in Datary.
 
@@ -74,17 +73,17 @@ class DataryModifyOperation(DataryAuth):
         """
         # Override method
         if mod_style == 'override':
-            cls.override_file(wdir_uuid, element, **kwargs)
+            self.override_file(wdir_uuid, element, **kwargs)
 
         # Update Append method
         elif mod_style == 'update-append':
-            cls.update_append_file(wdir_uuid, element, **kwargs)
+            self.update_append_file(wdir_uuid, element, **kwargs)
 
         # TODO: ADD update-row method
 
         # Inject own modify solution method
         elif callable(mod_style):
-            mod_style(wdir_uuid, element, callback_request=cls.modify_request)
+            mod_style(wdir_uuid, element, callback_request=self.modify_request)
 
         # Default..
         else:
@@ -254,9 +253,8 @@ class DataryModifyOperation(DataryAuth):
                 type(stored_element.get('__kern')).__name__,
                 type(update_element.get('data', {}).get('kern')).__name__,))
 
-    @classmethod
     def reload_meta(
-            cls, kern, original_meta, path_key='', is_rowzero_header=False):
+            self, kern, original_meta, path_key='', is_rowzero_header=False):
         """
         Reload element meta by default, updating axisheaders and dimension.
 

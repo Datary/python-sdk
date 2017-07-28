@@ -15,8 +15,7 @@ class DataryAddOperation(DataryAuth):
     """
     Datary AddOperation module class
     """
-    @classmethod
-    def add_dir(cls, wdir_uuid, path, dirname):
+    def add_dir(self, wdir_uuid, path, dirname):
         """
         (DEPRECATED)
         Creates a new directory.
@@ -34,7 +33,7 @@ class DataryAddOperation(DataryAuth):
             "Add new directory to Datary.",
             path=os.path.join(path, dirname))
 
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "add",
@@ -42,8 +41,8 @@ class DataryAddOperation(DataryAuth):
                    "dirname": path,
                    "basename": dirname}
 
-        response = cls.request(
-            url, 'POST', **{'data': payload, 'headers': cls.headers})
+        response = self.request(
+            url, 'POST', **{'data': payload, 'headers': self.headers})
         if response:
             logger.info(
                 "Directory has been created in workdir.",
@@ -51,8 +50,7 @@ class DataryAddOperation(DataryAuth):
                 wdir_uuid=wdir_uuid,
                 dirname=dirname)
 
-    @classmethod
-    def add_file(cls, wdir_uuid, element):
+    def add_file(self, wdir_uuid, element):
         """
         Adds a new file.
         If the file is to be created within a new path
@@ -69,7 +67,7 @@ class DataryAddOperation(DataryAuth):
          """
         logger.info("Add new file to Datary.")
 
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {
@@ -80,8 +78,8 @@ class DataryAddOperation(DataryAuth):
             "kern": json.dumps(element.get('data', {}).get('kern')),
             "meta": json.dumps(element.get('data', {}).get('meta'))}
 
-        response = cls.request(
-            url, 'POST', **{'data': payload, 'headers': cls.headers})
+        response = self.request(
+            url, 'POST', **{'data': payload, 'headers': self.headers})
         if response:
             logger.info(
                 "File has been Added to workdir.",

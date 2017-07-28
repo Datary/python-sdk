@@ -17,8 +17,7 @@ class DataryRemoveOperation(DataryAuth):
     Datary RemoveOperation module class
     """
 
-    @classmethod
-    def delete_dir(cls, wdir_uuid, path, dirname):
+    def delete_dir(self, wdir_uuid, path, dirname):
         """
         Delete directory.
         -- NOT IN USE --
@@ -38,7 +37,7 @@ class DataryRemoveOperation(DataryAuth):
             dirname=dirname,
             path=os.path.join(path, dirname))
 
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "delete",
@@ -46,8 +45,8 @@ class DataryRemoveOperation(DataryAuth):
                    "dirname": path,
                    "basename": dirname}
 
-        response = cls.request(
-            url, 'GET', **{'data': payload, 'headers': cls.headers})
+        response = self.request(
+            url, 'GET', **{'data': payload, 'headers': self.headers})
 
         if response:
             logger.info(
@@ -56,8 +55,7 @@ class DataryRemoveOperation(DataryAuth):
                 url=url,
                 payload=payload)
 
-    @classmethod
-    def delete_file(cls, wdir_uuid, element):
+    def delete_file(self, wdir_uuid, element):
         """
         Delete file.
 
@@ -74,7 +72,7 @@ class DataryRemoveOperation(DataryAuth):
             element=element,
             wdir_uuid=wdir_uuid)
 
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {
@@ -84,13 +82,12 @@ class DataryRemoveOperation(DataryAuth):
             "basename": element.get('filename')
         }
 
-        response = cls.request(
-            url, 'POST', **{'data': payload, 'headers': cls.headers})
+        response = self.request(
+            url, 'POST', **{'data': payload, 'headers': self.headers})
         if response:
             logger.info("File has been deleted.")
 
-    @classmethod
-    def delete_inode(cls, wdir_uuid, inode):
+    def delete_inode(self, wdir_uuid, inode):
         """
         Delete using inode.
 
@@ -103,13 +100,13 @@ class DataryRemoveOperation(DataryAuth):
         """
         logger.info("Delete by inode.", wdir_uuid=wdir_uuid, inode=inode)
 
-        url = urljoin(cls.URL_BASE,
+        url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "remove", "inode": inode}
 
-        response = cls.request(
-            url, 'POST', **{'data': payload, 'headers': cls.headers})
+        response = self.request(
+            url, 'POST', **{'data': payload, 'headers': self.headers})
 
         if response:
             logger.info("Element has been deleted using inode.")

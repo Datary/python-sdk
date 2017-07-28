@@ -19,8 +19,7 @@ class DataryCleanOperation(DataryAuth):
     """
     Datary clean operation class
     """
-    @classmethod
-    def clean_repo(cls, repo_uuid, **kwargs):
+    def clean_repo(self, repo_uuid, **kwargs):
         """
         Clean repo data from datary & algolia.
 

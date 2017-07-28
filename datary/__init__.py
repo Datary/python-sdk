@@ -13,7 +13,6 @@ from .operations import (
 
 from .commits import DataryCommits
 from .datasets import DataryDatasets
-from .filetrees import DataryFiletrees
 from .members import DataryMembers
 from .repos import DataryRepos
 from .operations import DataryOperations
@@ -25,7 +24,7 @@ URL_BASE = "http://api.datary.io/"
 
 
 class Datary(DataryCategories, DataryCommits, DataryDatasets, DataryMembers,
-             DataryFiletrees, DataryRepos, DataryOperations):
+             DataryRepos, DataryOperations):
     """
     Datary main api class.
     Inherits from the rest of Datary modules its api functionality :

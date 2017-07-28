@@ -26,8 +26,7 @@ class DataryRequests(object):
         self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
         self.headers.update(kwargs.get('headers', {}))
 
-    @classmethod
-    def request(cls, url, http_method, **kwargs):
+    def request(self, url, http_method, **kwargs):
         """
         Sends request to Datary passing config through arguments.
 

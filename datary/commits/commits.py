@@ -96,8 +96,7 @@ class DataryCommits(DataryOperations):
 
         return last_commit
 
-    @classmethod
-    def get_last_commit_filetree(cls, repo=None):
+    def get_last_commit_filetree(self, repo=None):
         """
         Datary get_last_commit_filetree
         """
