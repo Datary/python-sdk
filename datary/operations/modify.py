@@ -7,7 +7,6 @@ import re
 import json
 
 from urllib.parse import urljoin
-from datary.auth import DataryAuth
 from datary.datasets import DataryDatasets
 from datary.utils import (add_element, force_list, get_element, get_dimension,
                           remove_list_duplicates, flatten, dict2orderedlist,
@@ -17,7 +16,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryModifyOperation(DataryAuth):
+class DataryModifyOperation(DataryDatasets):
     """
     Datary ModifyOperation module class
     """
@@ -120,13 +119,13 @@ class DataryModifyOperation(DataryAuth):
         try:
 
             # retrieve original dataset_uuid from datary
-            stored_dataset_uuid = DataryDatasets.get_dataset_uuid(
+            stored_dataset_uuid = self.get_dataset_uuid(
                 wdir_uuid=wdir_uuid,
                 path=element.get('path', ''),
                 filename=element.get('filename', ''))
 
             # retrieve original dataset from datary
-            stored_element = DataryDatasets.get_original(
+            stored_element = self.get_original(
                 dataset_uuid=stored_dataset_uuid,
                 repo_uuid=kwargs.get('repo_uuid'),
                 wdir_uuid=wdir_uuid)

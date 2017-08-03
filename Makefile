@@ -9,9 +9,15 @@ coverage:
 coverage-html:
 	py.test --cov-report html
 
+diagram:
+	pyreverse -o png -p diagram datary --ignore test
+
+diagram-all:
+	pyreverse -o png -p diagram datary
+
 lint:
 	pep8
-	-pylint datary
+	pylint datary
 
 doc:
 	cd docs && $(MAKE) html

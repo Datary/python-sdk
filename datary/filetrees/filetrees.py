@@ -6,7 +6,6 @@ import os
 
 from urllib.parse import urljoin
 from datary.repos import DataryRepos
-from datary.auth import DataryAuth
 from datary.utils import force_list, add_element
 
 import structlog
@@ -15,7 +14,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryFiletrees(DataryAuth):
+class DataryFiletrees(DataryRepos):
     """
       Datary Filetrees module class
     """
@@ -72,7 +71,7 @@ class DataryFiletrees(DataryAuth):
 
         # try to take wdir_uuid with kwargs
         if not wdir_uuid:
-            wdir_uuid = DataryRepos.get_describerepo(
+            wdir_uuid = self.get_describerepo(
                 **kwargs).get('workdir', {}).get('uuid')
 
         url = urljoin(self.URL_BASE,

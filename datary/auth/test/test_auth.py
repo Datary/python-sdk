@@ -91,6 +91,19 @@ class DataryAuthTestCase(DataryTestCase):
         self.assertIn(
             self.datary.token, self.datary.headers.get('Authorization'))
 
+        # no username sig-in
+        self.datary.username = None
+        self.datary.token = None
+        self.datary.sign_in()
+        self.assertEqual(self.datary.token, None)
+
+        # no password sig-in
+        self.datary.username = 'pepe'
+        self.datary.password = None
+        self.datary.token = None
+        self.datary.sign_in()
+        self.assertEqual(self.datary.token, None)
+
     @mock.patch('datary.requests.requests.requests.get')
     def test_sign_out(self, mock_request):
         """

@@ -35,6 +35,10 @@ htmlcov
 # Autoenv
 .env
 
+# imgs
+*.png
+
+
 #
 .DS_Store
 *.swp

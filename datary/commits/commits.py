@@ -7,9 +7,6 @@ import os
 
 from datetime import datetime
 from urllib.parse import urljoin
-from datary.repos import DataryRepos
-from datary.datasets import DataryDatasets
-from datary.filetrees import DataryFiletrees
 from datary.operations import DataryOperations
 from datary.utils import nested_dict_to_list
 
@@ -80,7 +77,7 @@ class DataryCommits(DataryOperations):
 
             # Take metadata to retrieve sha-1 and compare with
             for path, filename, dataset_uuid in filetree_matrix:
-                metadata = DataryDatasets.get_metadata(
+                metadata = self.get_metadata(
                     repo_uuid=repo.get('uuid'),
                     dataset_uuid=dataset_uuid)
 
@@ -107,7 +104,7 @@ class DataryCommits(DataryOperations):
         try:
             # check if have the repo.
             if 'apex' not in repo:
-                repo.update(DataryRepos.get_describerepo(repo.get('uuid')))
+                repo.update(self.get_describerepo(repo.get('uuid')))
 
             if not repo:
                 logger.info('No repo found with this uuid', repo=repo)
@@ -121,7 +118,7 @@ class DataryCommits(DataryOperations):
                 raise Exception(
                     'Repo hasnt any sha1 in apex {}'.format(repo))
 
-            ftree = DataryFiletrees.get_commit_filetree(
+            ftree = self.get_commit_filetree(
                 repo.get('uuid'), last_sha1)
 
             if not ftree:
