@@ -8,9 +8,9 @@ import json
 
 from urllib.parse import urljoin
 from datary.datasets import DataryDatasets
-from datary.utils import (add_element, force_list, get_element, get_dimension,
-                          remove_list_duplicates, flatten, dict2orderedlist,
-                          exclude_empty_values)
+from scrapbag import (add_element, force_list, get_element, get_dimension,
+                      remove_list_duplicates, flatten, dict2orderedlist,
+                      exclude_empty_values)
 import structlog
 
 logger = structlog.getLogger(__name__)

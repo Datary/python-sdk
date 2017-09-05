@@ -4,7 +4,7 @@ Datary python sdk Mofify Operation test file
 """
 import mock
 
-from datary.utils import get_dimension
+from scrapbag import get_dimension
 from datary.test.test_datary import DataryTestCase
 from datary.test.mock_requests import MockRequestResponse
 

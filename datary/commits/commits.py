@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from urllib.parse import urljoin
 from datary.operations import DataryOperations
-from datary.utils import nested_dict_to_list
+from scrapbag import nested_dict_to_list
 
 import structlog
 

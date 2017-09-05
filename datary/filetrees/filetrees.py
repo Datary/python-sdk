@@ -6,7 +6,7 @@ import os
 
 from urllib.parse import urljoin
 from datary.repos import DataryRepos
-from datary.utils import force_list, add_element
+from scrapbag import force_list, add_element
 
 import structlog
 

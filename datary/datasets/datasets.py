@@ -6,7 +6,7 @@ import os
 
 from urllib.parse import urljoin
 from datary.filetrees import DataryFiletrees
-from datary.utils import exclude_empty_values, get_element
+from scrapbag import exclude_empty_values, get_element
 
 import structlog
 

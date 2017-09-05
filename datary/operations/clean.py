@@ -7,7 +7,7 @@ Datary sdk clean Operations File
 from datary.repos import DataryRepos
 from datary.filetrees import DataryFiletrees
 from datary.operations.remove import DataryRemoveOperation
-from datary.utils import flatten
+from scrapbag import flatten
 
 import structlog
 
