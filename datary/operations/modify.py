@@ -103,7 +103,7 @@ class DataryModifyOperation(DataryDatasets):
 
         self.modify_request(wdir_uuid, element, **kwargs)
 
-    def update_append_file(self, wdir_uuid, element, **kwargs):
+    def update_append_file(self, wdir_uuid, element, repo_uuid, **kwargs):
         """
         Update append an existing file in Datary.
 
@@ -127,7 +127,7 @@ class DataryModifyOperation(DataryDatasets):
             # retrieve original dataset from datary
             stored_element = self.get_original(
                 dataset_uuid=stored_dataset_uuid,
-                repo_uuid=kwargs.get('repo_uuid'),
+                repo_uuid=repo_uuid,
                 wdir_uuid=wdir_uuid)
 
             if not stored_element:
