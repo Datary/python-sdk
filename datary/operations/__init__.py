@@ -5,11 +5,12 @@ Datary Api python sdk Operations module.
 from .add import DataryAddOperation
 from .modify import DataryModifyOperation
 from .remove import DataryRemoveOperation
+from .rename import DataryRenameOperation
 from .clean import DataryCleanOperation
 
 
 class DataryOperations(DataryAddOperation, DataryModifyOperation,
-                       DataryCleanOperation):
+                       DataryRenameOperation, DataryCleanOperation):
     """
     Datary operations class
     """
