@@ -53,7 +53,7 @@ class DataryDatasets(DataryFiletrees):
             dataset_uuid, repo_uuid, wdir_uuid, 'meta', scope)
 
     def get_original(self, dataset_uuid, repo_uuid='', wdir_uuid='',
-                     section_edge='', scope=''):
+                     section_edge='original', scope=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
