@@ -56,7 +56,6 @@ class DataryMembers(DataryAuth):
 
                 elif member_name and member_data_username == member_name:
                     member = member_data
-                    logger.info(member)
                     break
         else:
             member = members_data
