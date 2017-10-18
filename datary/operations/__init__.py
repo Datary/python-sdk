@@ -8,6 +8,8 @@ from .remove import DataryRemoveOperation
 from .rename import DataryRenameOperation
 from .clean import DataryCleanOperation
 
+_DEFAULT_LIMITED_DATARY_SIZE = 12000000
+
 
 class DataryOperations(DataryAddOperation, DataryModifyOperation,
                        DataryRenameOperation, DataryCleanOperation):

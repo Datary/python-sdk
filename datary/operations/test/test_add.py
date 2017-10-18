@@ -32,9 +32,23 @@ class DataryAddOperationTestCase(DataryTestCase):
         Test add_file
         """
         mock_request.return_value = MockRequestResponse("")
+
+        # small element
         self.datary.add_file(self.json_repo.get(
             'workdir', {}).get('uuid'), self.element)
+
+        # update element meta size
+        self.element['data']['meta']['size'] = 999999999
+
+        self.datary.add_file(self.json_repo.get(
+            'workdir', {}).get('uuid'), self.element)
+
+        self.element['data']['meta']['size'] = 222
+
         mock_request.return_value = None
         self.datary.add_file(self.json_repo.get(
             'workdir', {}).get('uuid'), self.element)
-        self.assertEqual(mock_request.call_count, 2)
+
+        self.assertEqual(mock_request.call_count, 3)
+        self.assertTrue("'Content-Type': 'application/x-www-form-urlencoded'" in str(mock_request.call_args_list[0]))
+        self.assertTrue("'Content-Type': 'application/x-www-form-urlencoded'" in str(mock_request.call_args_list[1]))

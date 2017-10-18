@@ -5,7 +5,10 @@ Datary sdk Add Operations File
 import os
 import json
 from urllib.parse import urljoin
+from requests_toolbelt import MultipartEncoder
+
 from datary.auth import DataryAuth
+from datary import operations
 import structlog
 
 logger = structlog.getLogger(__name__)
@@ -67,19 +70,34 @@ class DataryAddOperation(DataryAuth):
          """
         logger.info("Add new file to Datary.")
 
-        url = urljoin(self.URL_BASE,
-                      "workdirs/{}/changes".format(wdir_uuid))
+        url = urljoin(self.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
+        size = element.get('data', {}).get('meta', {}).get('size', 0)
 
-        payload = {
-            "action": "add",
-            "filemode": 100644,
-            "dirname": element.get('path'),
-            "basename": element.get('filename'),
-            "kern": json.dumps(element.get('data', {}).get('kern')),
-            "meta": json.dumps(element.get('data', {}).get('meta'))}
+        if size >= operations._DEFAULT_LIMITED_DATARY_SIZE:
 
-        response = self.request(
-            url, 'POST', **{'data': payload, 'headers': self.headers})
+            payload = MultipartEncoder({
+                "blob": (element.get('filename'), json.dumps(element.get('data', {})), 'application/json'),
+                "action": "add",
+                "filemode": "100644",
+                "dirname": element.get('path'),
+                "basename": element.get('filename')
+            })
+
+            self.headers["Content-Type"] = payload.content_type
+
+        else:
+            self.headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+            payload = {
+                "action": "add",
+                "filemode": 100644,
+                "dirname": element.get('path'),
+                "basename": element.get('filename'),
+                "kern": json.dumps(element.get('data', {}).get('kern')),
+                "meta": json.dumps(element.get('data', {}).get('meta'))}
+
+        response = self.request(url, 'POST', **{'data': payload, 'headers': self.headers})
+
         if response:
             logger.info(
                 "File has been Added to workdir.",

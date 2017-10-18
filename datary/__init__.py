@@ -14,7 +14,7 @@ from .operations import (
 from .commits import DataryCommits
 from .datasets import DataryDatasets
 from .members import DataryMembers
-from .operations import DataryOperations
+from .operations import (DataryOperations, _DEFAULT_LIMITED_DATARY_SIZE)
 
 from . import version
 

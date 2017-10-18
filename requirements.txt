@@ -1,1 +1,2 @@
 scrapbag>=0.0.1
+requests-toolbelt==0.8.0
