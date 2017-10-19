@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from requests_toolbelt import MultipartEncoder
 
 from datary.auth import DataryAuth
-from datary import operations
+from .. import operations
 import structlog
 
 logger = structlog.getLogger(__name__)
@@ -66,8 +66,7 @@ class DataryAddOperation(DataryAuth):
         element           list            [path, filename, data, sha1]
         dirname           str             directory name
         ================  =============   ====================================
-
-         """
+        """
         logger.info("Add new file to Datary.")
 
         url = urljoin(self.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))

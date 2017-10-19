@@ -28,7 +28,7 @@ DataryRemoveOperation Class
 
 
 DataryCleanOperation Class
----------------------------
+--------------------------
 
 .. autoclass:: datary.operations.clean.DataryCleanOperation
     :members:
