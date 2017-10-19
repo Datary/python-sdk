@@ -36,8 +36,8 @@ class DataryRenameOperation(DataryAuth):
         url = urljoin(self.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
 
         new_pathname = "{}/{}".format(
-                new_element.get('path', element.get('path')),
-                new_element.get('filename', element.get('filename')))
+            new_element.get('path', element.get('path')),
+            new_element.get('filename', element.get('filename')))
 
         payload = {
             "action": "rename",

@@ -76,7 +76,11 @@ class DataryAddOperation(DataryAuth):
         if size >= operations._DEFAULT_LIMITED_DATARY_SIZE:
 
             payload = MultipartEncoder({
-                "blob": (element.get('filename'), json.dumps(element.get('data', {})), 'application/json'),
+                "blob": (
+                    element.get('filename'),
+                    json.dumps(element.get('data', {})),
+                    'application/json'),
+
                 "action": "add",
                 "filemode": "100644",
                 "dirname": element.get('path'),
@@ -96,7 +100,8 @@ class DataryAddOperation(DataryAuth):
                 "kern": json.dumps(element.get('data', {}).get('kern')),
                 "meta": json.dumps(element.get('data', {}).get('meta'))}
 
-        response = self.request(url, 'POST', **{'data': payload, 'headers': self.headers})
+        response = self.request(
+            url, 'POST', **{'data': payload, 'headers': self.headers})
 
         if response:
             logger.info(

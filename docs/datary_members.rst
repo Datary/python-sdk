@@ -8,6 +8,6 @@ This section is going to show the methods implemented in Datary Members Api Modu
 DataryMembers Class
 -------------------
 
-.. autoclass:: datary.DataryMembers
+.. autoclass:: datary.members.DataryMembers
     :members:
     :inherited-members:

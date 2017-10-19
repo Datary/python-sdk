@@ -8,6 +8,6 @@ This section is going to show the methods implemented in Datary Repos Api Module
 DataryRepos Class
 -----------------
 
-.. autoclass:: datary.DataryRepos
+.. autoclass:: datary.repos.DataryRepos
     :members:
     :inherited-members:

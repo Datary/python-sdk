@@ -8,6 +8,6 @@ This section is going to show the methods implemented in Datary Auth Api Module.
 DataryAuth Class
 -----------------
 
-.. autoclass:: datary.DataryAuth
+.. autoclass:: datary.auth.DataryAuth
     :members:
     :inherited-members:

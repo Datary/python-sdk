@@ -8,6 +8,6 @@ This section is going to show the methods implemented in Datary Datasets Api Mod
 Datasets Class
 --------------
 
-.. autoclass:: datary.DataryDatasets
+.. autoclass:: datary.datasets.DataryDatasets
     :members:
     :inherited-members:

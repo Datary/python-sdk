@@ -8,20 +8,36 @@ This section is going to show the methods implemented in Datary Operations Api M
 DataryAddOperation Class
 ------------------------
 
-.. autoclass:: datary.DataryAddOperation
+.. autoclass:: datary.operations.add.DataryAddOperation
     :members:
     :inherited-members:
 
 DataryModifyOperation Class
 ---------------------------
 
-.. autoclass:: datary.DataryModifyOperation
+.. autoclass:: datary.operations.modify.DataryModifyOperation
     :members:
     :inherited-members:
 
 DataryRemoveOperation Class
 ---------------------------
 
-.. autoclass:: datary.DataryRemoveOperation
+.. autoclass:: datary.operations.remove.DataryRemoveOperation
+    :members:
+    :inherited-members:
+
+
+DataryCleanOperation Class
+---------------------------
+
+.. autoclass:: datary.operations.clean.DataryCleanOperation
+    :members:
+    :inherited-members:
+
+
+DataryRenameOperation Class
+---------------------------
+
+.. autoclass:: datary.operations.rename.DataryRenameOperation
     :members:
     :inherited-members:

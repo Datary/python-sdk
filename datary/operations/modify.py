@@ -26,13 +26,12 @@ class DataryModifyOperation(DataryDatasets):
     def modify_request(self, wdir_uuid, element, **kwargs):
         """
         Make Modify requests
-        ===============   ===============   ==================================
-        Parameter         Type              Description
-        ===============   ===============   ==================================
-        wdir_uuid         str               working directory uuid
-        element           dict              element dictionay with Datary
-                                            model data fields.
-        ===============   ===============   ==================================
+        ============   =======   ==============================================
+        Parameter      Type      Description
+        ============   =======   ==============================================
+        wdir_uuid      str       working directory uuid
+        element        dict      element (dict) with Datary model data fields.
+        ============   ======   ===============================================
         """
         url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
@@ -256,15 +255,15 @@ class DataryModifyOperation(DataryDatasets):
             self, kern, original_meta, path_key='', is_rowzero_header=False):
         """
         Reload element meta by default, updating axisheaders and dimension.
-
-        ================  =============   ====================================
-        Parameter         Type            Description
-        ================  =============   ====================================
-        kern              dict or list    element kern.
-        original_meta     dict            element meta.
-        path_key          str             path keys to array in a dict.
+        ==================   =============   ==================================
+        Parameter            Type            Description
+        ==================   =============   ==================================
+        kern                 dict or list    element kern.
+        original_meta        dict            element meta.
+        path_key             str             path keys to array in a dict.
         is_rowzero_header    boolean         Rowzero contains array header.
-        ================  =============   ====================================
+        ==================   =============   ==================================
+
         Returns:
             (dict) Meta updated data by default using the kern.
         """
@@ -332,7 +331,7 @@ class DataryModifyOperation(DataryDatasets):
         rowzero           list            list with firt row of the element.
         ================  =============   ====================================
         Returns:
-            (Boolean) if could trust about the rowzero has data headers.
+        (Boolean) if could trust about the rowzero has data headers.
         """
         row_zero_header_confidence = 0
 
@@ -348,13 +347,13 @@ class DataryModifyOperation(DataryDatasets):
         Merge 2 headers without losing the header 1 order and removing repeated
         elements from header2 in header1.
 
-        ================  =============   ====================================
-        Parameter         Type            Description
-        ================  =============   ====================================
-        header1           list            1st element header, must maintain
-                                          its order
-        header2           list            2nd element header
-        ================  =============   ====================================
+        =============  ========   ===========================================
+        Parameter      Type       Description
+        =============  ========   ===========================================
+        header1        list       1st element header, must maintain its order
+        header2        list       2nd element header
+        =============  ========   ===========================================
+
         Returns:
             (list) merged and ordered headers.
         """

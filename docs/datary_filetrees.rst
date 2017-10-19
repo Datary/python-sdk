@@ -8,6 +8,6 @@ This section is going to show the methods implemented in Datary Filetrees Api Mo
 DataryFiletrees Class
 ---------------------
 
-.. autoclass:: datary.DataryFiletrees
+.. autoclass:: datary.filetrees.DataryFiletrees
     :members:
     :inherited-members:

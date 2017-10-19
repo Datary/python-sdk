@@ -31,24 +31,36 @@ class DataryAddOperationTestCase(DataryTestCase):
         """
         Test add_file
         """
+        content_type = "'Content-Type': 'application/x-www-form-urlencoded'"
         mock_request.return_value = MockRequestResponse("")
 
         # small element
-        self.datary.add_file(self.json_repo.get(
-            'workdir', {}).get('uuid'), self.element)
+        self.datary.add_file(
+            self.json_repo.get('workdir', {}).get('uuid'), self.element)
+        self.assertEqual(mock_request.call_count, 1)
+        self.assertTrue(content_type in str(mock_request.call_args_list[0]))
+
+        mock_request.reset_mock()
+
+        # request returns None
+        mock_request.return_value = None
+        self.datary.add_file(
+            self.json_repo.get('workdir', {}).get('uuid'), self.element)
+
+        self.assertEqual(mock_request.call_count, 1)
+        self.assertTrue(content_type in str(mock_request.call_args_list[0]))
+
+        mock_request.reset_mock()
+
+        # big element
+        content_type = "'Content-Type': 'multipart/form-data;"
+        mock_request.return_value = MockRequestResponse("")
 
         # update element meta size
         self.element['data']['meta']['size'] = 999999999
 
-        self.datary.add_file(self.json_repo.get(
-            'workdir', {}).get('uuid'), self.element)
+        self.datary.add_file(
+            self.json_repo.get('workdir', {}).get('uuid'), self.element)
 
-        self.element['data']['meta']['size'] = 222
-
-        mock_request.return_value = None
-        self.datary.add_file(self.json_repo.get(
-            'workdir', {}).get('uuid'), self.element)
-
-        self.assertEqual(mock_request.call_count, 3)
-        self.assertTrue("'Content-Type': 'application/x-www-form-urlencoded'" in str(mock_request.call_args_list[0]))
-        self.assertTrue("'Content-Type': 'application/x-www-form-urlencoded'" in str(mock_request.call_args_list[1]))
+        self.assertEqual(mock_request.call_count, 1)
+        self.assertTrue(content_type in str(mock_request.call_args_list))

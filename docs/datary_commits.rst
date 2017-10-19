@@ -8,8 +8,8 @@ This section is going to show the methods implemented in Datary Commits Api Modu
 DataryCommits Class
 -------------------
 
-.. autoclass:: datary.DataryCommits
+.. autoclass:: datary.commits.DataryCommits
     :members:
     :inherited-members:
 
-    .. autoattribute:: datary.DataryCommits.COMMIT_ACTIONS
+    .. autoattribute:: datary.commits.DataryCommits.COMMIT_ACTIONS

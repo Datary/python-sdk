@@ -8,13 +8,18 @@ from .categories import DataryCategories
 from .operations import (
     DataryAddOperation,
     DataryModifyOperation,
+    DataryRenameOperation,
     DataryRemoveOperation,
     DataryCleanOperation)
 
 from .commits import DataryCommits
-from .datasets import DataryDatasets
+from .datasets import (
+    DataryDatasets)
+
 from .members import DataryMembers
-from .operations import (DataryOperations, _DEFAULT_LIMITED_DATARY_SIZE)
+from .operations import (
+    DataryOperations,
+    _DEFAULT_LIMITED_DATARY_SIZE)
 
 from . import version
 
@@ -26,16 +31,16 @@ class Datary(DataryCategories, DataryCommits, DataryMembers):
     """
     Datary main api class.
     Inherits from the rest of Datary modules its api functionality :
-        - DataryAuth
-        - DataryCategories
-        - DataryCommits
-        - DataryDatasets
-        - DataryFiletrees
-        - DataryMembers
-        - DataryAddOperation
-        - DataryRepos
-        - DataryModifyOperation
-        - DataryRemoveOperation
+    - DataryAuth
+    - DataryCategories
+    - DataryCommits
+    - DataryDatasets
+    - DataryFiletrees
+    - DataryMembers
+    - DataryAddOperation
+    - DataryRepos
+    - DataryModifyOperation
+    - DataryRemoveOperation
     """
 
     __version__ = version.__version__
