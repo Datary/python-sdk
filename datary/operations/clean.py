@@ -7,6 +7,7 @@ Datary sdk clean Operations File
 from datary.repos import DataryRepos
 from datary.filetrees import DataryFiletrees
 from datary.operations.remove import DataryRemoveOperation
+from datary.operations.limits import DataryOperationLimits
 from scrapbag import flatten
 
 import structlog
@@ -14,7 +15,8 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryCleanOperation(DataryRemoveOperation, DataryFiletrees):
+class DataryCleanOperation(DataryRemoveOperation, DataryFiletrees,
+                           DataryOperationLimits):
     """
     Datary clean operation class
     """

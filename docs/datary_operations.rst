@@ -5,6 +5,13 @@ Introduction
 ------------
 This section is going to show the methods implemented in Datary Operations Api Module.
 
+DataryOperationLimits Class
+---------------------------
+
+.. autoclass:: datary.operations.limits.DataryOperationLimits
+    :members:
+    :inherited-members:
+
 DataryAddOperation Class
 ------------------------
 

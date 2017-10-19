@@ -8,13 +8,13 @@ from urllib.parse import urljoin
 from requests_toolbelt import MultipartEncoder
 
 from datary.auth import DataryAuth
-from .. import operations
+from datary.operations.limits import DataryOperationLimits
 import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryAddOperation(DataryAuth):
+class DataryAddOperation(DataryAuth, DataryOperationLimits):
     """
     Datary AddOperation module class
     """
@@ -72,7 +72,7 @@ class DataryAddOperation(DataryAuth):
         url = urljoin(self.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
         size = element.get('data', {}).get('meta', {}).get('size', 0)
 
-        if size >= operations._DEFAULT_LIMITED_DATARY_SIZE:
+        if size >= self._DEFAULT_LIMITED_DATARY_SIZE:
 
             payload = MultipartEncoder({
                 "blob": (

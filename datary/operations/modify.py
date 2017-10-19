@@ -8,6 +8,7 @@ import json
 
 from urllib.parse import urljoin
 from datary.datasets import DataryDatasets
+from datary.operations.limits import DataryOperationLimits
 from scrapbag import (add_element, force_list, get_element, get_dimension,
                       remove_list_duplicates, flatten, dict2orderedlist,
                       exclude_empty_values)
@@ -16,7 +17,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryModifyOperation(DataryDatasets):
+class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
     """
     Datary ModifyOperation module class
     """

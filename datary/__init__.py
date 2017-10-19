@@ -10,7 +10,9 @@ from .operations import (
     DataryModifyOperation,
     DataryRenameOperation,
     DataryRemoveOperation,
-    DataryCleanOperation)
+    DataryCleanOperation,
+    DataryOperationLimits,
+)
 
 from .commits import DataryCommits
 from .datasets import (
@@ -18,8 +20,7 @@ from .datasets import (
 
 from .members import DataryMembers
 from .operations import (
-    DataryOperations,
-    _DEFAULT_LIMITED_DATARY_SIZE)
+    DataryOperations)
 
 from . import version
 

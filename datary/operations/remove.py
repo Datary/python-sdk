@@ -6,13 +6,14 @@ import os
 
 from urllib.parse import urljoin
 from datary.auth import DataryAuth
+from datary.operations.limits import DataryOperationLimits
 
 import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryRemoveOperation(DataryAuth):
+class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
     """
     Datary RemoveOperation module class
     """

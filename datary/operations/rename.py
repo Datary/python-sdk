@@ -4,12 +4,13 @@ Datary sdk Add Operations File
 """
 from urllib.parse import urljoin
 from datary.auth import DataryAuth
+from datary.operations.limits import DataryOperationLimits
 import structlog
 
 logger = structlog.getLogger(__name__)
 
 
-class DataryRenameOperation(DataryAuth):
+class DataryRenameOperation(DataryAuth, DataryOperationLimits):
     """
     Datary RenameOperation module class
     """
