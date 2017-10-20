@@ -18,7 +18,7 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
     Datary RemoveOperation module class
     """
 
-    def delete_dir(self, wdir_uuid, path, dirname):
+    def delete_dir(self, wdir_uuid, path, basename):
         """
         Delete directory.
         -- NOT IN USE --
@@ -28,23 +28,23 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
         ================  =============   ====================================
         wdir_uuid         str             working directory uuid
         path              str             path to directory
-        dirname           str             directory name
+        basename           str             directory name
         ================  =============   ====================================
 
         """
         logger.info(
             "Delete directory in workdir.",
             wdir_uuid=wdir_uuid,
-            dirname=dirname,
-            path=os.path.join(path, dirname))
+            basename=basename,
+            path=os.path.join(path, basename))
 
         url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
 
         payload = {"action": "delete",
                    "filemode": 40000,
-                   "dirname": path,
-                   "basename": dirname}
+                   "basename": path,
+                   "basename": basename}
 
         response = self.request(
             url, 'GET', **{'data': payload, 'headers': self.headers})
@@ -54,6 +54,8 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
                 "Directory has been deleted in workdir",
                 wdir_uuid=wdir_uuid,
                 url=url,
+                basename=basename,
+                path=path,
                 payload=payload)
 
     def delete_file(self, wdir_uuid, element):
@@ -64,7 +66,7 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory uuid
-        element           Dic             element with path & filename
+        element           Dic             element with path & basename
         ================  =============   ====================================
 
         """
@@ -79,8 +81,8 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
         payload = {
             "action": "remove",
             "filemode": 100644,
-            "dirname": element.get('path'),
-            "basename": element.get('filename')
+            "basename": element.get('path'),
+            "basename": element.get('basename')
         }
 
         response = self.request(

@@ -57,7 +57,7 @@ class DataryCommits(DataryOperations):
             - Fail retrieving last commit.
 
         Returns:
-            Last commit in list with the path, filename, sha1.
+            Last commit in list with the path, basename, sha1.
 
         """
         if repo is None:
@@ -72,18 +72,18 @@ class DataryCommits(DataryOperations):
             # retrieve last filetree commited
             ftree = self.get_last_commit_filetree(repo)
 
-            # List of Path | Filename | Sha1
+            # List of Path | basename | Sha1
             filetree_matrix = nested_dict_to_list("", ftree)
 
             # Take metadata to retrieve sha-1 and compare with
-            for path, filename, dataset_uuid in filetree_matrix:
+            for path, basename, dataset_uuid in filetree_matrix:
                 metadata = self.get_metadata(
                     repo_uuid=repo.get('uuid'),
                     dataset_uuid=dataset_uuid)
 
-                # append format path | filename | data (not required) | sha1
+                # append format path | basename | data (not required) | sha1
                 last_commit.append(
-                    (path, filename, None, metadata.get("sha1")))
+                    (path, basename, None, metadata.get("sha1")))
         except Exception:
             logger.warning(
                 "Fail recollecting last commit",
@@ -137,7 +137,7 @@ class DataryCommits(DataryOperations):
     @classmethod
     def make_index(cls, lista):
         """
-        Transforms commit list into an index using path + filename as key
+        Transforms commit list into an index using path + basename as key
         and sha1 as value.
 
         ================  =============   ====================================
@@ -148,9 +148,9 @@ class DataryCommits(DataryOperations):
 
         """
         result = {}
-        for path, filename, data, sha1 in lista:
-            result[os.path.join(path, filename)] = {'path': path,
-                                                    'filename': filename,
+        for path, basename, data, sha1 in lista:
+            result[os.path.join(path, basename)] = {'path': path,
+                                                    'basename': basename,
                                                     'data': data,
                                                     'sha1': sha1}
         return result
@@ -164,8 +164,8 @@ class DataryCommits(DataryOperations):
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        last_commit       list            [path|filename|sha1]
-        actual_commit     list            [path|filename|sha1]
+        last_commit       list            [path|basename|sha1]
+        actual_commit     list            [path|basename|sha1]
         strict            Boolean         Default is True
         ================  =============   ====================================
 
@@ -223,8 +223,8 @@ class DataryCommits(DataryOperations):
         Parameter         Type            Description
         ================  =============   =======================
         wdir_uuid         str             working directory uuid
-        last_commit       list            [path|filename|sha1]
-        actual_commit     list            [path|filename|sha1]
+        last_commit       list            [path|basename|sha1]
+        actual_commit     list            [path|basename|sha1]
         ================  =============   =======================
 
         """
@@ -256,7 +256,7 @@ class DataryCommits(DataryOperations):
         Turn commit comparation done to visual print format.
 
         Returns:
-            (str) result: ([+|u|-] filepath/filename)
+            (str) result: ([+|u|-] filepath/basename)
 
         Raises:
             Fail translating commit differences to string
@@ -274,7 +274,7 @@ class DataryCommits(DataryOperations):
                         result += "{}  {}/{}\n".format(
                             self.COMMIT_ACTIONS.get(action, '?'),
                             commit_data.get('path'),
-                            commit_data.get('filename'))
+                            commit_data.get('basename'))
             except Exception as ex:
                 msg = 'Fail translating commit differences to string - {}'
                 logger.error(msg.format(ex))

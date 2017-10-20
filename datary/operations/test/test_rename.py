@@ -22,8 +22,8 @@ class DataryRenameOperationTestCase(DataryTestCase):
         mock_request.return_value = MockRequestResponse("")
         self.datary.rename_file(
             self.json_repo.get('workdir', {}).get('uuid'),
-            {'path': 'test_path/path', 'filename': 'test_filename'},
-            {'path': 'test_path/new_path', 'filename': 'test_new_filename'},
+            {'path': 'test_path/path', 'basename': 'test_basename'},
+            {'path': 'test_path/new_path', 'basename': 'test_new_basename'},
             )
         self.assertEqual(mock_request.call_count, 1)
 
@@ -32,7 +32,7 @@ class DataryRenameOperationTestCase(DataryTestCase):
         mock_request.return_value = None
         self.datary.rename_file(
             self.json_repo.get('workdir', {}).get('uuid'),
-            {'path': 'test_path/path', 'filename': 'test_filename'},
-            {'path': 'test_path/new_path', 'filename': 'test_new_filename'},
+            {'path': 'test_path/path', 'basename': 'test_basename'},
+            {'path': 'test_path/new_path', 'basename': 'test_new_basename'},
             )
         self.assertEqual(mock_request.call_count, 1)

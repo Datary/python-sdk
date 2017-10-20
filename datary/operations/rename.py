@@ -23,8 +23,8 @@ class DataryRenameOperation(DataryAuth, DataryOperationLimits):
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory uuid
-        element           dict            element with path & filename
-        new_element       dict            element with new path & filename
+        element           dict            element with path & basename
+        new_element       dict            element with new path & basename
         ================  =============   ====================================
 
         """
@@ -38,12 +38,12 @@ class DataryRenameOperation(DataryAuth, DataryOperationLimits):
 
         new_pathname = "{}/{}".format(
             new_element.get('path', element.get('path')),
-            new_element.get('filename', element.get('filename')))
+            new_element.get('basename', element.get('basename')))
 
         payload = {
             "action": "rename",
             "dirname": element.get('path'),
-            "basename": element.get('filename'),
+            "basename": element.get('basename'),
             "newPathname": new_pathname,
         }
 

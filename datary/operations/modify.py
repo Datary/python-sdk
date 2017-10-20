@@ -41,7 +41,7 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
             "action": "modify",
             "filemode": 100644,
             "dirname": element.get('path'),
-            "basename": element.get('filename'),
+            "basename": element.get('basename'),
             "kern": json.dumps(element.get('data', {}).get('kern')),
             "meta": json.dumps(element.get('data', {}).get('meta'))}
 
@@ -52,8 +52,11 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
             logger.info(
                 "File has been modified in workdir.",
                 url=url,
-                payload=payload,
-                element=element)
+                # payload=payload,
+                dirname=element.get('path'),
+                basename=element.get('basename'),
+                # element=element
+                )
 
     def modify_file(self, wdir_uuid, element, mod_style='override', **kwargs):
         """
@@ -63,7 +66,7 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
         Parameter         Type              Description
         ===============   ===============   ==================================
         wdir_uuid         str               working directory uuid
-        element           list              [path, filename, data, sha1]
+        element           list              [path, basename, data, sha1]
         mod_style         str o callable    'override' by default,
                                             'update-append' mod_style,
                                             'update-row' mod_style,
@@ -96,7 +99,7 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory uuid
-        element           list            [path, filename, data, sha1]
+        element           list            [path, basename, data, sha1]
         ================  =============   ====================================
         """
         logger.info("Override an existing file in Datary.")
@@ -111,7 +114,7 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory uuid
-        element           list            [path, filename, data, sha1]
+        element           list            [path, basename, data, sha1]
         ================  =============   ====================================
 
         """
@@ -122,7 +125,7 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
             stored_dataset_uuid = self.get_dataset_uuid(
                 wdir_uuid=wdir_uuid,
                 path=element.get('path', ''),
-                filename=element.get('filename', ''))
+                basename=element.get('basename', ''))
 
             # retrieve original dataset from datary
             stored_element = self.get_original(
@@ -147,7 +150,7 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
             # send modify request
             self.modify_request(wdir_uuid, element={
                 "path": element.get('path', ''),
-                "filename": element.get('filename', ''),
+                "basename": element.get('basename', ''),
                 "data": element.get('data')}, **kwargs)
 
         except Exception as ex:

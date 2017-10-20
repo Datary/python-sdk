@@ -163,11 +163,11 @@ class DataryCommitsTestCase(DataryTestCase):
         datetime_value = "12/03/1990-12:04"
         mock_datetime.now().strftime.return_value = datetime_value
 
-        test_diff = {'add': [{'path': 'path1', 'filename': 'filename1'}, {
-            'path': 'path2', 'filename': 'filename2'}]}
+        test_diff = {'add': [{'path': 'path1', 'basename': 'basename1'}, {
+            'path': 'path2', 'basename': 'basename2'}]}
         test_diff_result = (
-            'Changes at {}\nADD\n*****************\n+  path1/filename1\n+  '
-            'path2/filename2\nDELETE\n*****************\nUPDATE\n***********'
+            'Changes at {}\nADD\n*****************\n+  path1/basename1\n+  '
+            'path2/basename2\nDELETE\n*****************\nUPDATE\n***********'
             '******\n'.format(datetime_value))
 
         # Empty diff

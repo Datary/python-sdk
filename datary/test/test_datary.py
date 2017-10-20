@@ -44,7 +44,7 @@ class DataryTestCase(unittest.TestCase):
         ['d', 'dd', 'data_dd', 'dd2_sha1']]
 
     element = {
-        'path': 'a', 'filename': 'aa',
+        'path': 'a', 'basename': 'aa',
         'sha1': 'aa_sha1',
         'data': {
             'kern': {'data_aa': [[4, 5, 6]]},

@@ -63,7 +63,7 @@ class DataryAddOperation(DataryAuth, DataryOperationLimits):
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             working directory uuid
-        element           list            [path, filename, data, sha1]
+        element           list            [path, basename, data, sha1]
         dirname           str             directory name
         ================  =============   ====================================
         """
@@ -76,14 +76,14 @@ class DataryAddOperation(DataryAuth, DataryOperationLimits):
 
             payload = MultipartEncoder({
                 "blob": (
-                    element.get('filename'),
+                    element.get('basename'),
                     json.dumps(element.get('data', {})),
                     'application/json'),
 
                 "action": "add",
                 "filemode": "100644",
                 "dirname": element.get('path'),
-                "basename": element.get('filename')
+                "basename": element.get('basename')
             })
 
             self.headers["Content-Type"] = payload.content_type
@@ -95,7 +95,7 @@ class DataryAddOperation(DataryAuth, DataryOperationLimits):
                 "action": "add",
                 "filemode": 100644,
                 "dirname": element.get('path'),
-                "basename": element.get('filename'),
+                "basename": element.get('basename'),
                 "kern": json.dumps(element.get('data', {}).get('kern')),
                 "meta": json.dumps(element.get('data', {}).get('meta'))}
 
@@ -106,4 +106,7 @@ class DataryAddOperation(DataryAuth, DataryOperationLimits):
             logger.info(
                 "File has been Added to workdir.",
                 wdir_uuid=wdir_uuid,
-                element=element)
+                dirname=element.get('path'),
+                basename=element.get('basename'),
+                # element=element
+                )

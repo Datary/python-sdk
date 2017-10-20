@@ -51,10 +51,13 @@ class DataryCleanOperation(DataryRemoveOperation, DataryFiletrees,
             for path in filetree_keys:
                 element_data = {
                     'path': "/".join(path.split('/')[:-1]),
-                    'filename': path.split('/')[-1]
+                    'basename': path.split('/')[-1]
                 }
 
                 self.delete_file(wdir_uuid, element_data)
+                logger.info(
+                    'cleaning remove of {}'.format(path),
+                    element_data=element_data)
 
         else:
             logger.error('Fail to clean_repo, repo not found in datary.')

@@ -128,11 +128,11 @@ class DataryModifyOperationTestCase(DataryTestCase):
             [1, 2, 3]], 'data_b': [[7, 8, 9]]}, '__meta': {}}
         original_list = {'__kern': [[1, 2, 3]], '__meta': {}}
 
-        element_dict = {'path': 'a', 'filename': 'aa', 'data': {'kern': {
+        element_dict = {'path': 'a', 'basename': 'aa', 'data': {'kern': {
             'data_aa': [[4, 5, 6]],
             'data_b': [[7, 8, 9]]}, 'meta': {}}, 'sha1': 'aa_sha1'}
 
-        element_list = {'path': 'a', 'filename': 'aa', 'data': {
+        element_list = {'path': 'a', 'basename': 'aa', 'data': {
             'kern': [[4, 5, 6]], 'meta': {}}, 'sha1': 'aa_sha1'}
 
         mock_calculate_rowzeroheader_confidence.return_value = True

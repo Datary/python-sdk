@@ -100,21 +100,21 @@ class DataryDatasets(DataryFiletrees):
 
         return response.json() if response else {}
 
-    def get_dataset_uuid(self, wdir_uuid, path='', filename=''):
+    def get_dataset_uuid(self, wdir_uuid, path='', basename=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             workdir uuid
         path              str             path of dataset
-        filename          str             filename of dataset
+        basename          str             basename of dataset
         ================  =============   ====================================
 
         Returns:
             (str) uuid of dataset in path introduced in args.
         """
         dataset_uuid = None
-        filepath = os.path.join(path, filename)
+        filepath = os.path.join(path, basename)
 
         if filepath:
 
@@ -131,21 +131,21 @@ class DataryDatasets(DataryFiletrees):
 
         return dataset_uuid
 
-    def get_commited_dataset_uuid(self, wdir_uuid, path='', filename=''):
+    def get_commited_dataset_uuid(self, wdir_uuid, path='', basename=''):
         """
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
         wdir_uuid         str             wdir uuid.
         path              str             path of the file in Datary.
-        filename          str             filename of the file in Datary.
+        basename          str             basename of the file in Datary.
         ================  =============   ====================================
 
         Returns:
             (string) uuid dataset/s of pathname introduced.
         """
         response = {}
-        pathname = os.path.join(path, filename)
+        pathname = os.path.join(path, basename)
 
         if pathname:
             url = urljoin(self.URL_BASE,
