@@ -70,11 +70,12 @@ class DataryRequests(object):
                 return content
             else:
                 logger.error(
-                    "Fail Request to datary ",
+                    "Fail Request to datary done with code {}".format(content.status_code),
                     url=url, http_method=http_method,
                     code=content.status_code,
                     # text=content.text,
-                    kwargs=kwargs)
+                    # kwargs=kwargs,
+                )
 
         # Request Exception
         except RequestException as ex:
@@ -82,4 +83,5 @@ class DataryRequests(object):
                 "Fail request to Datary - {}".format(ex),
                 url=url,
                 http_method=http_method,
-                requests_args=kwargs)
+                # requests_args=kwargs,
+            )
