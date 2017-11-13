@@ -23,6 +23,7 @@ class DataryMembers(DataryAuth):
         ==============  =============   ====================================
         member_uuid     str             member_uuid uuid
         member_name     str             member_name
+
         limit           int             number of results limit (default=20)
         ==============  =============   ====================================
 
@@ -36,7 +37,10 @@ class DataryMembers(DataryAuth):
             self.URL_BASE,
             "search/members")
 
-        params = {'limit': kwargs.get('limit', 20)}
+        params = {
+            'limit': kwargs.get('limit', 20),
+            'hint': kwargs.get('hint', None)
+            }
 
         response = self.request(
             url, 'GET', **{'headers': self.headers, 'params': params})
