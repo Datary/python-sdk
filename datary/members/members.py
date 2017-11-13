@@ -23,7 +23,7 @@ class DataryMembers(DataryAuth):
         ==============  =============   ====================================
         member_uuid     str             member_uuid uuid
         member_name     str             member_name
-
+        hint            str             hint to filter name
         limit           int             number of results limit (default=20)
         ==============  =============   ====================================
 
@@ -65,3 +65,33 @@ class DataryMembers(DataryAuth):
             member = members_data
 
         return member
+
+    def get_member_repos(self, member_uuid=None, member_name=None):
+        """
+        Retrieve member repo's using Datary's Api
+
+        ==============  =============   ====================================
+        Parameter       Type            Description
+        ==============  =============   ====================================
+        repo_uuid       str              repository uuid
+        repo_name       str             repository name
+        ==============  =============   ====================================
+
+        Raises:
+            No repo id error
+
+        """
+        logger.info("Retrieving Datary member {} repo's".format(member_name or member_uuid))
+
+        if not member_uuid:
+
+            if not member_name:
+                raise ValueError('Must pass the repo uuid or member name to retrieve his repos.')
+
+            member = self.get_members(member_uuid=member_uuid, member_name=member_name)
+            member_uuid = member.get('uuid')
+
+        url = urljoin(self.URL_BASE, "members/{}/repos".format(member_uuid))
+        response = self.request(url, 'GET', **{'headers': self.headers})
+
+        return response.text if response else None
