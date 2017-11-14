@@ -94,4 +94,4 @@ class DataryMembers(DataryAuth):
         url = urljoin(self.URL_BASE, "members/{}/repos".format(member_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
-        return response.text if response else None
+        return response.json() if response else None

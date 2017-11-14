@@ -53,7 +53,8 @@ class DataryMembersTestCase(DataryTestCase):
         """
         mock_get_members.return_value = {'uuid': 123, 'name': "test_member"}
         mock_request.return_value = MockRequestResponse(
-            [self.json_repo, self.json_repo2])
+            'aaa',
+            json=[self.json_repo, self.json_repo2])
 
         # retrieve repos using member_uuid
         repos1 = self.datary.get_member_repos(member_uuid="123")
@@ -84,7 +85,8 @@ class DataryMembersTestCase(DataryTestCase):
 
         mock_get_members.return_value = {}
         mock_request.return_value = MockRequestResponse(
-            [self.json_repo, self.json_repo2],
+            'aaa',
+            json=[self.json_repo, self.json_repo2],
             status_code=500)
 
         # fail retrieve member
