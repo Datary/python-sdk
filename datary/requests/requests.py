@@ -73,7 +73,7 @@ class DataryRequests(object):
                     "Fail Request to datary done with code {}".format(content.status_code),
                     url=url, http_method=http_method,
                     code=content.status_code,
-                    # text=content.text,
+                    text=content.text,
                     # kwargs=kwargs,
                 )
 
