@@ -81,8 +81,8 @@ class DataryDatasets(DataryFiletrees):
                     url, 'GET', **{'headers': self.headers, 'params': params})
 
             if not response or not response.json():
-                logger.error(
-                    "Not original retrieved from wdir scope",
+                logger.info(
+                    "Dataset original not retrieved from wdir scope",
                     namespace=repo_uuid,
                     scope=wdir_uuid,
                     dataset_uuid=dataset_uuid)
