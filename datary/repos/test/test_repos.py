@@ -41,16 +41,24 @@ class DataryReposTestCase(DataryTestCase):
         self.assertEqual(repo4, {})
 
     @mock.patch('datary.requests.requests.requests')
-    def test_describerepo(self, mock_request):
+    @mock.patch('datary.members.members.DataryMembers.get_member_repos')
+    def test_describerepo(self, mock_get_member_repo, mock_request):
         """
         Test describerepo
         """
-        mock_request.get.return_value = MockRequestResponse(
+        mock_get_member_repo.return_value = mock_request.get.return_value = MockRequestResponse(
             "aaa", json=self.json_repo)
         repo = self.datary.get_describerepo(self.repo_uuid)
         self.assertEqual(mock_request.get.call_count, 1)
         assert isinstance(repo, dict)
         self.assertEqual(repo.get('name'), 'test_repo')
+        self.assertEqual(mock_get_member_repo.call_count, 0)
+
+        repo = self.datary.get_describerepo(member_uuid=self.member_uuid)
+        self.assertEqual(mock_request.get.call_count, 1)
+        assert isinstance(repo, dict)
+        self.assertEqual(repo.get('name'), 'test_repo')
+        self.assertEqual(mock_get_member_repo.call_count, 1)
 
         mock_request.get.return_value = MockRequestResponse(
             "", status_code=204, json=self.json_repo)

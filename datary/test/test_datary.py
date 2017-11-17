@@ -153,6 +153,8 @@ class DataryTestCase(unittest.TestCase):
         "locale": {"es-ES": "Deportes"}
     }]
 
+    member_uuid = 'b71fb2a2-3b0a-452e-8479-d30f2b42f0a3'
+
     members = [
         {
             "uuid": "b71fb2a2-3b0a-452e-8479-d30f2b42f0a3",

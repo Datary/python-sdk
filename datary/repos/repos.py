@@ -3,7 +3,7 @@
 Datary Repos File.
 """
 from urllib.parse import urljoin
-from datary.auth import DataryAuth
+from datary.members.members import DataryMembers
 from datary.categories import DataryCategories
 
 import structlog
@@ -11,7 +11,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryRepos(DataryAuth):
+class DataryRepos(DataryMembers):
     """
     Datary repos module class.
     """
@@ -81,7 +81,7 @@ class DataryRepos(DataryAuth):
             repo_name=repo_name, **kwargs)
         return describe_response if describe_response else {}
 
-    def get_describerepo(self, repo_uuid=None, repo_name=None):
+    def get_describerepo(self, repo_uuid=None, repo_name=None, member_uuid=None, member_name=None, **kwargs):
         """
         ==============  =============   ====================================
         Parameter       Type            Description
@@ -95,11 +95,19 @@ class DataryRepos(DataryAuth):
 
         """
         logger.info("Getting Datary user repo and wdir uuids")
-        url = urljoin(
-            self.URL_BASE,
-            "repos/{}".format(repo_uuid) if repo_uuid else "me/repos")
+        if member_uuid or member_name:
+            response = self.get_member_repos(
+                member_uuid=member_uuid,
+                member_name=member_name,
+                **kwargs)
 
-        response = self.request(url, 'GET', **{'headers': self.headers})
+        # retrieve /me repos
+        else:
+            url = urljoin(
+                self.URL_BASE,
+                "repos/{}".format(repo_uuid) if repo_uuid else "me/repos")
+
+            response = self.request(url, 'GET', **{'headers': self.headers})
 
         repos_data = response.json() if response else {}
         repo = {}
