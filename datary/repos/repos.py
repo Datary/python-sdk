@@ -95,6 +95,8 @@ class DataryRepos(DataryMembers):
 
         """
         logger.info("Getting Datary user repo and wdir uuids")
+        repo = {}
+
         if member_uuid or member_name:
             response = self.get_member_repos(
                 member_uuid=member_uuid,
@@ -108,9 +110,7 @@ class DataryRepos(DataryMembers):
                 "repos/{}".format(repo_uuid) if repo_uuid else "me/repos")
 
             response = self.request(url, 'GET', **{'headers': self.headers})
-
-        repos_data = response.json() if response else {}
-        repo = {}
+            repos_data = response.json() if response else {}
 
         if isinstance(repos_data, list) and (repo_uuid or repo_name):
             for repo_data in repos_data:
