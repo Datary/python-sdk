@@ -98,7 +98,7 @@ class DataryRepos(DataryMembers):
         repo = {}
 
         if member_uuid or member_name:
-            response = self.get_member_repos(
+            repos_data = self.get_member_repos(
                 member_uuid=member_uuid,
                 member_name=member_name,
                 **kwargs)
