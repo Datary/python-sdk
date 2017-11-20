@@ -38,8 +38,8 @@ class DataryMembers(DataryAuth):
             "search/members")
 
         params = {
-            'limit': kwargs.get('limit', 20),
-            'hint': kwargs.get('hint', None)
+            'limit': kwargs.get('limit', None),
+            'hint': kwargs.get('hint', member_name)
             }
 
         response = self.request(
