@@ -56,11 +56,8 @@ class DataryAddOperationTestCase(DataryTestCase):
         content_type = "'Content-Type': 'multipart/form-data;"
         mock_request.return_value = MockRequestResponse("")
 
-        # update element meta size
-        self.element['data']['meta']['size'] = 999999999
-
         self.datary.add_file(
-            self.json_repo.get('workdir', {}).get('uuid'), self.element)
+            self.json_repo.get('workdir', {}).get('uuid'), self.big_element)
 
         self.assertEqual(mock_request.call_count, 1)
         self.assertTrue(content_type in str(mock_request.call_args_list))

@@ -5,8 +5,11 @@ Datary sdk Modify Operations File
 import os
 import re
 import json
+import sys
 
 from urllib.parse import urljoin
+from requests_toolbelt import MultipartEncoder
+
 from datary.datasets import DataryDatasets
 from datary.operations.limits import DataryOperationLimits
 from scrapbag import (add_element, force_list, get_element, get_dimension,
@@ -36,14 +39,35 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
         """
         url = urljoin(self.URL_BASE,
                       "workdirs/{}/changes".format(wdir_uuid))
+
         headers = kwargs.get('headers', self.headers)
-        payload = {
-            "action": "modify",
-            "filemode": 100644,
-            "dirname": element.get('path'),
-            "basename": element.get('basename'),
-            "kern": json.dumps(element.get('data', {}).get('kern')),
-            "meta": json.dumps(element.get('data', {}).get('meta'))}
+        size = element.get('data', {}).get('meta', {}).get('size', 0)
+
+        if size >= self._DEFAULT_LIMITED_DATARY_SIZE:
+
+            payload = MultipartEncoder({
+                "blob": (
+                    element.get('basename'),
+                    json.dumps(element.get('data', {})),
+                    'application/json'),
+
+                "action": "modify",
+                "filemode": "100644",
+                "dirname": element.get('path'),
+                "basename": element.get('basename')
+            })
+
+            headers["Content-Type"] = payload.content_type
+
+        else:
+
+            payload = {
+                "action": "modify",
+                "filemode": 100644,
+                "dirname": element.get('path'),
+                "basename": element.get('basename'),
+                "kern": json.dumps(element.get('data', {}).get('kern')),
+                "meta": json.dumps(element.get('data', {}).get('meta'))}
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': headers})
@@ -310,6 +334,9 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
                     "": get_dimension(kern)}
                 add_element(
                     updated_meta, '/'.join(["dimension", path_key]), dimension)
+
+                # update size
+                updated_meta['size'] = sys.getsizeof(str(kern))
 
         except Exception as ex:
             logger.error('Fail reloading meta.. - {}'.format(ex))

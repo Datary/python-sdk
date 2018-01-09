@@ -5,6 +5,7 @@ Datary Module Test
 
 import unittest
 from datary import Datary, DatarySizeLimitException
+from datary.operations.limits import DataryOperationLimits
 from datary.test.mock_requests import MockRequestResponse
 
 
@@ -48,7 +49,20 @@ class DataryTestCase(unittest.TestCase):
         'sha1': 'aa_sha1',
         'data': {
             'kern': {'data_aa': [[4, 5, 6]]},
-            'meta': {"sha1": "d1917c11-745c-44e6-5h71-23f30ca527d3"}}}
+            'meta': {
+                "sha1": "d1917c11-745c-44e6-5h71-23f30ca527d3",
+                "size": 4
+            }}}
+
+    big_element = {
+        'path': 'a', 'basename': 'aa',
+        'sha1': 'aa_sha1',
+        'data': {
+            'kern': {'data_aa': [[4, 5, 6]]},
+            'meta': {
+                "sha1": "d1917c11-745c-44e6-5h71-23f30ca527d3",
+                "size": DataryOperationLimits()._DEFAULT_LIMITED_DATARY_SIZE  # mocked
+            }}}
 
     original = {'__kern': {'data_aa': [[1, 2, 3]]}, '__meta': {}}
 

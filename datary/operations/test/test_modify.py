@@ -21,9 +21,11 @@ class DataryModifyOperationTestCase(DataryTestCase):
         mock_request.return_value = MockRequestResponse("")
         self.datary.modify_request(self.json_repo.get(
             'workdir', {}).get('uuid'), self.element)
+
         mock_request.return_value = None
+
         self.datary.modify_request(self.json_repo.get(
-            'workdir', {}).get('uuid'), self.element)
+            'workdir', {}).get('uuid'), self.big_element)
         self.assertEqual(mock_request.call_count, 2)
 
     @mock.patch('datary.Datary.override_file')

@@ -46,8 +46,10 @@ class DataryReposTestCase(DataryTestCase):
         """
         Test describerepo
         """
-        mock_get_member_repo.return_value = mock_request.get.return_value = MockRequestResponse(
+        mock_get_member_repo.return_value = self.json_repo
+        mock_request.get.return_value = MockRequestResponse(
             "aaa", json=self.json_repo)
+
         repo = self.datary.get_describerepo(self.repo_uuid)
         self.assertEqual(mock_request.get.call_count, 1)
         assert isinstance(repo, dict)
