@@ -77,7 +77,10 @@ class DataryAddOperation(DataryAuth, DataryOperationLimits):
             payload = MultipartEncoder({
                 "blob": (
                     element.get('basename'),
-                    json.dumps(element.get('data', {})),
+                    json.dumps({
+                        '__kern': element.get('data', {}).get('kern'),
+                        '__meta': element.get('data', {}).get('meta'),
+                        }),
                     'application/json'),
 
                 "action": "add",
