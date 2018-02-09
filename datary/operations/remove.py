@@ -57,6 +57,14 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
                 basename=basename,
                 path=path,
                 payload=payload)
+        else:
+            logger.error(
+                "Fail to delete Directory in workdir",
+                wdir_uuid=wdir_uuid,
+                url=url,
+                basename=basename,
+                path=path,
+                payload=payload)
 
     def delete_file(self, wdir_uuid, element):
         """
@@ -87,8 +95,22 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
+
         if response:
-            logger.info("File has been deleted.")
+            logger.info(
+                "File has been deleted.",
+                url=url,
+                workdir=wdir_uuid,
+                path=element.get('path'),
+                basename=element.get('basename'))
+
+        else:
+            logger.error(
+                "Fail to delete file in workdir",
+                url=url,
+                workdir=wdir_uuid,
+                path=element.get('path'),
+                basename=element.get('basename'))
 
     def delete_inode(self, wdir_uuid, inode):
         """
@@ -114,6 +136,13 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
         if response:
             logger.info("Element has been deleted using inode.")
 
+        else:
+            logger.error(
+                "Fail to delete file by inode in workdir",
+                url=url,
+                workdir=wdir_uuid,
+                inode=inode)
+
     def clear_index(self, wdir_uuid):
         """
         Clear changes in repo.
@@ -132,5 +161,11 @@ class DataryRemoveOperation(DataryAuth, DataryOperationLimits):
         if response:
             logger.info("Repo index has been cleared.")
             return True
+
+        else:
+            logger.error(
+                "Fail to clean the workdir index",
+                url=url,
+                workdir=wdir_uuid)
 
         return False

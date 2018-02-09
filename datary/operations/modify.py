@@ -80,6 +80,19 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
                 "File has been modified in workdir.",
                 url=url,
                 # payload=payload,
+                workdir=wdir_uuid,
+                dirname=element.get('path'),
+                basename=element.get('basename'),
+                # element=element
+                )
+
+        else:
+
+            logger.error(
+                "Fail to modify file in workdir.",
+                url=url,
+                # payload=payload,
+                workdir=wdir_uuid,
                 dirname=element.get('path'),
                 basename=element.get('basename'),
                 # element=element
@@ -181,7 +194,10 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
                 "data": element.get('data')}, **kwargs)
 
         except Exception as ex:
-            logger.error('Update append failed - {}'.format(ex))
+            logger.error(
+                'Update append failed - {}'.format(ex),
+                workdir=wdir_uuid,
+                repo=repo_uuid)
 
     def update_elements(self, stored_element, update_element):
         """
