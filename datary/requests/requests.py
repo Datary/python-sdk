@@ -54,6 +54,10 @@ class DataryRequests(object):
             elif http_method == 'POST':
                 content = requests.post(url, **kwargs)
 
+            # HTTP PUT Method
+            elif http_method == 'PUT':
+                content = requests.put(url, **kwargs)
+
             # HTTP DELETE Method
             elif http_method == 'DELETE':
                 content = requests.delete(url, **kwargs)

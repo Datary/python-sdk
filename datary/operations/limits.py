@@ -9,4 +9,4 @@ class DataryOperationLimits():
     Datary OperationLimits module class
     """
 
-    _DEFAULT_LIMITED_DATARY_SIZE = 12000000
+    _DEFAULT_LIMITED_DATARY_SIZE = 9500000
