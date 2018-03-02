@@ -117,6 +117,8 @@ class DataryAddOperation(DataryAuth, DataryOperationLimits):
         else:
             logger.error(
                 "Fail to add file to workdir.",
+                member=self._username,
+                token=self._token,
                 wdir_uuid=wdir_uuid,
                 dirname=element.get('path'),
                 basename=element.get('basename')

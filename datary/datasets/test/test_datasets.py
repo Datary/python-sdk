@@ -20,11 +20,12 @@ class DataryDatasetsTestCase(DataryTestCase):
         """
 
         mock_request.return_value = MockRequestResponse(
-            "", json=self.element.get('data', {}).get('kern'))
+            # "", json=self.element.get('data', {}).get('kern'))
+            "", json=self.original)
         kern = self.datary.get_kern(self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 1)
         self.assertTrue(isinstance(kern, dict))
-        self.assertEqual(kern, self.element.get('data', {}).get('kern'))
+        self.assertEqual(kern, self.original.get('__kern'))
 
         mock_request.return_value = MockRequestResponse("", status_code=500)
         kern2 = self.datary.get_kern(self.dataset_uuid, self.repo_uuid)
@@ -37,11 +38,12 @@ class DataryDatasetsTestCase(DataryTestCase):
         Test Datary datasets get_metadata
         """
         mock_request.return_value = MockRequestResponse(
-            "", json=self.element.get('data', {}).get('meta'))
+            # "", json=self.element.get('data', {}).get('meta'))
+            "", json=self.original)
         metadata = self.datary.get_metadata(self.dataset_uuid, self.repo_uuid)
         self.assertEqual(mock_request.call_count, 1)
         self.assertTrue(isinstance(metadata, dict))
-        self.assertEqual(metadata, self.element.get('data', {}).get('meta'))
+        self.assertEqual(metadata, self.original.get('__meta'))
 
         mock_request.return_value = MockRequestResponse("", status_code=500)
         metadata2 = self.datary.get_metadata(self.dataset_uuid, self.repo_uuid)

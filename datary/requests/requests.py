@@ -34,7 +34,8 @@ class DataryRequests(object):
         Parameter     Type            Description
         ===========   =============   =======================================
         url           str             destination url
-        http_method   str             http method request [GET, POST, DELETE]
+        http_method   str             http methods of request
+                                        [GET, POST, POST, DELETE]
         ===========   =============   =======================================
 
         Returns:
