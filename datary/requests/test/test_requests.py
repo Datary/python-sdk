@@ -30,6 +30,8 @@ class DataryRequestsTestCase(DataryTestCase):
             "ok", headers={'x-set-token': self.test_token})
         mock_requests.post.return_value = MockRequestResponse(
             "ok", headers={'x-set-token': self.test_token})
+        mock_requests.put.return_value = MockRequestResponse(
+            "ok", headers={'x-set-token': self.test_token})
         mock_requests.delete.return_value = MockRequestResponse(
             "ok", headers={'x-set-token': self.test_token})
 
@@ -41,9 +43,13 @@ class DataryRequestsTestCase(DataryTestCase):
         result2 = self.datary.request(self.url, 'POST')
         self.assertEqual(result2.text, 'ok')
 
-        # test deleted
-        result3 = self.datary.request(self.url, 'DELETE')
+        # test PUT
+        result3 = self.datary.request(self.url, 'PUT')
         self.assertEqual(result3.text, 'ok')
+
+        # test DELETED
+        result4 = self.datary.request(self.url, 'DELETE')
+        self.assertEqual(result4.text, 'ok')
 
         # test UNKNOWK http method
         with self.assertRaises(Exception):
@@ -52,12 +58,12 @@ class DataryRequestsTestCase(DataryTestCase):
         # test status code wrong
         mock_requests.get.return_value = MockRequestResponse(
             "err", status_code=500)
-        result4 = self.datary.request(self.url, 'GET')
-        self.assertEqual(result4, None)
-
-        mock_requests.get.side_effect = requests.RequestException('err')
         result5 = self.datary.request(self.url, 'GET')
         self.assertEqual(result5, None)
+
+        mock_requests.get.side_effect = requests.RequestException('err')
+        result6 = self.datary.request(self.url, 'GET')
+        self.assertEqual(result6, None)
 
         self.assertEqual(mock_requests.get.call_count, 3)
         self.assertEqual(mock_requests.post.call_count, 1)

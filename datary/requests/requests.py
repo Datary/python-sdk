@@ -74,8 +74,10 @@ class DataryRequests(object):
             if 199 < content.status_code < 300:
                 return content
             else:
+                msg = "Fail Request to datary done with code {}"
+
                 logger.error(
-                    "Fail Request to datary done with code {}".format(content.status_code),
+                    msg.format(content.status_code),
                     url=url, http_method=http_method,
                     code=content.status_code,
                     text=content.text,

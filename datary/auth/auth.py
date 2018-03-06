@@ -91,7 +91,24 @@ class DataryAuth(DataryRequests):
         if self.token:
             self.headers['Authorization'] = 'Bearer {}'.format(self.token)
 
-    def get_user_token(self, user=None, password=None):
+    def sign_in(self, member_uuid='me'):
+        """
+        Sign-in and assert has a token in requests headers.
+        """
+        if self.token:
+            self.attach_token_header()
+
+        elif self.username and self.password:
+            self.token = self.get_user_token(member_uuid='me')
+            self.attach_token_header()
+
+        else:
+            logger.error(
+                'Can`t sign-in, useraname or password incorrect',
+                username=self.username,
+                password=self.password)
+
+    def get_user_token(self, user=None, password=None, member_uuid='me'):
         """
         ===========   =============   ================================
         Parameter     Type            Description
@@ -103,42 +120,99 @@ class DataryAuth(DataryRequests):
         Returns:
             (str) User's token given a username and password.
         """
+        return self.get_member_session(user, password, member_uuid)
+
+    def get_member_session(self, user=None, password=None, member_uuid='me'):
+        """
+        ===========   =============   ================================
+        Parameter     Type            Description
+        ===========   =============   ================================
+        user          str             Datary username
+        password      str             Datary password
+        member_uuid   str             Datary Member uuid (default: "me")
+        ===========   =============   ================================
+
+        Returns:
+            (str) User's token given a username, password and member_uuid.
+        """
 
         payload = {
             "username": user or self.username,
             "password": password or self.password,
         }
 
-        url = urljoin(self.URL_BASE, "/connection/signIn")
-        self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        url = urljoin(
+            self.URL_BASE, "/members/{}/sessions".format(member_uuid))
 
         response = self.request(
             url, 'POST', **{'headers': self.headers, 'data': payload})
 
-        # Devuelve el token del usuario.
         user_token = str(response.headers.get("x-set-token", ''))
 
         return user_token
 
-    def sign_in(self):
+    def sign_out(self, member_uuid='me'):
         """
-        Sign-in and assert has a token in requests headers.
+        Sign-out and invalidate the actual token.
         """
+        self.delete_member_session(member_uuid=member_uuid)
 
-        if self.token:
-            self.attach_token_header()
+    def delete_member_session(self, member_uuid='me'):
+        """
+        Sign-out and invalidate the actual token.
 
-        elif self.username and self.password:
-            self.token = self.get_user_token()
-            self.attach_token_header()
+        """
+        url = urljoin(
+            self.URL_BASE, "/members/{}/sessions".format(member_uuid))
+
+        # Make sign_out request.
+        response = self.request(url, 'DELETE', **{'headers': self.headers})
+
+        if response:
+            self.token = None
+            logger.info('Sign Out Succesfull!')
 
         else:
             logger.error(
-                'Can`t sign-in, useraname or password incorrect',
-                username=self.username,
-                password=self.password)
+                "Fail to make Sign Out succesfully :(",
+                response=response)
 
-    def sign_out(self):
+    # #############################################################################
+    #                           DEPRECATED
+    # #############################################################################
+
+    def get_connection_sign_in(self, user=None, password=None):
+            """
+            ...DEPRECATED...
+            ===========   =============   ================================
+            Parameter     Type            Description
+            ===========   =============   ================================
+            user          str             Datary username
+            password      str             Datary password
+            ===========   =============   ================================
+
+            Returns:
+                (str) User's token given a username and password.
+            """
+
+            payload = {
+                "username": user or self.username,
+                "password": password or self.password,
+            }
+
+            url = urljoin(self.URL_BASE, "/connection/signIn")
+            self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+            response = self.request(
+                url, 'POST', **{'headers': self.headers, 'data': payload})
+
+            # Devuelve el token del usuario.
+            user_token = str(response.headers.get("x-set-token", ''))
+
+            return user_token
+
+    def get_connection_sign_out(self):
+
         """
         Sign-out and invalidate the actual token.
 
