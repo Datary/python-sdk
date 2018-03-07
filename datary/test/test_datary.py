@@ -111,7 +111,7 @@ class DataryTestCase(unittest.TestCase):
             "renamedElements": [],
             "modifiedElements": [],
             "addedElements": []},
-        "filetree": {
+        "workdir": {
             "file_test1": "3a26a47b6e7f28c77380eccc8aec23sd6dc0201e",
             "folder_test1": {
                 "file_test2": "3a26a47b6e7f28c77380eccc8aec23sd6dc0201e"
@@ -144,7 +144,7 @@ class DataryTestCase(unittest.TestCase):
         }]
     }
 
-    filetree = {
+    workdir = {
         '__self': '__self_sha1',
         'a': 'a_sha1',
         'b': {

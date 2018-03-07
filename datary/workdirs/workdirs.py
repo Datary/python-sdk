@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Datary sdk Filetrees File
+Datary sdk workdirs File
 """
 import os
 
@@ -14,9 +14,9 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryFiletrees(DataryRepos):
+class DataryWorkdirs(DataryRepos):
     """
-      Datary Filetrees module class
+      Datary workdirs module class
     """
     def get_commit_filetree(self, repo_uuid, commit_sha1):
         """
@@ -24,15 +24,15 @@ class DataryFiletrees(DataryRepos):
         Parameter       Type            Description
         ==============  =============   ====================================
         repo_uuid       int             repository id
-        commit_sha1     str             filetree sha1
+        commit_sha1     str             workdir sha1
         ==============  =============   ====================================
 
         Returns:
-            filetree of all commits done in a repo.
+            workdir of all commits done in a repo.
 
         """
         url = urljoin(self.URL_BASE,
-                      "commits/{}/filetree".format(commit_sha1))
+                      "commits/{}/workdir".format(commit_sha1))
         params = {'namespace': repo_uuid}
         response = self.request(
             url, 'GET', **{'headers': self.headers, 'params': params})
@@ -48,11 +48,11 @@ class DataryFiletrees(DataryRepos):
         ==============  =============   ====================================
 
         Returns:
-            filetree of a repo workdir.
+            workdir of a repo workdir.
 
         """
         url = urljoin(self.URL_BASE,
-                      "workdirs/{}/filetree".format(wdir_uuid))
+                      "workdirs/{}/workdir".format(wdir_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}
@@ -89,7 +89,7 @@ class DataryFiletrees(DataryRepos):
         ==================  =============   ==================================
 
         Returns:
-            (dict) changes in workdir formatting as filetree format.
+            (dict) changes in workdir formatting as workdir format.
         """
         result = {}
 

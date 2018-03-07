@@ -53,7 +53,7 @@ class DataryCommits(DataryOperations):
         Raises:
             - No repo found with given uuid.
             - No sha1 in repo.
-            - No filetree in repo.
+            - No workdir in repo.
             - Fail retrieving last commit.
 
         Returns:
@@ -69,7 +69,7 @@ class DataryCommits(DataryOperations):
 
         try:
 
-            # retrieve last filetree commited
+            # retrieve last workdir commited
             ftree = self.get_last_commit_filetree(repo)
 
             # List of Path | basename | Sha1

@@ -1,13 +1,13 @@
-Datary Filetrees Module
+Datary workdirs Module
 =======================
 
 Introduction
 ------------
-This section is going to show the methods implemented in Datary Filetrees Api Module.
+This section is going to show the methods implemented in Datary workdirs Api Module.
 
-DataryFiletrees Class
+DataryWorkdirs Class
 ---------------------
 
-.. autoclass:: datary.filetrees.DataryFiletrees
+.. autoclass:: datary.workdirs.DataryWorkdirs
     :members:
     :inherited-members:

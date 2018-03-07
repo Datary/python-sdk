@@ -5,7 +5,7 @@ Datary sdk Datasets File
 import os
 
 from urllib.parse import urljoin
-from datary.filetrees import DataryFiletrees
+from datary.workdirs import DataryWorkdirs
 from scrapbag import exclude_empty_values, get_element
 
 import structlog
@@ -13,7 +13,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryDatasets(DataryFiletrees):
+class DataryDatasets(DataryWorkdirs):
     """
     Datary Datasets module
     """
@@ -118,10 +118,10 @@ class DataryDatasets(DataryFiletrees):
 
         if filepath:
 
-            # retrieve wdir filetree
+            # retrieve wdir workdir
             wdir_filetree = self.get_wdir_filetree(wdir_uuid)
 
-            # retrieve last commit filetree
+            # retrieve last commit workdir
             wdir_changes_filetree = self.format_wdir_changes(
                 self.get_wdir_changes(wdir_uuid).values())
 
@@ -149,7 +149,7 @@ class DataryDatasets(DataryFiletrees):
 
         if pathname:
             url = urljoin(self.URL_BASE,
-                          "/workdirs/{}/filetree".format(wdir_uuid))
+                          "/workdirs/{}/workdir".format(wdir_uuid))
             params = exclude_empty_values({'pathname': pathname})
             response = self.request(
                 url, 'GET', **{'headers': self.headers, 'params': params})

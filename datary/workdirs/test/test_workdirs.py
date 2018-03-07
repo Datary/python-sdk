@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Datary python sdk Filetrees test file
+Datary python sdk workdirs test file
 """
 import mock
 
@@ -8,9 +8,9 @@ from datary.test.test_datary import DataryTestCase
 from datary.test.mock_requests import MockRequestResponse
 
 
-class DataryFiletreesTestCase(DataryTestCase):
+class DataryWorkdirsTestCase(DataryTestCase):
     """
-    Datary Filetrees Test Case
+    Datary workdirs Test Case
     """
 
     @mock.patch('datary.Datary.request')
@@ -19,11 +19,11 @@ class DataryFiletreesTestCase(DataryTestCase):
         Test get_commit_filetree
         """
         mock_request.return_value = MockRequestResponse(
-            "", json=self.wdir_json.get('filetree'))
-        filetree = self.datary.get_commit_filetree(
+            "", json=self.wdir_json.get('workdir'))
+        workdir = self.datary.get_commit_filetree(
             self.repo_uuid, self.commit_sha1)
         self.assertEqual(mock_request.call_count, 1)
-        assert isinstance(filetree, dict)
+        assert isinstance(workdir, dict)
 
     @mock.patch('datary.Datary.request')
     def test_get_wdir_filetree(self, mock_request):
@@ -43,17 +43,17 @@ class DataryFiletreesTestCase(DataryTestCase):
         Test get_wdir_changes
         """
         mock_request.return_value = MockRequestResponse(
-            "", json=self.wdir_json.get('filetree'))
-        filetree = self.datary.get_wdir_changes(self.wdir_uuid)
+            "", json=self.wdir_json.get('workdir'))
+        workdir = self.datary.get_wdir_changes(self.wdir_uuid)
         self.assertEqual(mock_request.call_count, 1)
-        assert isinstance(filetree, dict)
+        assert isinstance(workdir, dict)
 
         mock_describerepo.return_value = self.json_repo
         mock_request.return_value = MockRequestResponse(
-            "", json=self.wdir_json.get('filetree'))
-        filetree = self.datary.get_wdir_changes(repo_uuid=self.repo_uuid)
+            "", json=self.wdir_json.get('workdir'))
+        workdir = self.datary.get_wdir_changes(repo_uuid=self.repo_uuid)
         self.assertEqual(mock_request.call_count, 2)
-        assert isinstance(filetree, dict)
+        assert isinstance(workdir, dict)
 
     def test_format_wdir_change(self):
         """

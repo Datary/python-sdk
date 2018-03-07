@@ -12,7 +12,7 @@ class DataryCleanOperationTestCase(DataryTestCase):
 
     """
     @mock.patch('datary.operations.DataryRemoveOperation.delete_file')
-    @mock.patch('datary.filetrees.DataryFiletrees.get_wdir_filetree')
+    @mock.patch('datary.workdirs.DataryWorkdirs.get_wdir_filetree')
     @mock.patch('datary.operations.DataryRemoveOperation.clear_index')
     @mock.patch('datary.repos.DataryRepos.get_describerepo')
     def test_clean_repo(self, mock_get_describerepo, mockclear_index,
@@ -21,7 +21,7 @@ class DataryCleanOperationTestCase(DataryTestCase):
         Test operation remove clean_repo
         """
         mock_get_describerepo.return_value = self.json_repo
-        mock_get_wdir_filetree.return_value = self.filetree
+        mock_get_wdir_filetree.return_value = self.workdir
 
         self.datary.clean_repo(self.repo_uuid)
 
@@ -37,7 +37,7 @@ class DataryCleanOperationTestCase(DataryTestCase):
         mock_delete_file.reset_mock()
 
         # describe repo retrieve None
-        mock_get_wdir_filetree.return_value = self.filetree
+        mock_get_wdir_filetree.return_value = self.workdir
         mock_get_describerepo.return_value = None
 
         self.datary.clean_repo(self.repo_uuid)

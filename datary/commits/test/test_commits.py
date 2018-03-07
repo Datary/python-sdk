@@ -29,7 +29,7 @@ class DataryCommitsTestCase(DataryTestCase):
         self.assertEqual(mock_request.call_count, 2)
 
     @mock.patch('datary.repos.DataryRepos.get_describerepo')
-    @mock.patch('datary.filetrees.DataryFiletrees.get_commit_filetree')
+    @mock.patch('datary.workdirs.DataryWorkdirs.get_commit_filetree')
     @mock.patch('datary.datasets.DataryDatasets.get_metadata')
     def test_recollect_last_commit(self, mock_metadata, mock_filetree,
                                    mock_get_describerepo):
@@ -42,7 +42,7 @@ class DataryCommitsTestCase(DataryTestCase):
         result_zero2 = self.datary.get_last_commit_filetree()
         self.assertEqual(result_zero2, {})
 
-        mock_filetree.return_value = self.filetree
+        mock_filetree.return_value = self.workdir
         mock_get_describerepo.return_value = self.json_repo
         mock_metadata.return_value.json.return_value = \
             self.element.get('data', {}).get('meta')

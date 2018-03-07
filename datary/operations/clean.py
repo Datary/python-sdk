@@ -5,7 +5,7 @@ Datary sdk clean Operations File
 """
 
 from datary.repos import DataryRepos
-from datary.filetrees import DataryFiletrees
+from datary.workdirs import DataryWorkdirs
 from datary.operations.remove import DataryRemoveOperation
 from datary.operations.limits import DataryOperationLimits
 from scrapbag import flatten
@@ -15,7 +15,7 @@ import structlog
 logger = structlog.getLogger(__name__)
 
 
-class DataryCleanOperation(DataryRemoveOperation, DataryFiletrees,
+class DataryCleanOperation(DataryRemoveOperation, DataryWorkdirs,
                            DataryOperationLimits):
     """
     Datary clean operation class
@@ -38,11 +38,11 @@ class DataryCleanOperation(DataryRemoveOperation, DataryFiletrees,
             # clear changes
             self.clear_index(wdir_uuid)
 
-            # get filetree
-            filetree = self.get_wdir_filetree(wdir_uuid)
+            # get workdir
+            workdir = self.get_wdir_filetree(wdir_uuid)
 
-            # flatten filetree to list
-            flatten_filetree = flatten(filetree, sep='/')
+            # flatten workdir to list
+            flatten_filetree = flatten(workdir, sep='/')
 
             filetree_keys = [
                 x for x in flatten_filetree.keys() if '__self' not in x]

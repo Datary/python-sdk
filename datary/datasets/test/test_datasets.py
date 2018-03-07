@@ -121,14 +121,14 @@ class DataryDatasetsTestCase(DataryTestCase):
         self.assertTrue(isinstance(original6, dict))
         self.assertEqual(original6, self.original)
 
-    @mock.patch('datary.filetrees.DataryFiletrees.get_wdir_filetree')
-    @mock.patch('datary.filetrees.DataryFiletrees.get_wdir_changes')
+    @mock.patch('datary.workdirs.DataryWorkdirs.get_wdir_filetree')
+    @mock.patch('datary.workdirs.DataryWorkdirs.get_wdir_changes')
     def test_get_dataset_uuid(self, mock_get_wdir_changes,
                               mock_get_wdir_filetree):
         """
         Test Datary datasets get_datasaet_uuid
         """
-        mock_get_wdir_filetree.return_value = self.filetree
+        mock_get_wdir_filetree.return_value = self.workdir
         mock_get_wdir_changes.return_value = self.changes
 
         path = 'b'
@@ -146,7 +146,7 @@ class DataryDatasetsTestCase(DataryTestCase):
         mock_get_wdir_filetree.reset_mock()
         mock_get_wdir_changes.reset_mock()
 
-        # retrive from filetree
+        # retrive from workdir
         path = ''
         basename = 'c'
 

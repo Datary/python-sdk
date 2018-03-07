@@ -36,7 +36,7 @@ class Datary(DataryCategories, DataryCommits, DataryMembers):
     - DataryCategories
     - DataryCommits
     - DataryDatasets
-    - DataryFiletrees
+    - DataryWorkdirs
     - DataryMembers
     - DataryAddOperation
     - DataryRepos
