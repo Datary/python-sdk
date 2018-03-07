@@ -41,36 +41,23 @@ class DataryModifyOperation(DataryDatasets, DataryOperationLimits):
                       "workdirs/{}/changes".format(wdir_uuid))
 
         headers = kwargs.get('headers', self.headers)
-        size = element.get('data', {}).get('meta', {}).get('size', 0)
 
-        if size >= self._DEFAULT_LIMITED_DATARY_SIZE:
+        payload = MultipartEncoder({
+            "blob": (
+                element.get('basename'),
+                json.dumps({
+                    '__kern': element.get('data', {}).get('kern'),
+                    '__meta': element.get('data', {}).get('meta'),
+                    }),
+                'application/json'),
 
-            payload = MultipartEncoder({
-                "blob": (
-                    element.get('basename'),
-                    json.dumps({
-                        '__kern': element.get('data', {}).get('kern'),
-                        '__meta': element.get('data', {}).get('meta'),
-                        }),
-                    'application/json'),
+            "action": "modify",
+            "filemode": "100644",
+            "dirname": element.get('path'),
+            "basename": element.get('basename')
+        })
 
-                "action": "modify",
-                "filemode": "100644",
-                "dirname": element.get('path'),
-                "basename": element.get('basename')
-            })
-
-            headers["Content-Type"] = payload.content_type
-
-        else:
-
-            payload = {
-                "action": "modify",
-                "filemode": 100644,
-                "dirname": element.get('path'),
-                "basename": element.get('basename'),
-                "kern": json.dumps(element.get('data', {}).get('kern')),
-                "meta": json.dumps(element.get('data', {}).get('meta'))}
+        headers["Content-Type"] = payload.content_type
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': headers})

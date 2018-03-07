@@ -31,7 +31,7 @@ class DataryAddOperationTestCase(DataryTestCase):
         """
         Test add_file
         """
-        content_type = "'Content-Type': 'application/x-www-form-urlencoded'"
+        content_type = "'Content-Type': 'multipart/form-data;"
         mock_request.return_value = MockRequestResponse("")
 
         # small element
@@ -53,7 +53,7 @@ class DataryAddOperationTestCase(DataryTestCase):
         mock_request.reset_mock()
 
         # big element
-        content_type = "'Content-Type': 'multipart/form-data;"
+
         mock_request.return_value = MockRequestResponse("")
 
         self.datary.add_file(

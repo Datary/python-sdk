@@ -70,37 +70,22 @@ class DataryAddOperation(DataryAuth, DataryOperationLimits):
         logger.info("Add new file to Datary.")
 
         url = urljoin(self.URL_BASE, "workdirs/{}/changes".format(wdir_uuid))
-        size = element.get('data', {}).get('meta', {}).get('size', 0)
+        payload = MultipartEncoder({
+            "blob": (
+                element.get('basename'),
+                json.dumps({
+                    '__kern': element.get('data', {}).get('kern'),
+                    '__meta': element.get('data', {}).get('meta'),
+                    }),
+                'application/json'),
 
-        if size >= self._DEFAULT_LIMITED_DATARY_SIZE:
+            "action": "add",
+            "filemode": "100644",
+            "dirname": element.get('path'),
+            "basename": element.get('basename')
+        })
 
-            payload = MultipartEncoder({
-                "blob": (
-                    element.get('basename'),
-                    json.dumps({
-                        '__kern': element.get('data', {}).get('kern'),
-                        '__meta': element.get('data', {}).get('meta'),
-                        }),
-                    'application/json'),
-
-                "action": "add",
-                "filemode": "100644",
-                "dirname": element.get('path'),
-                "basename": element.get('basename')
-            })
-
-            self.headers["Content-Type"] = payload.content_type
-
-        else:
-            self.headers["Content-Type"] = "application/x-www-form-urlencoded"
-
-            payload = {
-                "action": "add",
-                "filemode": 100644,
-                "dirname": element.get('path'),
-                "basename": element.get('basename'),
-                "kern": json.dumps(element.get('data', {}).get('kern')),
-                "meta": json.dumps(element.get('data', {}).get('meta'))}
+        self.headers["Content-Type"] = payload.content_type
 
         response = self.request(
             url, 'POST', **{'data': payload, 'headers': self.headers})
