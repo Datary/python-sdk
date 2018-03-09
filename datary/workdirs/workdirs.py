@@ -32,7 +32,7 @@ class DataryWorkdirs(DataryRepos):
 
         """
         url = urljoin(self.URL_BASE,
-                      "commits/{}/workdir".format(commit_sha1))
+                      "commits/{}/filetree".format(commit_sha1))
         params = {'namespace': repo_uuid}
         response = self.request(
             url, 'GET', **{'headers': self.headers, 'params': params})
@@ -52,7 +52,7 @@ class DataryWorkdirs(DataryRepos):
 
         """
         url = urljoin(self.URL_BASE,
-                      "workdirs/{}/workdir".format(wdir_uuid))
+                      "workdirs/{}/filetree".format(wdir_uuid))
         response = self.request(url, 'GET', **{'headers': self.headers})
 
         return response.json() if response else {}
