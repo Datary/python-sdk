@@ -135,7 +135,32 @@ class DataryCommits(DataryOperations):
         return ftree
 
     @classmethod
-    def make_index(cls, lista):
+    def make_index(cls, data):
+        """
+        Transforms commit list into an index passing a list of dict or list
+        of lists.
+
+        ================  ===================   ===============================
+        Parameter         Type                  Description
+        ================  ===================   ===============================
+        data              list of lists/dicts   list of commits
+        ================  ===================   ===============================
+        """
+
+        result = {}
+
+        # make index with list of dict data
+        if data and isinstance(data, list) and isinstance(data[0], dict):
+            result = cls._make_index_dict(data)
+
+        # make index with list of list data
+        elif data and isinstance(data, list) and isinstance(data[0], list):
+            result = cls._make_index_list(data)
+
+        return result
+
+    @classmethod
+    def _make_index_list(cls, list_of_lists):
         """
         Transforms commit list into an index using path + basename as key
         and sha1 as value.
@@ -143,16 +168,55 @@ class DataryCommits(DataryOperations):
         ================  =============   ====================================
         Parameter         Type            Description
         ================  =============   ====================================
-        lista             list            list of commits
+        list_of_lists     list of list    list of commits
         ================  =============   ====================================
 
         """
         result = {}
-        for path, basename, data, sha1 in lista:
-            result[os.path.join(path, basename)] = {'path': path,
-                                                    'basename': basename,
-                                                    'data': data,
-                                                    'sha1': sha1}
+        try:
+            for path, basename, data, sha1 in iter(list_of_lists):
+
+                result[os.path.join(path, basename)] = {'path': path,
+                                                        'basename': basename,
+                                                        'data': data,
+                                                        'sha1': sha1}
+        except Exception as ex:
+            msg = 'Fail to make row to index at make_index_list - {}'
+            logger.error(msg.format(ex))
+
+        return result
+
+    @classmethod
+    def _make_index_dict(cls, list_of_dicts):
+        """
+        Transforms commit dict into an index using path + basename as key
+        and sha1 as value.
+
+        ================  =============   ====================================
+        Parameter         Type            Description
+        ================  =============   ====================================
+        list_of_dicts     list of dict    list of commits
+        ================  =============   ====================================
+
+        """
+        result = {}
+        for dict_commit in iter(list_of_dicts):
+            try:
+                key = os.path.join(
+                    dict_commit.get('path'),
+                    dict_commit.get('basename'))
+
+                result[key] = {
+                    'path': dict_commit.get('path'),
+                    'basename': dict_commit.get('basename'),
+                    'data': dict_commit.get('data'),
+                    'sha1': dict_commit.get('sha1')
+                    }
+
+            except Exception as ex:
+                msg = 'Fail to make row to index at make_index_dict - {}'
+                logger.error(msg.format(ex))
+
         return result
 
     def compare_commits(self, last_commit, actual_commit,

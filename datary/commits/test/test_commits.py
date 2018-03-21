@@ -81,15 +81,82 @@ class DataryCommitsTestCase(DataryTestCase):
         self.assertEqual(result5, [])
         self.assertEqual(result6, [])
 
-    def test_make_index(self):
+    @mock.patch('datary.commits.DataryCommits._make_index_dict')
+    @mock.patch('datary.commits.DataryCommits._make_index_list')
+    def test_make_index(self, mock_index_list, mock_index_dict):
         """
         Test Datary make_index
         """
-        lista = self.commit_test1
-        result = self.datary.make_index(lista)
+        test_index1 = [
+            ['a', 1, 2, 3],
+            ['b', 1, 2, 3],
+            ['c', 1, 2, 3]]
+
+        test_index2 = [{'a': 1}, {'b': 2}, {'c': 3}]
+
+        # call with list of list
+        self.datary.make_index(test_index1)
+        self.assertEqual(mock_index_list.call_count, 1)
+        self.assertEqual(mock_index_dict.call_count, 0)
+
+        # call with list of dict
+        self.datary.make_index(test_index2)
+
+        self.assertEqual(mock_index_list.call_count, 1)
+        self.assertEqual(mock_index_dict.call_count, 1)
+
+        # call with empty
+
+        self.datary.make_index([])
+
+        self.assertEqual(mock_index_list.call_count, 1)
+        self.assertEqual(mock_index_dict.call_count, 1)
+
+    def test_make_index_dict(self):
+        lista = [
+            {'bad_test': 1},
+            {
+                'path': 'test_path1',
+                'basename': 'test_basename1',
+                'data': {},
+                'sha1': 'aa_sha1'
+            },
+            {
+                'path': 'test_path2',
+                'basename': 'test_basename2',
+                'data': {},
+                'sha1': 'caa_sha1'
+
+            },
+            {
+                'path': 'test_path3',
+                'basename': 'test_basename3',
+                'data': {},
+                'sha1': 'bb_sha1'
+            },
+            {
+                'path': 'test_path1',
+                'basename': 'test_basename1',
+                'data': {},
+                'sha1': 'dd_sha1'
+            },
+        ]
+
+        result = self.datary._make_index_dict(lista)
         expected_values = ['aa_sha1', 'caa_sha1', 'bb_sha1', 'dd_sha1']
 
         self.assertTrue(isinstance(result, dict))
+
+        for element in result.values():
+            self.assertTrue(element.get('sha1') in expected_values)
+
+    def test_make_index_list(self):
+        lista = self.commit_test1 + ['a']
+        result = self.datary._make_index_list(lista)
+        expected_values = ['aa_sha1', 'caa_sha1', 'bb_sha1', 'dd_sha1']
+
+        self.assertTrue(isinstance(result, dict))
+
         for element in result.values():
             self.assertTrue(element.get('sha1') in expected_values)
 
