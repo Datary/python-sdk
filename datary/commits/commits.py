@@ -154,7 +154,7 @@ class DataryCommits(DataryOperations):
             result = cls._make_index_dict(data)
 
         # make index with list of list data
-        elif data and isinstance(data, list) and isinstance(data[0], list):
+        elif data and isinstance(data, list) and isinstance(data[0], (tuple, list)):
             result = cls._make_index_list(data)
 
         return result
