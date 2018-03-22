@@ -34,7 +34,7 @@ class DataryDatasets(DataryWorkdirs):
 
         """
         return self.get_original(
-            dataset_uuid, repo_uuid, wdir_uuid, 'original', scope).get('__kern', {})
+            dataset_uuid, repo_uuid, wdir_uuid, 'kern', scope)
 
     def get_metadata(self, dataset_uuid, repo_uuid='', wdir_uuid='', scope=''):
         """
@@ -50,7 +50,7 @@ class DataryDatasets(DataryWorkdirs):
 
         """
         return self.get_original(
-            dataset_uuid, repo_uuid, wdir_uuid, 'original', scope).get('__meta', {})
+            dataset_uuid, repo_uuid, wdir_uuid, 'meta', scope)
 
     def get_original(self, dataset_uuid, repo_uuid='', wdir_uuid='',
                      section_edge='original', scope=''):
