@@ -1,11 +1,13 @@
 import os
 import sys
 from setuptools import setup, find_packages
-from pip._internal.req import parse_requirements
+#https://stackoverflow.com/questions/25192794/no-module-named-pip-req#answer-49867265
+try: from pip._internal.req import parse_requirements # for pip >= 10
+except ImportError: from pip.req import parse_requirements # for pip <= 9.0.3
+
 
 install_reqs = parse_requirements('requirements.txt', session=False)
 required = [str(ir.req) for ir in install_reqs]
-
 _here = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, _here)
 
